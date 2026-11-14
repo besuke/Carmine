@@ -10,6 +10,7 @@
   --axis: #c3c2b7;
   --series-1: #2a78d6;
   --series-2: #eb6834;
+  --series-3: #1baf7a;
   --accent: #2a78d6;
   --changed-bg: #fdf0ea;
   --critical: #d03b3b;
@@ -33,6 +34,7 @@
     --axis: #383835;
     --series-1: #3987e5;
     --series-2: #d95926;
+    --series-3: #199e70;
     --accent: #3987e5;
     --changed-bg: #3a2418;
     --critical: #e66767;
@@ -51,6 +53,7 @@
   --axis: #383835;
   --series-1: #3987e5;
   --series-2: #d95926;
+  --series-3: #199e70;
   --accent: #3987e5;
   --changed-bg: #3a2418;
   --critical: #e66767;
@@ -199,3 +202,7 @@ table.data.check { max-width: 760px; }
 .controls input[type="number"] { width: 7rem; }
 .rate-input { width: 6.5rem; text-align: right; font: inherit; font-size: 0.9rem; padding: 0.2rem 0.35rem; border: 1px solid var(--axis); border-radius: 6px; background: var(--surface-1); color: var(--text-primary); }
 .sidebar a.sub { padding-left: 1.2rem; font-size: 0.8rem; }
+
+/* two charts side by side (facets), one column on a phone */
+.chart-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 0.75rem; }
+.chart-pair > .chart { min-width: 0; }

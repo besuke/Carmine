@@ -44,6 +44,8 @@ export const TOC: Part[] = [
         id: "II-1",
         title: "確定キャッシュフロー",
         source: "part2_quantive_riemann/ch01_deterministic_cashflow.qmd",
+        route: "/part2/deterministic-cashflow",
+        routeNote: "II-1.1〜1.8 を実装済み（模式図の水準と傾き、債券の単利利回り・クーポン・Zスプレッドを操作。GaussQuant と原稿の結果に照合）。数値解法（II-1.8）は原稿と同じ R の関数を API が実行する",
         operations: [
           "利回りを動かして、単価・経過利子・デュレーション・コンベクシティ・BPVの変化を見る",
           "クーポンと残存年数を変えて、価格と利回りの関係（凸性）を描く",
