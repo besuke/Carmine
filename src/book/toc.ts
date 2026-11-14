@@ -105,9 +105,11 @@ export const TOC: Part[] = [
         id: "II-4",
         title: "ブラックモデル",
         source: "part2_quantive_riemann/ch04_black_model.qmd",
+        route: "/part2/black-model",
+        routeNote: "II-4.1〜4.6 を実装済み（Black 76・BSM の入力、MC の乱数とパス数、LSM のパス数を操作。GaussQuant と原稿の結果に照合。疑似乱数の MC は乱数が別なので判定しない）",
         operations: [
           "原資産・権利行使価格・ボラティリティ・満期を動かして、Black76 と BSM の価格とグリークスを見る",
-          "パス数を変えて、モンテカルロの収束と標準誤差を見る",
+          "パス数と乱数（疑似乱数・Sobol）を変えて、モンテカルロの収束と標準誤差、パスと満期分布を見る",
           "アメリカン put の早期行使価値（二項・近似式）を比べる",
           "Sobol 列と疑似乱数、Longstaff–Schwartz の価格を比べる",
         ],

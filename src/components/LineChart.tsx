@@ -17,6 +17,8 @@ export interface Series {
   points: SeriesPoint[];
   dashed?: boolean;
   dots?: SeriesPoint[]; // points drawn as markers (e.g. the pillars), in the series color
+  strokeWidth?: number; // default 2; thin lines for many paths
+  opacity?: number; // stroke opacity, default 1
 }
 
 interface Props {
@@ -35,6 +37,10 @@ interface Props {
   xTicks?: { x: number; label: string }[];
   xLabel?: string;
   xMin?: number;
+  /** Show the legend (default: when there are two or more series). Off for many paths drawn alike. */
+  legend?: boolean;
+  /** At most this many rows in the tooltip; the rest are counted. */
+  tooltipRows?: number;
 }
 
 const MARGIN = { top: 18, right: 16, bottom: 34, left: 64 };
@@ -77,7 +83,7 @@ function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] 
   return [ref, width];
 }
 
-export function LineChart({ title, series, origin, xMax, formatY, formatTick, yLabel, height = 280, markers = [], zeroLine, footer, xTicks: customTicks, xLabel, xMin = 0 }: Props) {
+export function LineChart({ title, series, origin, xMax, formatY, formatTick, yLabel, height = 280, markers = [], zeroLine, footer, xTicks: customTicks, xLabel, xMin = 0, legend, tooltipRows = Infinity }: Props) {
   const [wrapRef, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -139,7 +145,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
   return (
     <figure className="chart" ref={wrapRef}>
       <figcaption className="chart-title">{title}</figcaption>
-      {visible.length > 1 && (
+      {(legend ?? visible.length > 1) && (
         <ul className="legend" aria-label="凡例">
           {visible.map((s) => (
             <li key={s.key}>
@@ -178,7 +184,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
             </g>
           ))}
           {visible.map((s) => (
-            <path key={s.key} d={path(s.points)} fill="none" stroke={s.color} strokeWidth="2"
+            <path key={s.key} d={path(s.points)} fill="none" stroke={s.color} strokeWidth={s.strokeWidth ?? 2} strokeOpacity={s.opacity}
               strokeDasharray={s.dashed ? "6 4" : undefined} strokeLinejoin="round" />
           ))}
           {visible.map((s) => s.dots?.map((p) => (
@@ -201,7 +207,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
         {hp && (
           <div className="tooltip" style={{ left: tipLeft, top: MARGIN.top }}>
             <div className="tooltip-date">{hp.date}</div>
-            {visible.map((s) => {
+            {visible.slice(0, tooltipRows).map((s) => {
               const p = s.points[hover!];
               return p ? (
                 <div key={s.key} className="tooltip-row">
@@ -211,6 +217,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
                 </div>
               ) : null;
             })}
+            {visible.length > tooltipRows && <div className="tooltip-row muted">ほか {visible.length - tooltipRows} 系列</div>}
           </div>
         )}
       </div>

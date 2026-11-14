@@ -7,6 +7,7 @@
 | 目次と対応状況 | 第II部・第III部の全16章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8080/#/ |
 | II-2 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/part2/yield-curves` |
 | II-2 国債先物・CTD・先物BPV | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/part2/jgb-futures` |
+| II-4 ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/part2/black-model` |
 | II-5 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/part2/credit-cds` |
 | II-2・II-3 イールドカーブと円OIS | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/part2/yield-curve-ois` |
 | 応用：A1 オファーシート作成 POC | Curie の `docs/A1_offer_sheet_POC.qmd` の章立てと表を React にしたもの。各表の下に Curie の旧デモとの照合 | `#/asw/poc` |

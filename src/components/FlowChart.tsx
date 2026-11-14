@@ -26,6 +26,12 @@ interface Props {
   yLabel: string;
   formatY: (y: number) => string;
   footer?: React.ReactNode;
+  /** A numeric x-axis instead of dates (as in LineChart): its ticks, title and lower end; bars then span `barWidth` in x units. */
+  xTicks?: { x: number; label: string }[];
+  xLabel?: string;
+  xMin?: number;
+  barWidth?: number;
+  legend?: boolean;
 }
 
 const MARGIN = { top: 18, right: 16, bottom: 34, left: 64 };
@@ -40,7 +46,7 @@ function niceTicks(min: number, max: number, count = 5): number[] {
   return ticks;
 }
 
-export function FlowChart({ title, origin, xMax, bars, series, yLabel, formatY, footer }: Props) {
+export function FlowChart({ title, origin, xMax, bars, series, yLabel, formatY, footer, xTicks, xLabel, xMin = 0, barWidth, legend = true }: Props) {
   const ref = useRef<HTMLElement>(null);
   const [width, setWidth] = useState(640);
   const [hover, setHover] = useState<FlowBar | null>(null);
@@ -61,15 +67,15 @@ export function FlowChart({ title, origin, xMax, bars, series, yLabel, formatY, 
   const yMax = hi + pad;
   const innerW = width - MARGIN.left - MARGIN.right;
   const innerH = height - MARGIN.top - MARGIN.bottom;
-  const sx = (x: number) => MARGIN.left + (x / xMax) * innerW;
+  const sx = (x: number) => MARGIN.left + ((x - xMin) / (xMax - xMin)) * innerW;
   const sy = (y: number) => MARGIN.top + (1 - (y - yMin) / (yMax - yMin)) * innerH;
   const color = (k: string) => series.find((s) => s.key === k)?.color ?? "currentColor";
-  const barW = Math.max(3, Math.min(10, innerW / Math.max(bars.length, 1) / 2));
+  const barW = barWidth ? Math.max(2, (barWidth / (xMax - xMin)) * innerW - 2) : Math.max(3, Math.min(10, innerW / Math.max(bars.length, 1) / 2));
 
   const o = Date.parse(`${origin}T00:00:00Z`);
   const step = xMax > 12 ? 5 : width < 520 ? 2 : 1;
-  const years: { x: number; label: string }[] = [];
-  for (let y = Math.ceil((new Date(o).getUTCFullYear() + 1) / step) * step; ; y += step) {
+  const years: { x: number; label: string }[] = xTicks ? [...xTicks] : [];
+  for (let y = Math.ceil((new Date(o).getUTCFullYear() + 1) / step) * step; !xTicks; y += step) {
     const x = (Date.UTC(y, 0, 1) - o) / DAY_MS / 365;
     if (x > xMax) break;
     years.push({ x, label: String(y) });
@@ -78,16 +84,16 @@ export function FlowChart({ title, origin, xMax, bars, series, yLabel, formatY, 
   return (
     <figure className="chart" ref={ref}>
       <figcaption className="chart-title">{title}</figcaption>
-      <ul className="legend" aria-label="凡例">
+      {legend && <ul className="legend" aria-label="凡例">
         {series.map((s) => (
           <li key={s.key}>
             <svg width="12" height="12" aria-hidden="true"><rect width="12" height="12" rx="2" fill={s.color} /></svg>
             {s.label}
           </li>
         ))}
-      </ul>
+      </ul>}
       <div className="chart-body">
-        <svg width={width} height={height} role="img" aria-label={`${title}（縦軸：${yLabel}、横軸：支払日）`}>
+        <svg width={width} height={height} role="img" aria-label={`${title}（縦軸：${yLabel}、横軸：${xLabel ?? "支払日"}）`}>
           {niceTicks(yMin, yMax).map((t) => (
             <g key={t}>
               <line className="grid" x1={MARGIN.left} x2={width - MARGIN.right} y1={sy(t)} y2={sy(t)} />
@@ -110,6 +116,7 @@ export function FlowChart({ title, origin, xMax, bars, series, yLabel, formatY, 
             );
           })}
           <text className="axis-label" x={MARGIN.left} y={MARGIN.top - 6}>{yLabel}</text>
+          {xLabel && <text className="axis-label" x={width - MARGIN.right} y={height - MARGIN.bottom - 6} textAnchor="end">{xLabel}</text>}
         </svg>
         {hover && (
           <div className="tooltip" style={{ left: Math.min(Math.max(sx(hover.x) + 12, 8), width - 230), top: MARGIN.top }}>

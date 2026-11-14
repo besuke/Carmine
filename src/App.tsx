@@ -2,6 +2,7 @@ import YieldCurveOis from "./content/part2/yield-curve-ois.mdx";
 import YieldCurves from "./content/part2/yield-curves.mdx";
 import JgbFutures from "./content/part2/jgb-futures.mdx";
 import CreditCds from "./content/part2/credit-cds.mdx";
+import BlackModel from "./content/part2/black-model.mdx";
 import { CurveProvider } from "./components/curves";
 import { TOC } from "./book/toc";
 import { TocPage } from "./book/TocPage";
@@ -11,6 +12,11 @@ import { AswDetailPage, AswListPage } from "./asw/pages";
 import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
+  "/part2/black-model": () => (
+    <article className="prose">
+      <BlackModel />
+    </article>
+  ),
   "/part2/credit-cds": () => (
     <article className="prose">
       <CreditCds />

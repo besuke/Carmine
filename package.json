@@ -14,6 +14,7 @@
     "golden": "node scripts/run-r.mjs golden/generate_golden.R",
     "reconcile": "node scripts/run-r.mjs reconciliation/reconcile_tona_ois.R",
     "lan": "npm run build && node scripts/check-port.mjs 8080 0.0.0.0 && node scripts/run-r.mjs server/server.R --host 0.0.0.0 --port 8080 --static dist",
+    "reconcile:black": "node scripts/run-r.mjs reconciliation/black/reconcile_black.R",
     "reconcile:cds": "node scripts/run-r.mjs reconciliation/cds/reconcile_cds.R",
     "reconcile:asw": "node scripts/run-r.mjs reconciliation/asw/reconcile_asw_jpy.R && node scripts/run-r.mjs reconciliation/asw/reconcile_yen_asw.R",
     "snapshot:asw": "node scripts/run-r.mjs scripts/asw/snapshot_curie_demo.R"
