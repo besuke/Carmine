@@ -1,0 +1,13 @@
+"offer_id","offer_book","offer_date","ISIN","broker_names","offer_price","offer_size","offer_size_unit","offer_settlementdate","offer_currency","offer_security_name","sheet_issue_price","offer_source_file","offer_source_sheet","offer_source_row"
+"JPY-01","JPY",2026-10-06,"JPTEST000014","テスト証券A",99.62,5e+08,"億円",2026-10-08,"JPY","テスト円債A 0.50% 2028/9",99.95,"demo_offers_JPY_20261006.xlsx","円債オファー",6
+"JPY-02","JPY",2026-10-06,"JPTEST000022","テスト証券B",98.15,1e+09,"億円",2026-10-08,"JPY","テスト円債B 0.90% 2031/3",100,"demo_offers_JPY_20261006.xlsx","円債オファー",7
+"JPY-03","JPY",2026-10-06,"JPTEST000030","テスト証券A",98.7,3e+08,"億円",2026-10-08,"JPY","テスト円債C 1.60% 2035/6",99.8,"demo_offers_JPY_20261006.xlsx","円債オファー",8
+"JPY-04","JPY",2026-10-06,"JPTEST000048","テスト証券C",97.95,2e+08,"億円",2026-10-08,"JPY","テスト円債D 0.35% 2029/12",100,"demo_offers_JPY_20261006.xlsx","円債オファー",9
+"JPY-05","JPY",2026-10-06,"XSTESTEY0017","テスト証券B",100.45,8e+08,"億円",2026-10-08,"JPY","テスト ユーロ円債E 1.75% 2033/4",100,"demo_offers_JPY_20261006.xlsx","円債オファー",10
+"JPY-06","JPY",2026-10-06,"JPTESTFRN018","テスト証券C",100.1,4e+08,"億円",2026-10-08,"JPY","テスト円変動利付債 TONA+30 2030",100,"demo_offers_JPY_20261006.xlsx","円債オファー",11
+"ISO-01","ISO",2026-10-06,"USTEST000016","DEMO DEALER X",99.1,2e+06,"MM",2026-10-08,"USD","TEST USD BOND F 4.25% 2029",NA,"demo_offers_ISO_20261006.xlsx","Offers",4
+"ISO-02","ISO",2026-10-06,"USTEST000024","DEMO DEALER Y",99.55,5e+06,"MM",2026-10-08,"USD","TEST USD BOND G 4.60% 2032",NA,"demo_offers_ISO_20261006.xlsx","Offers",5
+"ISO-03","ISO",2026-10-06,"USTEST000032","DEMO DEALER X",101.2,3e+06,"MM",2026-10-08,"USD","TEST USD BOND H 5.10% 2033",NA,"demo_offers_ISO_20261006.xlsx","Offers",6
+"ISO-04","ISO",2026-10-06,"XSTEST000013","DEMO DEALER Z",99.8,1500000,"MM",2026-10-08,"EUR","TEST EUR BOND I 3.00% 2030",NA,"demo_offers_ISO_20261006.xlsx","Offers",7
+"ISO-05","ISO",2026-10-06,"XSTEST000021","DEMO DEALER Y",99.4,4e+06,"MM",2026-10-08,"EUR","TEST EUR BOND J 3.25% 2034",NA,"demo_offers_ISO_20261006.xlsx","Offers",8
+"ISO-06","ISO",2026-10-06,"USTESTCAL016","DEMO DEALER Z",100.6,2e+06,"MM",2026-10-08,"USD","TEST USD CALLABLE K 5.50% 2036",NA,"demo_offers_ISO_20261006.xlsx","Offers",9

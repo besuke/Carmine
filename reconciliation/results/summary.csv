@@ -1,0 +1,37 @@
+"quote_set","interp","item","n","max_abs_diff","fails"
+"with_7y","log_linear","instrument dates / implied rate",28,0,0
+"with_7y","log_linear","quote reproduction (max of both engines)",28,1.06836414714984e-13,0
+"with_7y","log_linear","discount factor (pillars, key tenors, swap dates)",62,0,0
+"with_7y","log_linear","discount factor (monthly grid to 30Y)",720,0,0
+"with_7y","log_linear","1-day simple forward (all dates)",782,0,0
+"with_7y","log_linear","7Y OIS cash flows (date, amount JPY)",28,5.96046447753906e-08,0
+"with_7y","log_linear","7Y par rate",2,3.46944695195361e-18,0
+"with_7y","log_linear","7Y OIS PV (JPY)",2,3.55830110265742e-07,0
+"with_7y","log_linear","7Y OIS PV change (JPY)",1,3.16692933211016e-07,0
+"with_7y","monotonic_log_cubic","instrument dates / implied rate",28,0,0
+"with_7y","monotonic_log_cubic","quote reproduction (max of both engines)",28,3.00231367544868e-12,0
+"with_7y","monotonic_log_cubic","discount factor (pillars, key tenors, swap dates)",62,0,0
+"with_7y","monotonic_log_cubic","discount factor (monthly grid to 30Y)",720,0,0
+"with_7y","monotonic_log_cubic","1-day simple forward (all dates)",782,0,0
+"with_7y","monotonic_log_cubic","7Y OIS cash flows (date, amount JPY)",28,5.96046447753906e-08,0
+"with_7y","monotonic_log_cubic","7Y par rate",2,1.38777878078145e-17,0
+"with_7y","monotonic_log_cubic","7Y OIS PV (JPY)",2,7.82743541094533e-08,0
+"with_7y","monotonic_log_cubic","7Y OIS PV change (JPY)",1,4.95102199238318e-08,0
+"without_7y","log_linear","instrument dates / implied rate",26,0,0
+"without_7y","log_linear","quote reproduction (max of both engines)",26,1.06836414714984e-13,0
+"without_7y","log_linear","discount factor (pillars, key tenors, swap dates)",60,0,0
+"without_7y","log_linear","discount factor (monthly grid to 30Y)",720,0,0
+"without_7y","log_linear","1-day simple forward (all dates)",780,0,0
+"without_7y","log_linear","7Y OIS cash flows (date, amount JPY)",28,5.96046447753906e-08,0
+"without_7y","log_linear","7Y par rate",2,6.59194920871187e-17,0
+"without_7y","log_linear","7Y OIS PV (JPY)",2,1.7927959561348e-07,0
+"without_7y","log_linear","7Y OIS PV change (JPY)",1,1.18743628263474e-08,0
+"without_7y","monotonic_log_cubic","instrument dates / implied rate",26,0,0
+"without_7y","monotonic_log_cubic","quote reproduction (max of both engines)",26,3.00053211443885e-12,0
+"without_7y","monotonic_log_cubic","discount factor (pillars, key tenors, swap dates)",60,0,0
+"without_7y","monotonic_log_cubic","discount factor (monthly grid to 30Y)",720,0,0
+"without_7y","monotonic_log_cubic","1-day simple forward (all dates)",780,0,0
+"without_7y","monotonic_log_cubic","7Y OIS cash flows (date, amount JPY)",28,5.96046447753906e-08,0
+"without_7y","monotonic_log_cubic","7Y par rate",2,1.38777878078145e-17,0
+"without_7y","monotonic_log_cubic","7Y OIS PV (JPY)",2,2.16066837310791e-07,0
+"without_7y","monotonic_log_cubic","7Y OIS PV change (JPY)",1,3.37138772010803e-07,0

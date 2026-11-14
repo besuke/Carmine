@@ -1,0 +1,5527 @@
+{
+  "meta": {
+    "description": "Expected values for the JPY TONA OIS demo (13 quotes without 7Y, log-linear discount, payment lag 0)",
+    "generated_at": "2026-11-14 14:15:27 JST",
+    "generator": "golden/generate_golden.R",
+    "engine": "RiemannFinMath 0.3.0 built R 4.6.0; x86_64-w64-mingw32; 2026-11-07 08:58:49 UTC; windows",
+    "quote_source": "GaussQuant::bluegamma_tonar_quotes_GQL() without TONAR-7Y (sample data)",
+    "r_version": "R version 4.6.0 (2026-04-24 ucrt)"
+  },
+  "evaluation_date": "2026-09-10",
+  "conventions": {
+    "index": "tonar",
+    "calendar": "japan",
+    "curve_day_count": "actual_365_fixed",
+    "settlement_days": 2,
+    "payment_frequency": 1,
+    "payment_lag": 0,
+    "interpolation": "log_linear",
+    "accuracy": 9.9999999999999998e-13,
+    "schedule_rule": "backward",
+    "schedule_convention": "modified_following",
+    "fixed_leg_day_count": "actual_365_fixed",
+    "side": "payer"
+  },
+  "bump": {
+    "quote_id": "TONAR-5Y",
+    "size": 0.0001
+  },
+  "swap_terms": {
+    "tenor": "7Y",
+    "side": "payer",
+    "notional": 10000000000,
+    "fixed_rate": 0.024916575169051068,
+    "effective_date": "2026-09-14",
+    "termination_date": "2033-09-14",
+    "fixed_rate_source": "unrounded 7Y par rate of the base curve (RiemannFinMath compute_ois_swap_value()$fair_rate)"
+  },
+  "cases": {
+    "base": {
+      "quotes": [
+        {
+          "quote_id": "TONAR-1M",
+          "tenor": "1M",
+          "rate": 0.011399999999999999
+        },
+        {
+          "quote_id": "TONAR-3M",
+          "tenor": "3M",
+          "rate": 0.012199999999999999
+        },
+        {
+          "quote_id": "TONAR-6M",
+          "tenor": "6M",
+          "rate": 0.013500000000000002
+        },
+        {
+          "quote_id": "TONAR-1Y",
+          "tenor": "1Y",
+          "rate": 0.0155
+        },
+        {
+          "quote_id": "TONAR-2Y",
+          "tenor": "2Y",
+          "rate": 0.018100000000000002
+        },
+        {
+          "quote_id": "TONAR-3Y",
+          "tenor": "3Y",
+          "rate": 0.019799999999999998
+        },
+        {
+          "quote_id": "TONAR-4Y",
+          "tenor": "4Y",
+          "rate": 0.0212
+        },
+        {
+          "quote_id": "TONAR-5Y",
+          "tenor": "5Y",
+          "rate": 0.022400000000000003
+        },
+        {
+          "quote_id": "TONAR-8Y",
+          "tenor": "8Y",
+          "rate": 0.025699999999999997
+        },
+        {
+          "quote_id": "TONAR-10Y",
+          "tenor": "10Y",
+          "rate": 0.027699999999999999
+        },
+        {
+          "quote_id": "TONAR-15Y",
+          "tenor": "15Y",
+          "rate": 0.031300000000000001
+        },
+        {
+          "quote_id": "TONAR-20Y",
+          "tenor": "20Y",
+          "rate": 0.033700000000000001
+        },
+        {
+          "quote_id": "TONAR-30Y",
+          "tenor": "30Y",
+          "rate": 0.035400000000000001
+        }
+      ],
+      "instruments": [
+        {
+          "tenor": "1M",
+          "start_date": "2026-09-14",
+          "maturity_date": "2026-10-14",
+          "pillar_date": "2026-10-14",
+          "implied_rate": 0.011400000000001151
+        },
+        {
+          "tenor": "3M",
+          "start_date": "2026-09-14",
+          "maturity_date": "2026-12-14",
+          "pillar_date": "2026-12-14",
+          "implied_rate": 0.012199999999893163
+        },
+        {
+          "tenor": "6M",
+          "start_date": "2026-09-14",
+          "maturity_date": "2027-03-15",
+          "pillar_date": "2027-03-15",
+          "implied_rate": 0.013499999999999873
+        },
+        {
+          "tenor": "1Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2027-09-14",
+          "pillar_date": "2027-09-14",
+          "implied_rate": 0.015499999999999625
+        },
+        {
+          "tenor": "2Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2028-09-14",
+          "pillar_date": "2028-09-14",
+          "implied_rate": 0.01809999999999962
+        },
+        {
+          "tenor": "3Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2029-09-14",
+          "pillar_date": "2029-09-14",
+          "implied_rate": 0.019800000000000002
+        },
+        {
+          "tenor": "4Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2030-09-17",
+          "pillar_date": "2030-09-17",
+          "implied_rate": 0.0212
+        },
+        {
+          "tenor": "5Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2031-09-16",
+          "pillar_date": "2031-09-16",
+          "implied_rate": 0.022400000000000028
+        },
+        {
+          "tenor": "8Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2034-09-14",
+          "pillar_date": "2034-09-14",
+          "implied_rate": 0.025699999999999144
+        },
+        {
+          "tenor": "10Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2036-09-16",
+          "pillar_date": "2036-09-16",
+          "implied_rate": 0.027700000000020743
+        },
+        {
+          "tenor": "15Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2041-09-17",
+          "pillar_date": "2041-09-17",
+          "implied_rate": 0.031299999999999592
+        },
+        {
+          "tenor": "20Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2046-09-14",
+          "pillar_date": "2046-09-14",
+          "implied_rate": 0.033699999999999529
+        },
+        {
+          "tenor": "30Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2056-09-14",
+          "pillar_date": "2056-09-14",
+          "implied_rate": 0.035399999999988524
+        }
+      ],
+      "nodes": [
+        {
+          "date": "2026-09-10",
+          "discount": 1,
+          "zero_continuous": null
+        },
+        {
+          "date": "2026-10-14",
+          "discount": 0.99893914249006555,
+          "zero_continuous": 0.011394662511924714
+        },
+        {
+          "date": "2026-12-14",
+          "discount": 0.99684309313320207,
+          "zero_continuous": 0.012148354204855641
+        },
+        {
+          "date": "2027-03-15",
+          "discount": 0.99318947304203087,
+          "zero_continuous": 0.013410461930228816
+        },
+        {
+          "date": "2027-09-14",
+          "discount": 0.98461362361642668,
+          "zero_continuous": 0.015337888601701676
+        },
+        {
+          "date": "2028-09-14",
+          "discount": 0.96454748768295717,
+          "zero_continuous": 0.017925329919467624
+        },
+        {
+          "date": "2029-09-14",
+          "discount": 0.94256660264835368,
+          "zero_continuous": 0.019626612835572325
+        },
+        {
+          "date": "2030-09-17",
+          "discount": 0.91887423964473069,
+          "zero_continuous": 0.021036235648654047
+        },
+        {
+          "date": "2031-09-16",
+          "discount": 0.89431158753501305,
+          "zero_continuous": 0.022254845471557014
+        },
+        {
+          "date": "2034-09-14",
+          "discount": 0.81403676211023179,
+          "zero_continuous": 0.025665980646328506
+        },
+        {
+          "date": "2036-09-16",
+          "discount": 0.75669837653208283,
+          "zero_continuous": 0.027810481284707103
+        },
+        {
+          "date": "2041-09-17",
+          "discount": 0.61975603629421605,
+          "zero_continuous": 0.031831337842398173
+        },
+        {
+          "date": "2046-09-14",
+          "discount": 0.49885734234935808,
+          "zero_continuous": 0.034728939058768227
+        },
+        {
+          "date": "2056-09-14",
+          "discount": 0.33145739010497083,
+          "zero_continuous": 0.036768239847002164
+        }
+      ],
+      "curve_points": [
+        {
+          "date": "2026-09-10",
+          "discount": 1,
+          "zero_continuous": null,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-09-14",
+          "discount": 0.99987513478248091,
+          "zero_continuous": 0.011394662511935673,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-10-10",
+          "discount": 0.99906389082010827,
+          "zero_continuous": 0.011394662511925278,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-10-13",
+          "discount": 0.998970328112182,
+          "zero_continuous": 0.011394662511926414,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-10-14",
+          "discount": 0.99893914249006555,
+          "zero_continuous": 0.011394662511924714,
+          "forward_1d_simple": 0.012568661050671448
+        },
+        {
+          "date": "2026-10-15",
+          "discount": 0.9989047455170017,
+          "zero_continuous": 0.011428199144631924,
+          "forward_1d_simple": 0.012568661050590402
+        },
+        {
+          "date": "2026-11-10",
+          "discount": 0.99801083982537031,
+          "zero_continuous": 0.011914205428443701,
+          "forward_1d_simple": 0.012568661050590402
+        },
+        {
+          "date": "2026-12-10",
+          "discount": 0.99698040414822175,
+          "zero_continuous": 0.012129888690491298,
+          "forward_1d_simple": 0.012568661050590402
+        },
+        {
+          "date": "2026-12-13",
+          "discount": 0.9968774191139097,
+          "zero_continuous": 0.012143885157496169,
+          "forward_1d_simple": 0.012568661050671448
+        },
+        {
+          "date": "2026-12-14",
+          "discount": 0.99684309313320207,
+          "zero_continuous": 0.012148354204855641,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2026-12-15",
+          "discount": 0.99680287051500072,
+          "zero_continuous": 0.012175226003953052,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-01-10",
+          "discount": 0.99575765191715992,
+          "zero_continuous": 0.012719269805361928,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-02-10",
+          "discount": 0.99451286204823508,
+          "zero_continuous": 0.013126276932810911,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-03-10",
+          "discount": 0.99338987327299055,
+          "zero_continuous": 0.013374064554868831,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-03-14",
+          "discount": 0.99322954985376311,
+          "zero_continuous": 0.013403339849212515,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-03-15",
+          "discount": 0.99318947304203087,
+          "zero_continuous": 0.013410461930228816,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-03-16",
+          "discount": 0.99314240809874044,
+          "zero_continuous": 0.013431245087990833,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-04-10",
+          "discount": 0.99196650908874251,
+          "zero_continuous": 0.013887102086072379,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-05-10",
+          "discount": 0.99055726794944365,
+          "zero_continuous": 0.014309805847930087,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-06-10",
+          "discount": 0.98910315533072724,
+          "zero_continuous": 0.01464900110103453,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-07-10",
+          "discount": 0.98769798202625458,
+          "zero_continuous": 0.014911170539716728,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-08-10",
+          "discount": 0.98624806676580901,
+          "zero_continuous": 0.015132601673405886,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-09-10",
+          "discount": 0.98480027994371266,
+          "zero_continuous": 0.015316419847400113,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-09-13",
+          "discount": 0.98466028438126829,
+          "zero_continuous": 0.0153325651673809,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-09-14",
+          "discount": 0.98461362361642668,
+          "zero_continuous": 0.015337888601701676,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2027-09-15",
+          "discount": 0.98455823329441572,
+          "zero_continuous": 0.015351932091352914,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2027-10-10",
+          "discount": 0.98317448749899339,
+          "zero_continuous": 0.015679909792699238,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2027-11-10",
+          "discount": 0.98146134332397894,
+          "zero_continuous": 0.016033140237247761,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2027-12-10",
+          "discount": 0.97980630411951786,
+          "zero_continuous": 0.016329248101417351,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-01-10",
+          "discount": 0.97809902887602096,
+          "zero_continuous": 0.01659690042545724,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2028-02-10",
+          "discount": 0.97639472849474407,
+          "zero_continuous": 0.016832517143144817,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-03-10",
+          "discount": 0.97480307154833845,
+          "zero_continuous": 0.017028755564086166,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2028-04-10",
+          "discount": 0.97310451424742905,
+          "zero_continuous": 0.017216752018177479,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2028-05-10",
+          "discount": 0.97146356717185389,
+          "zero_continuous": 0.017380431019219256,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-06-10",
+          "discount": 0.96977082883038934,
+          "zero_continuous": 0.017533420082373515,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-07-10",
+          "discount": 0.96813550335172993,
+          "zero_continuous": 0.01766797432857322,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-08-10",
+          "discount": 0.9664485640349757,
+          "zero_continuous": 0.017794897426809786,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-09-10",
+          "discount": 0.9647645641458622,
+          "zero_continuous": 0.01791105550166644,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-09-13",
+          "discount": 0.96460175221920386,
+          "zero_continuous": 0.017921775900594048,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-09-14",
+          "discount": 0.96454748768295717,
+          "zero_continuous": 0.017925329919467624,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-09-15",
+          "discount": 0.96448657120816839,
+          "zero_continuous": 0.017932296161306916,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-10-10",
+          "discount": 0.962964909050253,
+          "zero_continuous": 0.018100502066428461,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-11-10",
+          "discount": 0.9610813816641034,
+          "zero_continuous": 0.018294329638714094,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-12-10",
+          "discount": 0.95926212106981723,
+          "zero_continuous": 0.018467984904206536,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-01-10",
+          "discount": 0.95738583621400364,
+          "zero_continuous": 0.018634596239820861,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-02-10",
+          "discount": 0.95551322130906469,
+          "zero_continuous": 0.018789522165018783,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-03-10",
+          "discount": 0.95382497563128443,
+          "zero_continuous": 0.01892040256956852,
+          "forward_1d_simple": 0.023053211897116066
+        },
+        {
+          "date": "2029-04-10",
+          "discount": 0.95195932565140418,
+          "zero_continuous": 0.019056239814163253,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-05-10",
+          "discount": 0.95015733247833689,
+          "zero_continuous": 0.019179453917936413,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-06-10",
+          "discount": 0.94829885628667698,
+          "zero_continuous": 0.019299039505439826,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-07-10",
+          "discount": 0.94650379212898639,
+          "zero_continuous": 0.019407940213595584,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-08-10",
+          "discount": 0.94465246214093146,
+          "zero_continuous": 0.019514025523161799,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-09-10",
+          "discount": 0.9428047532928584,
+          "zero_continuous": 0.019614109656456834,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-09-13",
+          "discount": 0.94262613466922474,
+          "zero_continuous": 0.019623495573445261,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-09-14",
+          "discount": 0.94256660264835368,
+          "zero_continuous": 0.019626612835572325,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2029-09-15",
+          "discount": 0.9425014005164275,
+          "zero_continuous": 0.019631720164605213,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2029-10-10",
+          "discount": 0.94087281227552255,
+          "zero_continuous": 0.019756455109902669,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2029-11-10",
+          "discount": 0.93885727054797674,
+          "zero_continuous": 0.019903640189174732,
+          "forward_1d_simple": 0.025250655479212014
+        },
+        {
+          "date": "2029-12-10",
+          "discount": 0.93691085741769176,
+          "zero_continuous": 0.020038757507918444,
+          "forward_1d_simple": 0.025250655479212014
+        },
+        {
+          "date": "2030-01-10",
+          "discount": 0.93490380300664011,
+          "zero_continuous": 0.020171386212663369,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-02-10",
+          "discount": 0.93290104811605723,
+          "zero_continuous": 0.020297431266732464,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-03-10",
+          "discount": 0.93109579608284287,
+          "zero_continuous": 0.020406018442420702,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-04-10",
+          "discount": 0.9291011987208373,
+          "zero_continuous": 0.020520817122397592,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-05-10",
+          "discount": 0.92717501161094973,
+          "zero_continuous": 0.02062684772729451,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-06-10",
+          "discount": 0.92518881337006309,
+          "zero_continuous": 0.020731530682428684,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-07-10",
+          "discount": 0.92327073731012554,
+          "zero_continuous": 0.020828419562022065,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-08-10",
+          "discount": 0.92129290282219944,
+          "zero_continuous": 0.020924267281394199,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-09-10",
+          "discount": 0.91931930525969885,
+          "zero_continuous": 0.021016047541080409,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-09-16",
+          "discount": 0.9189378072525497,
+          "zero_continuous": 0.021033363428850274,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-09-17",
+          "discount": 0.91887423964473069,
+          "zero_continuous": 0.021036235648654047,
+          "forward_1d_simple": 0.027170469943293973
+        },
+        {
+          "date": "2030-09-18",
+          "discount": 0.91880584406508725,
+          "zero_continuous": 0.021040410749446885,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2030-10-10",
+          "discount": 0.91730242865586975,
+          "zero_continuous": 0.02113084606481002,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2030-11-10",
+          "discount": 0.91518815412256349,
+          "zero_continuous": 0.021253840146351077,
+          "forward_1d_simple": 0.027170469943293973
+        },
+        {
+          "date": "2030-12-10",
+          "discount": 0.91314672200113844,
+          "zero_continuous": 0.021368188443394071,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-01-10",
+          "discount": 0.91104202588436478,
+          "zero_continuous": 0.021481795125876307,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-02-10",
+          "discount": 0.90894218084533918,
+          "zero_continuous": 0.021591037735053806,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-03-10",
+          "discount": 0.90704970692039499,
+          "zero_continuous": 0.021686163062333286,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-04-10",
+          "discount": 0.90495906370843404,
+          "zero_continuous": 0.021787766269256367,
+          "forward_1d_simple": 0.027170469943293973
+        },
+        {
+          "date": "2031-05-10",
+          "discount": 0.90294044874613666,
+          "zero_continuous": 0.021882570011665957,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-06-10",
+          "discount": 0.90085927689240741,
+          "zero_continuous": 0.021977087629747243,
+          "forward_1d_simple": 0.027170469943293973
+        },
+        {
+          "date": "2031-07-10",
+          "discount": 0.89884980697472139,
+          "zero_continuous": 0.022065393260421201,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-08-10",
+          "discount": 0.89677806357059819,
+          "zero_continuous": 0.022153541466015378,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-09-10",
+          "discount": 0.89471109529208481,
+          "zero_continuous": 0.022238696687629879,
+          "forward_1d_simple": 0.027170469943293973
+        },
+        {
+          "date": "2031-09-15",
+          "discount": 0.89437815977092816,
+          "zero_continuous": 0.022252161357279653,
+          "forward_1d_simple": 0.027170469943212927
+        },
+        {
+          "date": "2031-09-16",
+          "discount": 0.89431158753501305,
+          "zero_continuous": 0.022254845471557014,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2031-09-17",
+          "discount": 0.89423470888414247,
+          "zero_continuous": 0.022259822767506123,
+          "forward_1d_simple": 0.031379577742903786
+        },
+        {
+          "date": "2031-10-10",
+          "discount": 0.89246832279373001,
+          "zero_continuous": 0.022372820257868485,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2031-11-10",
+          "discount": 0.8900930609180574,
+          "zero_continuous": 0.022520762848934579,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2031-12-10",
+          "discount": 0.88780043961477095,
+          "zero_continuous": 0.022659377341851295,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-01-10",
+          "discount": 0.88543760108754876,
+          "zero_continuous": 0.022798127033708714,
+          "forward_1d_simple": 0.031379577742903786
+        },
+        {
+          "date": "2032-02-10",
+          "discount": 0.88308105114237334,
+          "zero_continuous": 0.022932529842850029,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-03-10",
+          "discount": 0.88088221494800634,
+          "zero_continuous": 0.023054504580898048,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-04-10",
+          "discount": 0.87853778894577639,
+          "zero_continuous": 0.02318105458351102,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-05-10",
+          "discount": 0.87627493066823647,
+          "zero_continuous": 0.023299911630820808,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-06-10",
+          "discount": 0.87394276673337712,
+          "zero_continuous": 0.023419162981668535,
+          "forward_1d_simple": 0.031379577742903786
+        },
+        {
+          "date": "2032-07-10",
+          "discount": 0.87169174389897874,
+          "zero_continuous": 0.023531262502297319,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-08-10",
+          "discount": 0.86937177789711495,
+          "zero_continuous": 0.023643828888120728,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-09-10",
+          "discount": 0.86705798637411646,
+          "zero_continuous": 0.023753211370695516,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-10-10",
+          "discount": 0.86482469673505813,
+          "zero_continuous": 0.023856159402769538,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-11-10",
+          "discount": 0.86252300705170371,
+          "zero_continuous": 0.023959658806164918,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2032-12-10",
+          "discount": 0.86030139820273477,
+          "zero_continuous": 0.024057143302093246,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-01-10",
+          "discount": 0.85801174706268957,
+          "zero_continuous": 0.024155221804673548,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-02-10",
+          "discount": 0.8557281897199509,
+          "zero_continuous": 0.024250707186929722,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-03-10",
+          "discount": 0.85367084605504495,
+          "zero_continuous": 0.024334807738662863,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-04-10",
+          "discount": 0.85139884181330294,
+          "zero_continuous": 0.024425633885683282,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-05-10",
+          "discount": 0.84920588558429766,
+          "zero_continuous": 0.024511327333431365,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-06-10",
+          "discount": 0.8469457646218963,
+          "zero_continuous": 0.024597685933836773,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-07-10",
+          "discount": 0.84476427822686961,
+          "zero_continuous": 0.024679215509137049,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-08-10",
+          "discount": 0.84251597839061187,
+          "zero_continuous": 0.024761428263116621,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-09-10",
+          "discount": 0.84027366229713762,
+          "zero_continuous": 0.024841647590914472,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-09-14",
+          "discount": 0.83998476622513985,
+          "zero_continuous": 0.024851857011227451,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-10-10",
+          "discount": 0.83810936130058122,
+          "zero_continuous": 0.024917448688966986,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-11-10",
+          "discount": 0.8358787732083226,
+          "zero_continuous": 0.024993951434565793,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2033-12-10",
+          "discount": 0.83372579217008624,
+          "zero_continuous": 0.025066280862568943,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-01-10",
+          "discount": 0.83150687073799823,
+          "zero_continuous": 0.025139319455549938,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-02-10",
+          "discount": 0.82929385485947238,
+          "zero_continuous": 0.025210687054890758,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-03-10",
+          "discount": 0.82730006468271211,
+          "zero_continuous": 0.025273759068389561,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-04-10",
+          "discount": 0.82509824501786277,
+          "zero_continuous": 0.02534210091245441,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-05-10",
+          "discount": 0.82297303149032308,
+          "zero_continuous": 0.025406796818497904,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-06-10",
+          "discount": 0.82078272801794139,
+          "zero_continuous": 0.025472208265834382,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-07-10",
+          "discount": 0.81866863000926504,
+          "zero_continuous": 0.0255341595317135,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-08-10",
+          "discount": 0.8164897824961308,
+          "zero_continuous": 0.025596825097902565,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-09-10",
+          "discount": 0.81431673388173476,
+          "zero_continuous": 0.0256581610045763,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-09-13",
+          "discount": 0.81410674602766242,
+          "zero_continuous": 0.025664027740926802,
+          "forward_1d_simple": 0.03137957774282274
+        },
+        {
+          "date": "2034-09-14",
+          "discount": 0.81403676211023179,
+          "zero_continuous": 0.025665980646328506,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2034-09-15",
+          "discount": 0.81395565033223904,
+          "zero_continuous": 0.025669637957329024,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2034-10-10",
+          "discount": 0.81193048046992,
+          "zero_continuous": 0.025760265430123191,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2034-11-10",
+          "discount": 0.80942626625276592,
+          "zero_continuous": 0.025870533817638111,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2034-12-10",
+          "discount": 0.80701018735280949,
+          "zero_continuous": 0.025975084724978569,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2035-01-10",
+          "discount": 0.80452114865655633,
+          "zero_continuous": 0.026080955684839445,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2035-02-10",
+          "discount": 0.80203978683195676,
+          "zero_continuous": 0.026184692010712877,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2035-03-10",
+          "discount": 0.79980513553544219,
+          "zero_continuous": 0.026276607789686872,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2035-04-10",
+          "discount": 0.79733831917672948,
+          "zero_continuous": 0.026376455902900178,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2035-05-10",
+          "discount": 0.79495832192508609,
+          "zero_continuous": 0.026471220195333451,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2035-06-10",
+          "discount": 0.79250645445650969,
+          "zero_continuous": 0.026567273717159924,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2035-07-10",
+          "discount": 0.79014087997181204,
+          "zero_continuous": 0.026658470519278089,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2035-08-10",
+          "discount": 0.78770387080320092,
+          "zero_continuous": 0.026750941723882881,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2035-09-10",
+          "discount": 0.7852743780330429,
+          "zero_continuous": 0.026841668719578177,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2035-10-10",
+          "discount": 0.78293039077373938,
+          "zero_continuous": 0.026927854380343518,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2035-11-10",
+          "discount": 0.78051562071302827,
+          "zero_continuous": 0.027015290265200196,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2035-12-10",
+          "discount": 0.77818583800036523,
+          "zero_continuous": 0.027098377651342858,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2036-01-10",
+          "discount": 0.77578570142958314,
+          "zero_continuous": 0.02718269830874951,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-02-10",
+          "discount": 0.77339296753214359,
+          "zero_continuous": 0.027265499233377285,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-03-10",
+          "discount": 0.77116128502902614,
+          "zero_continuous": 0.027341618429293436,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2036-04-10",
+          "discount": 0.76878281408829885,
+          "zero_continuous": 0.027421592331288505,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2036-05-10",
+          "discount": 0.76648805295537081,
+          "zero_continuous": 0.027497649024888302,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-06-10",
+          "discount": 0.76412399553215571,
+          "zero_continuous": 0.027574894660529776,
+          "forward_1d_simple": 0.036372742120921453
+        },
+        {
+          "date": "2036-07-10",
+          "discount": 0.76184314063588132,
+          "zero_continuous": 0.027648378664576027,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-08-10",
+          "discount": 0.7594934093843615,
+          "zero_continuous": 0.02772303330005061,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-09-10",
+          "discount": 0.75715092534248352,
+          "zero_continuous": 0.027796420870811429,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-09-15",
+          "discount": 0.75677378254554273,
+          "zero_continuous": 0.027808141085510794,
+          "forward_1d_simple": 0.036372742120840407
+        },
+        {
+          "date": "2036-09-16",
+          "discount": 0.75669837653208283,
+          "zero_continuous": 0.027810481284707103,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2036-09-17",
+          "discount": 0.75661569557107022,
+          "zero_continuous": 0.02781378007532441,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2036-10-10",
+          "discount": 0.75471652490174324,
+          "zero_continuous": 0.02788915784398557,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2036-11-10",
+          "discount": 0.7521643135575321,
+          "zero_continuous": 0.02798927680200923,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2036-12-10",
+          "discount": 0.74970264955068744,
+          "zero_continuous": 0.028084587524300667,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-01-10",
+          "discount": 0.74716739353887895,
+          "zero_continuous": 0.028181483813045066,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-02-10",
+          "discount": 0.74464071095688189,
+          "zero_continuous": 0.02827680165462652,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-03-10",
+          "discount": 0.74236589097204031,
+          "zero_continuous": 0.028361570327579536,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-04-10",
+          "discount": 0.73985544554520821,
+          "zero_continuous": 0.02845398870354551,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2037-05-10",
+          "discount": 0.73743406568479897,
+          "zero_continuous": 0.028542025157258743,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-06-10",
+          "discount": 0.73494029812313943,
+          "zero_continuous": 0.028631582702696435,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2037-07-10",
+          "discount": 0.73253500443071129,
+          "zero_continuous": 0.028716914898661683,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-08-10",
+          "discount": 0.73005780393668052,
+          "zero_continuous": 0.028803742423468535,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-09-10",
+          "discount": 0.72758898054715748,
+          "zero_continuous": 0.02888923015072983,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-10-10",
+          "discount": 0.72520774605769001,
+          "zero_continuous": 0.028970713536055306,
+          "forward_1d_simple": 0.039886234116194297
+        },
+        {
+          "date": "2037-11-10",
+          "discount": 0.72275532402196063,
+          "zero_continuous": 0.029053653860557811,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2037-12-10",
+          "discount": 0.72038990899916433,
+          "zero_continuous": 0.029132727122300979,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-01-10",
+          "discount": 0.71795377935665761,
+          "zero_continuous": 0.02921323223400921,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-02-10",
+          "discount": 0.71552588793009608,
+          "zero_continuous": 0.029292540674193596,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-03-10",
+          "discount": 0.71334001148581283,
+          "zero_continuous": 0.029363167585256721,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-04-10",
+          "discount": 0.71092772235535984,
+          "zero_continuous": 0.029440271015072437,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-05-10",
+          "discount": 0.70860101640288919,
+          "zero_continuous": 0.029513818789219683,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-06-10",
+          "discount": 0.70620475304716313,
+          "zero_continuous": 0.029588737764003552,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-07-10",
+          "discount": 0.70389350430708864,
+          "zero_continuous": 0.029660216476199645,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-08-10",
+          "discount": 0.70151316026063637,
+          "zero_continuous": 0.029733042531461865,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-09-10",
+          "discount": 0.69914086578097911,
+          "zero_continuous": 0.029804838421215021,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2038-10-10",
+          "discount": 0.6968527355493449,
+          "zero_continuous": 0.029873357908113518,
+          "forward_1d_simple": 0.039886234116194297
+        },
+        {
+          "date": "2038-11-10",
+          "discount": 0.69449620114439725,
+          "zero_continuous": 0.029943189503098187,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2038-12-10",
+          "discount": 0.69222327185164534,
+          "zero_continuous": 0.030009847071990999,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-01-10",
+          "discount": 0.68988239282110253,
+          "zero_continuous": 0.030077793896415347,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2039-02-10",
+          "discount": 0.68754942989921775,
+          "zero_continuous": 0.030144811994403557,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2039-03-10",
+          "discount": 0.68544901937816061,
+          "zero_continuous": 0.030204561951149442,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-04-10",
+          "discount": 0.68313104871578112,
+          "zero_continuous": 0.030269864297782244,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-05-10",
+          "discount": 0.68089531500139089,
+          "zero_continuous": 0.030332226615487328,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-06-10",
+          "discount": 0.67859274351947863,
+          "zero_continuous": 0.030395823410629786,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-07-10",
+          "discount": 0.67637186265353189,
+          "zero_continuous": 0.030456567530561605,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-08-10",
+          "discount": 0.6740845880493429,
+          "zero_continuous": 0.030518524730013794,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-09-10",
+          "discount": 0.67180504828068432,
+          "zero_continuous": 0.030579672884317288,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-10-10",
+          "discount": 0.66960638200901901,
+          "zero_continuous": 0.030638093031196727,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-11-10",
+          "discount": 0.66734198610945661,
+          "zero_continuous": 0.03069769478193415,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2039-12-10",
+          "discount": 0.66515792643279892,
+          "zero_continuous": 0.030754646797817892,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-01-10",
+          "discount": 0.66290857379572143,
+          "zero_continuous": 0.030812760073491614,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-02-10",
+          "discount": 0.66066682775413788,
+          "zero_continuous": 0.030870138188363098,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2040-03-10",
+          "discount": 0.6585765740056313,
+          "zero_continuous": 0.030923161228102035,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-04-10",
+          "discount": 0.65634947741008809,
+          "zero_continuous": 0.030979155524653586,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-05-10",
+          "discount": 0.65420139373298591,
+          "zero_continuous": 0.031032681267506676,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-06-10",
+          "discount": 0.65198909260614701,
+          "zero_continuous": 0.031087319376620719,
+          "forward_1d_simple": 0.039886234116194297
+        },
+        {
+          "date": "2040-07-10",
+          "discount": 0.64985527948420729,
+          "zero_continuous": 0.031139556523695305,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2040-08-10",
+          "discount": 0.64765767553402087,
+          "zero_continuous": 0.0311928871259044,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-09-10",
+          "discount": 0.64546750318172141,
+          "zero_continuous": 0.031245571170167286,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2040-10-10",
+          "discount": 0.64335503374980285,
+          "zero_continuous": 0.031295951129967907,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2040-11-10",
+          "discount": 0.64117941156410152,
+          "zero_continuous": 0.031347396776003553,
+          "forward_1d_simple": 0.039886234116194297
+        },
+        {
+          "date": "2040-12-10",
+          "discount": 0.6390809760880658,
+          "zero_continuous": 0.031396599416741167,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-01-10",
+          "discount": 0.63691980740654819,
+          "zero_continuous": 0.031446849821887168,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-02-10",
+          "discount": 0.63476594711042267,
+          "zero_continuous": 0.03149650870906865,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-03-10",
+          "discount": 0.63282678606142739,
+          "zero_continuous": 0.031540862116920879,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-04-10",
+          "discount": 0.6306867670622186,
+          "zero_continuous": 0.031589423697401316,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-05-10",
+          "discount": 0.62862267164305774,
+          "zero_continuous": 0.031635883543816072,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-06-10",
+          "discount": 0.62649686962222018,
+          "zero_continuous": 0.031683348424715471,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-07-10",
+          "discount": 0.624446486791565,
+          "zero_continuous": 0.031728764927498931,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-08-10",
+          "discount": 0.62233480730018287,
+          "zero_continuous": 0.031775169844993595,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-09-10",
+          "discount": 0.62023026883748567,
+          "zero_continuous": 0.031821049647524816,
+          "forward_1d_simple": 0.039886234116356389
+        },
+        {
+          "date": "2041-09-16",
+          "discount": 0.61982376159382868,
+          "zero_continuous": 0.0318298697080132,
+          "forward_1d_simple": 0.039886234116275343
+        },
+        {
+          "date": "2041-09-17",
+          "discount": 0.61975603629421605,
+          "zero_continuous": 0.031831337842398173,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2041-09-18",
+          "discount": 0.61968226634649559,
+          "zero_continuous": 0.031833455106081661,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2041-10-10",
+          "discount": 0.618061547210083,
+          "zero_continuous": 0.031879840437083196,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2041-11-10",
+          "discount": 0.61578499867505798,
+          "zero_continuous": 0.031944576289129195,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2041-12-10",
+          "discount": 0.61358987149284416,
+          "zero_continuous": 0.032006537801074771,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-01-10",
+          "discount": 0.61132979378802876,
+          "zero_continuous": 0.032069867385443838,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-02-10",
+          "discount": 0.60907804078260797,
+          "zero_continuous": 0.032132499804644075,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2042-03-10",
+          "discount": 0.60705132910752158,
+          "zero_continuous": 0.032188481322017445,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-04-10",
+          "discount": 0.60481533526483233,
+          "zero_continuous": 0.032249818301968589,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-05-10",
+          "discount": 0.60265931232579317,
+          "zero_continuous": 0.032308543762753709,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-06-10",
+          "discount": 0.60043949590008672,
+          "zero_continuous": 0.032368583195514333,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2042-07-10",
+          "discount": 0.59829907178848774,
+          "zero_continuous": 0.032426072890143411,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-08-10",
+          "discount": 0.59609531573614105,
+          "zero_continuous": 0.03248485551775223,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2042-09-10",
+          "discount": 0.59389967692977941,
+          "zero_continuous": 0.03254301451036587,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2042-10-10",
+          "discount": 0.59178256571865595,
+          "zero_continuous": 0.032598712922844553,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2042-11-10",
+          "discount": 0.58960281236056178,
+          "zero_continuous": 0.03265567339249336,
+          "forward_1d_simple": 0.04345134979704901
+        },
+        {
+          "date": "2042-12-10",
+          "discount": 0.58750101845050018,
+          "zero_continuous": 0.032710229872432044,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-01-10",
+          "discount": 0.58533703560944417,
+          "zero_continuous": 0.032766028489233753,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2043-02-10",
+          "discount": 0.58318102351497292,
+          "zero_continuous": 0.032821250231891447,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2043-03-10",
+          "discount": 0.58124048435593834,
+          "zero_continuous": 0.032870639505977836,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-04-10",
+          "discount": 0.57909956136998209,
+          "zero_continuous": 0.032924787763771612,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-05-10",
+          "discount": 0.57703520905365979,
+          "zero_continuous": 0.032976664082749199,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2043-06-10",
+          "discount": 0.57490977564697288,
+          "zero_continuous": 0.033029735046836046,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2043-07-10",
+          "discount": 0.57286035892107257,
+          "zero_continuous": 0.033080584381276527,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-08-10",
+          "discount": 0.57075030302653817,
+          "zero_continuous": 0.033132609884362466,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-09-10",
+          "discount": 0.56864801924576369,
+          "zero_continuous": 0.033184115886531765,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-10-10",
+          "discount": 0.56662092419336019,
+          "zero_continuous": 0.03323347306454344,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2043-11-10",
+          "discount": 0.56453385043717907,
+          "zero_continuous": 0.033283979286055976,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2043-12-10",
+          "discount": 0.56252142141886774,
+          "zero_continuous": 0.033332383021235187,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-01-10",
+          "discount": 0.56044944764274141,
+          "zero_continuous": 0.033381918292160188,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2044-02-10",
+          "discount": 0.55838510570989341,
+          "zero_continuous": 0.033430970823884097,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2044-03-10",
+          "discount": 0.55646083138530289,
+          "zero_continuous": 0.033476427871708292,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-04-10",
+          "discount": 0.5544111809965877,
+          "zero_continuous": 0.03352456589878109,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2044-05-10",
+          "discount": 0.55243483688923289,
+          "zero_continuous": 0.033570710649749369,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2044-06-10",
+          "discount": 0.55040001572248354,
+          "zero_continuous": 0.033617944899902406,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-07-10",
+          "discount": 0.54843797046609866,
+          "zero_continuous": 0.03366322734473793,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-08-10",
+          "discount": 0.5464178712318839,
+          "zero_continuous": 0.033709583033337799,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-09-10",
+          "discount": 0.54440521276788534,
+          "zero_continuous": 0.03375550160365734,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2044-10-10",
+          "discount": 0.54246453755940016,
+          "zero_continuous": 0.033799528532060225,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-11-10",
+          "discount": 0.54046644068076666,
+          "zero_continuous": 0.033844604826422882,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2044-12-10",
+          "discount": 0.53853980625874376,
+          "zero_continuous": 0.033887827863539298,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-01-10",
+          "discount": 0.53655616561239516,
+          "zero_continuous": 0.033932084845787289,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2045-02-10",
+          "discount": 0.53457983144584276,
+          "zero_continuous": 0.03397593399020836,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-03-10",
+          "discount": 0.53280101311204608,
+          "zero_continuous": 0.034015193793514691,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2045-04-10",
+          "discount": 0.53083851055653963,
+          "zero_continuous": 0.034058282148647367,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-05-10",
+          "discount": 0.52894619741738258,
+          "zero_continuous": 0.034099607430406409,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2045-06-10",
+          "discount": 0.5269978935692089,
+          "zero_continuous": 0.034141929837465675,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-07-10",
+          "discount": 0.52511927131690939,
+          "zero_continuous": 0.034182523762311089,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-08-10",
+          "discount": 0.52318506344841109,
+          "zero_continuous": 0.034224100464764831,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2045-09-10",
+          "discount": 0.52125797998056422,
+          "zero_continuous": 0.034265305732700951,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-10-10",
+          "discount": 0.51939981915614786,
+          "zero_continuous": 0.034304832811356586,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2045-11-10",
+          "discount": 0.51748667813851024,
+          "zero_continuous": 0.034345321578208805,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2045-12-10",
+          "discount": 0.5156419611089309,
+          "zero_continuous": 0.034384164312224519,
+          "forward_1d_simple": 0.04345134979704901
+        },
+        {
+          "date": "2046-01-10",
+          "discount": 0.51374266166786575,
+          "zero_continuous": 0.034423955105230108,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2046-02-10",
+          "discount": 0.5118503580468442,
+          "zero_continuous": 0.034463398086425984,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2046-03-10",
+          "discount": 0.51014717220350325,
+          "zero_continuous": 0.03449872883160833,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2046-04-10",
+          "discount": 0.50826811209570422,
+          "zero_continuous": 0.034537522327148677,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2046-05-10",
+          "discount": 0.50645625706332376,
+          "zero_continuous": 0.034574745557501819,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2046-06-10",
+          "discount": 0.5045907919566911,
+          "zero_continuous": 0.034612884273930764,
+          "forward_1d_simple": 0.043451349796886918
+        },
+        {
+          "date": "2046-07-10",
+          "discount": 0.50279204569671054,
+          "zero_continuous": 0.034649481869125122,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2046-08-10",
+          "discount": 0.50094007723140166,
+          "zero_continuous": 0.034686982245251269,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2046-09-10",
+          "discount": 0.49909493024870349,
+          "zero_continuous": 0.034724164343031098,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2046-09-13",
+          "discount": 0.49891672871889559,
+          "zero_continuous": 0.034727745869849933,
+          "forward_1d_simple": 0.043451349796967964
+        },
+        {
+          "date": "2046-09-14",
+          "discount": 0.49885734234935808,
+          "zero_continuous": 0.034728939058768227,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2046-09-15",
+          "discount": 0.49880151648086618,
+          "zero_continuous": 0.03472977621022183,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2046-10-10",
+          "discount": 0.49740789833501797,
+          "zero_continuous": 0.034750630811361455,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2046-11-10",
+          "discount": 0.49568521816220851,
+          "zero_continuous": 0.034776293918416849,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2046-12-10",
+          "discount": 0.49402378913099254,
+          "zero_continuous": 0.034800924349458646,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2047-01-10",
+          "discount": 0.49231282919392499,
+          "zero_continuous": 0.034826166755125676,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-02-10",
+          "discount": 0.49060779484985656,
+          "zero_continuous": 0.034851199315103325,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-03-10",
+          "discount": 0.48907283993130807,
+          "zero_continuous": 0.034873631170880187,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2047-04-10",
+          "discount": 0.4873790266902448,
+          "zero_continuous": 0.034898271510832961,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-05-10",
+          "discount": 0.48574543820610322,
+          "zero_continuous": 0.034921924265598113,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-06-10",
+          "discount": 0.48406314880492707,
+          "zero_continuous": 0.034946168703377037,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-07-10",
+          "discount": 0.48244067442219662,
+          "zero_continuous": 0.034969442944233556,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2047-08-10",
+          "discount": 0.48076983045858879,
+          "zero_continuous": 0.034993300945339839,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2047-09-10",
+          "discount": 0.4791047731537324,
+          "zero_continuous": 0.035016966091678405,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2047-10-10",
+          "discount": 0.47749891816765266,
+          "zero_continuous": 0.035039686416715711,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-11-10",
+          "discount": 0.47584518906198542,
+          "zero_continuous": 0.035062978839792168,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2047-12-10",
+          "discount": 0.47425025949276567,
+          "zero_continuous": 0.035085342725933624,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2048-01-10",
+          "discount": 0.47260778151500815,
+          "zero_continuous": 0.035108271162434937,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2048-02-10",
+          "discount": 0.47097099195566139,
+          "zero_continuous": 0.035131017883090282,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2048-03-10",
+          "discount": 0.46944493403489163,
+          "zero_continuous": 0.035152134471315384,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2048-04-10",
+          "discount": 0.46781909841226732,
+          "zero_continuous": 0.035174535566470967,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2048-05-10",
+          "discount": 0.46625107055309256,
+          "zero_continuous": 0.035196046929865825,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2048-06-10",
+          "discount": 0.46463629628537073,
+          "zero_continuous": 0.035218104652284796,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2048-07-10",
+          "discount": 0.46307893648661108,
+          "zero_continuous": 0.035239287539915745,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2048-08-10",
+          "discount": 0.46147514831798442,
+          "zero_continuous": 0.035261009724548452,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2048-09-10",
+          "discount": 0.45987691457277707,
+          "zero_continuous": 0.035282564316417693,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2048-10-10",
+          "discount": 0.45833550718627064,
+          "zero_continuous": 0.035303265848285435,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2048-11-10",
+          "discount": 0.45674814700689409,
+          "zero_continuous": 0.035324496274421704,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2048-12-10",
+          "discount": 0.45521722656870778,
+          "zero_continuous": 0.035344887636216335,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2049-01-10",
+          "discount": 0.45364066597697583,
+          "zero_continuous": 0.035365801154848289,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2049-02-10",
+          "discount": 0.45206956551099109,
+          "zero_continuous": 0.035386556334469979,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2049-03-10",
+          "discount": 0.45065518438946905,
+          "zero_continuous": 0.035405168343208365,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2049-04-10",
+          "discount": 0.44909442358627277,
+          "zero_continuous": 0.035425627094794535,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2049-05-10",
+          "discount": 0.44758915676417588,
+          "zero_continuous": 0.035445279990746918,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2049-06-10",
+          "discount": 0.44603901458005868,
+          "zero_continuous": 0.035465438893383702,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2049-07-10",
+          "discount": 0.44454398882434654,
+          "zero_continuous": 0.03548480480281363,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2049-08-10",
+          "discount": 0.4430043930156497,
+          "zero_continuous": 0.035504670400523894,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2049-09-10",
+          "discount": 0.44147012931201712,
+          "zero_continuous": 0.035524389388656985,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2049-10-10",
+          "discount": 0.43999041746591228,
+          "zero_continuous": 0.035543334211795161,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2049-11-10",
+          "discount": 0.43846659210863143,
+          "zero_continuous": 0.035562769409284711,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2049-12-10",
+          "discount": 0.43699694746591133,
+          "zero_continuous": 0.035581442560869619,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-01-10",
+          "discount": 0.43548348943780668,
+          "zero_continuous": 0.035600600050290636,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-02-10",
+          "discount": 0.43397527299140215,
+          "zero_continuous": 0.035619618684866641,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-03-10",
+          "discount": 0.43261750312553515,
+          "zero_continuous": 0.035636678709335561,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-04-10",
+          "discount": 0.43111921249215496,
+          "zero_continuous": 0.035655437209478696,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-05-10",
+          "discount": 0.42967419466772777,
+          "zero_continuous": 0.035673462474925109,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2050-06-10",
+          "discount": 0.42818609763830862,
+          "zero_continuous": 0.035691957594247162,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2050-07-10",
+          "discount": 0.42675091097686857,
+          "zero_continuous": 0.035709730659241448,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2050-08-10",
+          "discount": 0.42527293819933726,
+          "zero_continuous": 0.035727967906097287,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-09-10",
+          "discount": 0.42380008410690989,
+          "zero_continuous": 0.035746076164896425,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-10-10",
+          "discount": 0.42237959840879374,
+          "zero_continuous": 0.035763478757050896,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2050-11-10",
+          "discount": 0.42091676486309881,
+          "zero_continuous": 0.035781337164239486,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2050-12-10",
+          "discount": 0.41950594342391634,
+          "zero_continuous": 0.035798500466781027,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2051-01-10",
+          "discount": 0.41805306225027372,
+          "zero_continuous": 0.035816114157965998,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2051-02-10",
+          "discount": 0.41660521286161006,
+          "zero_continuous": 0.035833605408422918,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2051-03-10",
+          "discount": 0.41530178835982334,
+          "zero_continuous": 0.03584929977544344,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2051-04-10",
+          "discount": 0.41386346749894726,
+          "zero_continuous": 0.035866561493942378,
+          "forward_1d_simple": 0.040850802025159672
+        },
+        {
+          "date": "2051-05-10",
+          "discount": 0.41247628717831586,
+          "zero_continuous": 0.03588315326134018,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2051-06-10",
+          "discount": 0.41104775191770848,
+          "zero_continuous": 0.035900182385205738,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2051-07-10",
+          "discount": 0.40967000926323888,
+          "zero_continuous": 0.035916551335914898,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2051-08-10",
+          "discount": 0.40825119302667584,
+          "zero_continuous": 0.035933352534849937,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2051-09-10",
+          "discount": 0.40683729059748841,
+          "zero_continuous": 0.035950039652705809,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2051-10-10",
+          "discount": 0.40547366049351641,
+          "zero_continuous": 0.03596608094688291,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2051-11-10",
+          "discount": 0.40406937753406447,
+          "zero_continuous": 0.035982546949098845,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2051-12-10",
+          "discount": 0.40271502487261229,
+          "zero_continuous": 0.035998376387080269,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2052-01-10",
+          "discount": 0.40132029593693858,
+          "zero_continuous": 0.036014625639617041,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2052-02-10",
+          "discount": 0.39993039738673308,
+          "zero_continuous": 0.036030766377111015,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2052-03-10",
+          "discount": 0.39863452787223419,
+          "zero_continuous": 0.036045768497203028,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2052-04-10",
+          "discount": 0.39725393098251566,
+          "zero_continuous": 0.036061702270566563,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2052-05-10",
+          "discount": 0.39592242221542745,
+          "zero_continuous": 0.036077021709164887,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2052-06-10",
+          "discount": 0.3945512182015703,
+          "zero_continuous": 0.036092749123172126,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2052-07-10",
+          "discount": 0.39322876833983722,
+          "zero_continuous": 0.036107870799043089,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2052-08-10",
+          "discount": 0.39186689329751312,
+          "zero_continuous": 0.036123395836751934,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2052-09-10",
+          "discount": 0.39050973485727986,
+          "zero_continuous": 0.036138819521155732,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2052-10-10",
+          "discount": 0.38920083116862475,
+          "zero_continuous": 0.036153650097402505,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2052-11-10",
+          "discount": 0.38785290614101775,
+          "zero_continuous": 0.036168877221142065,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2052-12-10",
+          "discount": 0.38655290756431349,
+          "zero_continuous": 0.036183519395620936,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-01-10",
+          "discount": 0.38521415312991086,
+          "zero_continuous": 0.036198553692372987,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-02-10",
+          "discount": 0.38388003522365372,
+          "zero_continuous": 0.036213491395715849,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2053-03-10",
+          "discount": 0.38267899733884092,
+          "zero_continuous": 0.036226901262846299,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-04-10",
+          "discount": 0.38135365947534322,
+          "zero_continuous": 0.036241657680868129,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-05-10",
+          "discount": 0.38007544495976436,
+          "zero_continuous": 0.036255848640423693,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-06-10",
+          "discount": 0.37875912401794665,
+          "zero_continuous": 0.036270421075824837,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-07-10",
+          "discount": 0.37748960582086494,
+          "zero_continuous": 0.036284435652688386,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2053-08-10",
+          "discount": 0.37618224045419901,
+          "zero_continuous": 0.03629882752497899,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-09-10",
+          "discount": 0.37487940290545335,
+          "zero_continuous": 0.036313128919062132,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-10-10",
+          "discount": 0.37362288868963467,
+          "zero_continuous": 0.036326883631755798,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-11-10",
+          "discount": 0.37232891498192339,
+          "zero_continuous": 0.036341009461559062,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2053-12-10",
+          "discount": 0.37108094944684922,
+          "zero_continuous": 0.036354595837695999,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2054-01-10",
+          "discount": 0.36979577927512663,
+          "zero_continuous": 0.036368549316337186,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2054-02-10",
+          "discount": 0.3685150600523755,
+          "zero_continuous": 0.036382416412983794,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2054-03-10",
+          "discount": 0.36736209426193245,
+          "zero_continuous": 0.03639486795073197,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2054-04-10",
+          "discount": 0.36608980365668647,
+          "zero_continuous": 0.036408572844046395,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2054-05-10",
+          "discount": 0.36486275026566051,
+          "zero_continuous": 0.036421755573679833,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2054-06-10",
+          "discount": 0.36359911567565234,
+          "zero_continuous": 0.036435295739337271,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2054-07-10",
+          "discount": 0.36238041052897124,
+          "zero_continuous": 0.036448320492249976,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2054-08-10",
+          "discount": 0.36112537306309578,
+          "zero_continuous": 0.03646169888244833,
+          "forward_1d_simple": 0.040850802024916533
+        },
+        {
+          "date": "2054-09-10",
+          "discount": 0.35987468218714347,
+          "zero_continuous": 0.036474996167709543,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2054-10-10",
+          "discount": 0.35866846053138768,
+          "zero_continuous": 0.036487787978229796,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2054-11-10",
+          "discount": 0.35742627871715077,
+          "zero_continuous": 0.036500927808556113,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2054-12-10",
+          "discount": 0.3562282635772564,
+          "zero_continuous": 0.036513568596623663,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2055-01-10",
+          "discount": 0.35499453293342659,
+          "zero_continuous": 0.036526553752216175,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2055-02-10",
+          "discount": 0.35376507508728622,
+          "zero_continuous": 0.036539461347149076,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2055-03-10",
+          "discount": 0.35265825728350042,
+          "zero_continuous": 0.036551053731415817,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2055-04-10",
+          "discount": 0.35143689069556844,
+          "zero_continuous": 0.03656381561819122,
+          "forward_1d_simple": 0.040850802024916533
+        },
+        {
+          "date": "2055-05-10",
+          "discount": 0.35025895068152751,
+          "zero_continuous": 0.036576093869885924,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2055-06-10",
+          "discount": 0.34904589364783772,
+          "zero_continuous": 0.036588707688148384,
+          "forward_1d_simple": 0.040850802024916533
+        },
+        {
+          "date": "2055-07-10",
+          "discount": 0.34787596773581775,
+          "zero_continuous": 0.036600843894690947,
+          "forward_1d_simple": 0.040850802024916533
+        },
+        {
+          "date": "2055-08-10",
+          "discount": 0.34667116372240869,
+          "zero_continuous": 0.03661331220649728,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2055-09-10",
+          "discount": 0.34547053232465963,
+          "zero_continuous": 0.036625707535360659,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2055-10-10",
+          "discount": 0.34431259024609234,
+          "zero_continuous": 0.036637634127290319,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2055-11-10",
+          "discount": 0.34312012733094555,
+          "zero_continuous": 0.036649887703163429,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2055-12-10",
+          "discount": 0.34197006329866364,
+          "zero_continuous": 0.036661678291429148,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2056-01-10",
+          "discount": 0.34078571329193691,
+          "zero_continuous": 0.036673792532113107,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2056-02-10",
+          "discount": 0.33960546506220468,
+          "zero_continuous": 0.036685836872106289,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2056-03-10",
+          "discount": 0.33850506266216962,
+          "zero_continuous": 0.036697041410816339,
+          "forward_1d_simple": 0.040850802024916533
+        },
+        {
+          "date": "2056-04-10",
+          "discount": 0.33733271304368617,
+          "zero_continuous": 0.036708952166761441,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2056-05-10",
+          "discount": 0.33620204716523294,
+          "zero_continuous": 0.036720413811480848,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2056-06-10",
+          "discount": 0.33503767361457532,
+          "zero_continuous": 0.036732191022374128,
+          "forward_1d_simple": 0.040850802025159672
+        },
+        {
+          "date": "2056-07-10",
+          "discount": 0.33391470020907787,
+          "zero_continuous": 0.036743524516763486,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2056-08-10",
+          "discount": 0.33275824846115576,
+          "zero_continuous": 0.036755170416068197,
+          "forward_1d_simple": 0.040850802024997579
+        },
+        {
+          "date": "2056-09-10",
+          "discount": 0.33160580186977345,
+          "zero_continuous": 0.036766750423261489,
+          "forward_1d_simple": 0.040850802025078625
+        },
+        {
+          "date": "2056-09-13",
+          "discount": 0.33149448681791033,
+          "zero_continuous": 0.036767867592979939,
+          "forward_1d_simple": 0.040850802025078625
+        }
+      ],
+      "swap": {
+        "npv": 4.0531158447265625e-06,
+        "fixed_leg_npv": -1598903685.5734057,
+        "overnight_leg_npv": 1598903685.5734098,
+        "fixed_leg_bps": -6417028.3224133132,
+        "par_rate": 0.024916575169051131,
+        "cashflows": [
+          {
+            "leg": "fixed",
+            "accrual_start": "2026-09-14",
+            "accrual_end": "2027-09-14",
+            "payment_date": "2027-09-14",
+            "amount": 249165751.69050992
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2027-09-14",
+            "accrual_end": "2028-09-14",
+            "payment_date": "2028-09-14",
+            "amount": 249848397.58555254
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2028-09-14",
+            "accrual_end": "2029-09-14",
+            "payment_date": "2029-09-14",
+            "amount": 249165751.69050992
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2029-09-14",
+            "accrual_end": "2030-09-17",
+            "payment_date": "2030-09-17",
+            "amount": 251213689.37563783
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2030-09-17",
+            "accrual_end": "2031-09-16",
+            "payment_date": "2031-09-16",
+            "amount": 248483105.79546729
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2031-09-16",
+            "accrual_end": "2032-09-14",
+            "payment_date": "2032-09-14",
+            "amount": 248483105.79546729
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2032-09-14",
+            "accrual_end": "2033-09-14",
+            "payment_date": "2033-09-14",
+            "amount": 249165751.69050992
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2026-09-14",
+            "accrual_end": "2027-09-14",
+            "payment_date": "2027-09-14",
+            "amount": 154999999.99999624
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2027-09-14",
+            "accrual_end": "2028-09-14",
+            "payment_date": "2028-09-14",
+            "amount": 208036786.05469722
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2028-09-14",
+            "accrual_end": "2029-09-14",
+            "payment_date": "2029-09-14",
+            "amount": 233202459.88817322
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2029-09-14",
+            "accrual_end": "2030-09-17",
+            "payment_date": "2030-09-17",
+            "amount": 257841192.85772178
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2030-09-17",
+            "accrual_end": "2031-09-16",
+            "payment_date": "2031-09-16",
+            "amount": 274654297.80933136
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2031-09-16",
+            "accrual_end": "2032-09-14",
+            "payment_date": "2032-09-14",
+            "amount": 317870111.30599344
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2032-09-14",
+            "accrual_end": "2033-09-14",
+            "payment_date": "2033-09-14",
+            "amount": 318757153.51777023
+          }
+        ]
+      }
+    },
+    "bump_5y": {
+      "quotes": [
+        {
+          "quote_id": "TONAR-1M",
+          "tenor": "1M",
+          "rate": 0.011399999999999999
+        },
+        {
+          "quote_id": "TONAR-3M",
+          "tenor": "3M",
+          "rate": 0.012199999999999999
+        },
+        {
+          "quote_id": "TONAR-6M",
+          "tenor": "6M",
+          "rate": 0.013500000000000002
+        },
+        {
+          "quote_id": "TONAR-1Y",
+          "tenor": "1Y",
+          "rate": 0.0155
+        },
+        {
+          "quote_id": "TONAR-2Y",
+          "tenor": "2Y",
+          "rate": 0.018100000000000002
+        },
+        {
+          "quote_id": "TONAR-3Y",
+          "tenor": "3Y",
+          "rate": 0.019799999999999998
+        },
+        {
+          "quote_id": "TONAR-4Y",
+          "tenor": "4Y",
+          "rate": 0.0212
+        },
+        {
+          "quote_id": "TONAR-5Y",
+          "tenor": "5Y",
+          "rate": 0.022500000000000003
+        },
+        {
+          "quote_id": "TONAR-8Y",
+          "tenor": "8Y",
+          "rate": 0.025699999999999997
+        },
+        {
+          "quote_id": "TONAR-10Y",
+          "tenor": "10Y",
+          "rate": 0.027699999999999999
+        },
+        {
+          "quote_id": "TONAR-15Y",
+          "tenor": "15Y",
+          "rate": 0.031300000000000001
+        },
+        {
+          "quote_id": "TONAR-20Y",
+          "tenor": "20Y",
+          "rate": 0.033700000000000001
+        },
+        {
+          "quote_id": "TONAR-30Y",
+          "tenor": "30Y",
+          "rate": 0.035400000000000001
+        }
+      ],
+      "instruments": [
+        {
+          "tenor": "1M",
+          "start_date": "2026-09-14",
+          "maturity_date": "2026-10-14",
+          "pillar_date": "2026-10-14",
+          "implied_rate": 0.011400000000001151
+        },
+        {
+          "tenor": "3M",
+          "start_date": "2026-09-14",
+          "maturity_date": "2026-12-14",
+          "pillar_date": "2026-12-14",
+          "implied_rate": 0.012199999999893163
+        },
+        {
+          "tenor": "6M",
+          "start_date": "2026-09-14",
+          "maturity_date": "2027-03-15",
+          "pillar_date": "2027-03-15",
+          "implied_rate": 0.013499999999999873
+        },
+        {
+          "tenor": "1Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2027-09-14",
+          "pillar_date": "2027-09-14",
+          "implied_rate": 0.015499999999999625
+        },
+        {
+          "tenor": "2Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2028-09-14",
+          "pillar_date": "2028-09-14",
+          "implied_rate": 0.01809999999999962
+        },
+        {
+          "tenor": "3Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2029-09-14",
+          "pillar_date": "2029-09-14",
+          "implied_rate": 0.019800000000000002
+        },
+        {
+          "tenor": "4Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2030-09-17",
+          "pillar_date": "2030-09-17",
+          "implied_rate": 0.0212
+        },
+        {
+          "tenor": "5Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2031-09-16",
+          "pillar_date": "2031-09-16",
+          "implied_rate": 0.022499999999999999
+        },
+        {
+          "tenor": "8Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2034-09-14",
+          "pillar_date": "2034-09-14",
+          "implied_rate": 0.025699999999999244
+        },
+        {
+          "tenor": "10Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2036-09-16",
+          "pillar_date": "2036-09-16",
+          "implied_rate": 0.027700000000020864
+        },
+        {
+          "tenor": "15Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2041-09-17",
+          "pillar_date": "2041-09-17",
+          "implied_rate": 0.031299999999999585
+        },
+        {
+          "tenor": "20Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2046-09-14",
+          "pillar_date": "2046-09-14",
+          "implied_rate": 0.033699999999999529
+        },
+        {
+          "tenor": "30Y",
+          "start_date": "2026-09-14",
+          "maturity_date": "2056-09-14",
+          "pillar_date": "2056-09-14",
+          "implied_rate": 0.035399999999988517
+        }
+      ],
+      "nodes": [
+        {
+          "date": "2026-09-10",
+          "discount": 1,
+          "zero_continuous": null
+        },
+        {
+          "date": "2026-10-14",
+          "discount": 0.99893914249006555,
+          "zero_continuous": 0.011394662511924714
+        },
+        {
+          "date": "2026-12-14",
+          "discount": 0.99684309313320207,
+          "zero_continuous": 0.012148354204855641
+        },
+        {
+          "date": "2027-03-15",
+          "discount": 0.99318947304203087,
+          "zero_continuous": 0.013410461930228816
+        },
+        {
+          "date": "2027-09-14",
+          "discount": 0.98461362361642668,
+          "zero_continuous": 0.015337888601701676
+        },
+        {
+          "date": "2028-09-14",
+          "discount": 0.96454748768295717,
+          "zero_continuous": 0.017925329919467624
+        },
+        {
+          "date": "2029-09-14",
+          "discount": 0.94256660264835368,
+          "zero_continuous": 0.019626612835572325
+        },
+        {
+          "date": "2030-09-17",
+          "discount": 0.91887423964473069,
+          "zero_continuous": 0.021036235648654047
+        },
+        {
+          "date": "2031-09-16",
+          "discount": 0.89385066406409197,
+          "zero_continuous": 0.022357557025883181
+        },
+        {
+          "date": "2034-09-14",
+          "discount": 0.81405877423039352,
+          "zero_continuous": 0.025662607536145868
+        },
+        {
+          "date": "2036-09-16",
+          "discount": 0.7567208569873638,
+          "zero_continuous": 0.027807517775341038
+        },
+        {
+          "date": "2041-09-17",
+          "discount": 0.61977796035106392,
+          "zero_continuous": 0.031828984259315352
+        },
+        {
+          "date": "2046-09-14",
+          "discount": 0.49887743921744288,
+          "zero_continuous": 0.034726927289507804
+        },
+        {
+          "date": "2056-09-14",
+          "discount": 0.33147240674622236,
+          "zero_continuous": 0.03676673137126843
+        }
+      ],
+      "curve_points": [
+        {
+          "date": "2026-09-10",
+          "discount": 1,
+          "zero_continuous": null,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-09-14",
+          "discount": 0.99987513478248091,
+          "zero_continuous": 0.011394662511935673,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-10-10",
+          "discount": 0.99906389082010827,
+          "zero_continuous": 0.011394662511925278,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-10-13",
+          "discount": 0.998970328112182,
+          "zero_continuous": 0.011394662511926414,
+          "forward_1d_simple": 0.011394840374505666
+        },
+        {
+          "date": "2026-10-14",
+          "discount": 0.99893914249006555,
+          "zero_continuous": 0.011394662511924714,
+          "forward_1d_simple": 0.012568661050671448
+        },
+        {
+          "date": "2026-10-15",
+          "discount": 0.9989047455170017,
+          "zero_continuous": 0.011428199144631924,
+          "forward_1d_simple": 0.012568661050590402
+        },
+        {
+          "date": "2026-11-10",
+          "discount": 0.99801083982537031,
+          "zero_continuous": 0.011914205428443701,
+          "forward_1d_simple": 0.012568661050590402
+        },
+        {
+          "date": "2026-12-10",
+          "discount": 0.99698040414822175,
+          "zero_continuous": 0.012129888690491298,
+          "forward_1d_simple": 0.012568661050590402
+        },
+        {
+          "date": "2026-12-13",
+          "discount": 0.9968774191139097,
+          "zero_continuous": 0.012143885157496169,
+          "forward_1d_simple": 0.012568661050671448
+        },
+        {
+          "date": "2026-12-14",
+          "discount": 0.99684309313320207,
+          "zero_continuous": 0.012148354204855641,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2026-12-15",
+          "discount": 0.99680287051500072,
+          "zero_continuous": 0.012175226003953052,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-01-10",
+          "discount": 0.99575765191715992,
+          "zero_continuous": 0.012719269805361928,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-02-10",
+          "discount": 0.99451286204823508,
+          "zero_continuous": 0.013126276932810911,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-03-10",
+          "discount": 0.99338987327299055,
+          "zero_continuous": 0.013374064554868831,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-03-14",
+          "discount": 0.99322954985376311,
+          "zero_continuous": 0.013403339849212515,
+          "forward_1d_simple": 0.014728344066612387
+        },
+        {
+          "date": "2027-03-15",
+          "discount": 0.99318947304203087,
+          "zero_continuous": 0.013410461930228816,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-03-16",
+          "discount": 0.99314240809874044,
+          "zero_continuous": 0.013431245087990833,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-04-10",
+          "discount": 0.99196650908874251,
+          "zero_continuous": 0.013887102086072379,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-05-10",
+          "discount": 0.99055726794944365,
+          "zero_continuous": 0.014309805847930087,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-06-10",
+          "discount": 0.98910315533072724,
+          "zero_continuous": 0.01464900110103453,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-07-10",
+          "discount": 0.98769798202625458,
+          "zero_continuous": 0.014911170539716728,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-08-10",
+          "discount": 0.98624806676580901,
+          "zero_continuous": 0.015132601673405886,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-09-10",
+          "discount": 0.98480027994371266,
+          "zero_continuous": 0.015316419847400113,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-09-13",
+          "discount": 0.98466028438126829,
+          "zero_continuous": 0.0153325651673809,
+          "forward_1d_simple": 0.017297322278193583
+        },
+        {
+          "date": "2027-09-14",
+          "discount": 0.98461362361642668,
+          "zero_continuous": 0.015337888601701676,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2027-09-15",
+          "discount": 0.98455823329441572,
+          "zero_continuous": 0.015351932091352914,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2027-10-10",
+          "discount": 0.98317448749899339,
+          "zero_continuous": 0.015679909792699238,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2027-11-10",
+          "discount": 0.98146134332397894,
+          "zero_continuous": 0.016033140237247761,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2027-12-10",
+          "discount": 0.97980630411951786,
+          "zero_continuous": 0.016329248101417351,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-01-10",
+          "discount": 0.97809902887602096,
+          "zero_continuous": 0.01659690042545724,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2028-02-10",
+          "discount": 0.97639472849474407,
+          "zero_continuous": 0.016832517143144817,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-03-10",
+          "discount": 0.97480307154833845,
+          "zero_continuous": 0.017028755564086166,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2028-04-10",
+          "discount": 0.97310451424742905,
+          "zero_continuous": 0.017216752018177479,
+          "forward_1d_simple": 0.020534557378479867
+        },
+        {
+          "date": "2028-05-10",
+          "discount": 0.97146356717185389,
+          "zero_continuous": 0.017380431019219256,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-06-10",
+          "discount": 0.96977082883038934,
+          "zero_continuous": 0.017533420082373515,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-07-10",
+          "discount": 0.96813550335172993,
+          "zero_continuous": 0.01766797432857322,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-08-10",
+          "discount": 0.9664485640349757,
+          "zero_continuous": 0.017794897426809786,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-09-10",
+          "discount": 0.9647645641458622,
+          "zero_continuous": 0.01791105550166644,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-09-13",
+          "discount": 0.96460175221920386,
+          "zero_continuous": 0.017921775900594048,
+          "forward_1d_simple": 0.020534557378398821
+        },
+        {
+          "date": "2028-09-14",
+          "discount": 0.96454748768295717,
+          "zero_continuous": 0.017925329919467624,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-09-15",
+          "discount": 0.96448657120816839,
+          "zero_continuous": 0.017932296161306916,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-10-10",
+          "discount": 0.962964909050253,
+          "zero_continuous": 0.018100502066428461,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-11-10",
+          "discount": 0.9610813816641034,
+          "zero_continuous": 0.018294329638714094,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2028-12-10",
+          "discount": 0.95926212106981723,
+          "zero_continuous": 0.018467984904206536,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-01-10",
+          "discount": 0.95738583621400364,
+          "zero_continuous": 0.018634596239820861,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-02-10",
+          "discount": 0.95551322130906469,
+          "zero_continuous": 0.018789522165018783,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-03-10",
+          "discount": 0.95382497563128443,
+          "zero_continuous": 0.01892040256956852,
+          "forward_1d_simple": 0.023053211897116066
+        },
+        {
+          "date": "2029-04-10",
+          "discount": 0.95195932565140418,
+          "zero_continuous": 0.019056239814163253,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-05-10",
+          "discount": 0.95015733247833689,
+          "zero_continuous": 0.019179453917936413,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-06-10",
+          "discount": 0.94829885628667698,
+          "zero_continuous": 0.019299039505439826,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-07-10",
+          "discount": 0.94650379212898639,
+          "zero_continuous": 0.019407940213595584,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-08-10",
+          "discount": 0.94465246214093146,
+          "zero_continuous": 0.019514025523161799,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-09-10",
+          "discount": 0.9428047532928584,
+          "zero_continuous": 0.019614109656456834,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-09-13",
+          "discount": 0.94262613466922474,
+          "zero_continuous": 0.019623495573445261,
+          "forward_1d_simple": 0.02305321189703502
+        },
+        {
+          "date": "2029-09-14",
+          "discount": 0.94256660264835368,
+          "zero_continuous": 0.019626612835572325,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2029-09-15",
+          "discount": 0.9425014005164275,
+          "zero_continuous": 0.019631720164605213,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2029-10-10",
+          "discount": 0.94087281227552255,
+          "zero_continuous": 0.019756455109902669,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2029-11-10",
+          "discount": 0.93885727054797674,
+          "zero_continuous": 0.019903640189174732,
+          "forward_1d_simple": 0.025250655479212014
+        },
+        {
+          "date": "2029-12-10",
+          "discount": 0.93691085741769176,
+          "zero_continuous": 0.020038757507918444,
+          "forward_1d_simple": 0.025250655479212014
+        },
+        {
+          "date": "2030-01-10",
+          "discount": 0.93490380300664011,
+          "zero_continuous": 0.020171386212663369,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-02-10",
+          "discount": 0.93290104811605723,
+          "zero_continuous": 0.020297431266732464,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-03-10",
+          "discount": 0.93109579608284287,
+          "zero_continuous": 0.020406018442420702,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-04-10",
+          "discount": 0.9291011987208373,
+          "zero_continuous": 0.020520817122397592,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-05-10",
+          "discount": 0.92717501161094973,
+          "zero_continuous": 0.02062684772729451,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-06-10",
+          "discount": 0.92518881337006309,
+          "zero_continuous": 0.020731530682428684,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-07-10",
+          "discount": 0.92327073731012554,
+          "zero_continuous": 0.020828419562022065,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-08-10",
+          "discount": 0.92129290282219944,
+          "zero_continuous": 0.020924267281394199,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-09-10",
+          "discount": 0.91931930525969885,
+          "zero_continuous": 0.021016047541080409,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-09-16",
+          "discount": 0.9189378072525497,
+          "zero_continuous": 0.021033363428850274,
+          "forward_1d_simple": 0.025250655479130968
+        },
+        {
+          "date": "2030-09-17",
+          "discount": 0.91887423964473069,
+          "zero_continuous": 0.021036235648654047,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2030-09-18",
+          "discount": 0.91880454277547208,
+          "zero_continuous": 0.021040762651330387,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2030-10-10",
+          "discount": 0.91727254843326855,
+          "zero_continuous": 0.021138820383345948,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2030-11-10",
+          "discount": 0.9151181637886594,
+          "zero_continuous": 0.021272181124543404,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2030-12-10",
+          "discount": 0.91303809331173569,
+          "zero_continuous": 0.02139616736402138,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-01-10",
+          "discount": 0.91089365407005785,
+          "zero_continuous": 0.021519349481331301,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-02-10",
+          "discount": 0.90875425144152355,
+          "zero_continuous": 0.021637799695745814,
+          "forward_1d_simple": 0.027687452657336742
+        },
+        {
+          "date": "2031-03-10",
+          "discount": 0.90682620701326866,
+          "zero_continuous": 0.021740942741278597,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-04-10",
+          "discount": 0.90469635753826205,
+          "zero_continuous": 0.021851109659991461,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-05-10",
+          "discount": 0.90263997590541933,
+          "zero_continuous": 0.021953904015602949,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-06-10",
+          "discount": 0.90051995857030709,
+          "zero_continuous": 0.02205638813065634,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-07-10",
+          "discount": 0.89847306992376597,
+          "zero_continuous": 0.022152136675716645,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-08-10",
+          "discount": 0.89636283933990635,
+          "zero_continuous": 0.022247714526991917,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-09-10",
+          "discount": 0.89425756502381504,
+          "zero_continuous": 0.022340047128114313,
+          "forward_1d_simple": 0.027687452657336742
+        },
+        {
+          "date": "2031-09-15",
+          "discount": 0.89391846803106167,
+          "zero_continuous": 0.022354646678775444,
+          "forward_1d_simple": 0.027687452657255696
+        },
+        {
+          "date": "2031-09-16",
+          "discount": 0.89385066406409197,
+          "zero_continuous": 0.022357557025883181,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2031-09-17",
+          "discount": 0.89377426830217666,
+          "zero_continuous": 0.022362379530320449,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2031-10-10",
+          "discount": 0.89201896676473502,
+          "zero_continuous": 0.022471862853040262,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2031-11-10",
+          "discount": 0.88965857869990406,
+          "zero_continuous": 0.022615204500626946,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2031-12-10",
+          "discount": 0.88738027925216112,
+          "zero_continuous": 0.022749508149433474,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-01-10",
+          "discount": 0.88503216570508048,
+          "zero_continuous": 0.022883942792558672,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-02-10",
+          "discount": 0.88269026554515617,
+          "zero_continuous": 0.023014165738931083,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-03-10",
+          "discount": 0.88050506617583868,
+          "zero_continuous": 0.023132347121248089,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-04-10",
+          "discount": 0.87817514525861584,
+          "zero_continuous": 0.02325496147960102,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2032-05-10",
+          "discount": 0.87592625338440044,
+          "zero_continuous": 0.023370122129863415,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-06-10",
+          "discount": 0.87360844854930886,
+          "zero_continuous": 0.023485664821013188,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2032-07-10",
+          "discount": 0.87137125138904326,
+          "zero_continuous": 0.02359427810042659,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2032-08-10",
+          "discount": 0.86906549962989033,
+          "zero_continuous": 0.023703343725751461,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-09-10",
+          "discount": 0.8667658491635748,
+          "zero_continuous": 0.023809324465688501,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-10-10",
+          "discount": 0.86454617500682407,
+          "zero_continuous": 0.023909070863442926,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-11-10",
+          "discount": 0.86225848320988541,
+          "zero_continuous": 0.024009351485135579,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2032-12-10",
+          "discount": 0.86005035182876677,
+          "zero_continuous": 0.0241038042600926,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-01-10",
+          "discount": 0.8577745565135918,
+          "zero_continuous": 0.024198832568380159,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-02-10",
+          "discount": 0.85550478322294787,
+          "zero_continuous": 0.024291348401139463,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2033-03-10",
+          "discount": 0.85345982821509669,
+          "zero_continuous": 0.02437283346613324,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-04-10",
+          "discount": 0.85120147220767006,
+          "zero_continuous": 0.024460834963633316,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2033-05-10",
+          "discount": 0.84902165638789495,
+          "zero_continuous": 0.0245438633863416,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-06-10",
+          "discount": 0.84677504430991479,
+          "zero_continuous": 0.024627536275779214,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2033-07-10",
+          "discount": 0.84460656399397949,
+          "zero_continuous": 0.024706530320471622,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-08-10",
+          "discount": 0.84237163477452592,
+          "zero_continuous": 0.024786186297314734,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-09-10",
+          "discount": 0.84014261944306334,
+          "zero_continuous": 0.024863910842572275,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-09-14",
+          "discount": 0.83985543452445277,
+          "zero_continuous": 0.024873802754820273,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-10-10",
+          "discount": 0.83799112390114483,
+          "zero_continuous": 0.024937354562906165,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2033-11-10",
+          "discount": 0.83577369992140083,
+          "zero_continuous": 0.025011478109884848,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2033-12-10",
+          "discount": 0.83363339261188041,
+          "zero_continuous": 0.025081558127439379,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-01-10",
+          "discount": 0.83142749970637153,
+          "zero_continuous": 0.02515232525528174,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-02-10",
+          "discount": 0.82922744385532055,
+          "zero_continuous": 0.025221473356583046,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-03-10",
+          "discount": 0.82724530085949621,
+          "zero_continuous": 0.025282583860775119,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-04-10",
+          "discount": 0.82505631160300286,
+          "zero_continuous": 0.025348800306335358,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-05-10",
+          "discount": 0.82294345012548098,
+          "zero_continuous": 0.025411484200794397,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-06-10",
+          "discount": 0.82076584407664088,
+          "zero_continuous": 0.025474861383556115,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2034-07-10",
+          "discount": 0.81866396992620138,
+          "zero_continuous": 0.025534885994840831,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2034-08-10",
+          "discount": 0.81649768788992427,
+          "zero_continuous": 0.025595602692039088,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2034-09-10",
+          "discount": 0.81433713809304331,
+          "zero_continuous": 0.025655031081493956,
+          "forward_1d_simple": 0.031198540938167652
+        },
+        {
+          "date": "2034-09-13",
+          "discount": 0.81412835627421232,
+          "zero_continuous": 0.025660715365163581,
+          "forward_1d_simple": 0.031198540938086605
+        },
+        {
+          "date": "2034-09-14",
+          "discount": 0.81405877423039352,
+          "zero_continuous": 0.025662607536145868,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2034-09-15",
+          "discount": 0.81397766322164589,
+          "zero_continuous": 0.025666265545694834,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2034-10-10",
+          "discount": 0.81195251246978284,
+          "zero_continuous": 0.025756910328386791,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2034-11-10",
+          "discount": 0.80944832162839808,
+          "zero_continuous": 0.025867199777225156,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2034-12-10",
+          "discount": 0.80703226501329894,
+          "zero_continuous": 0.025971770653847159,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-01-10",
+          "discount": 0.80454324899855578,
+          "zero_continuous": 0.026077661835120333,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2035-02-10",
+          "discount": 0.80206190950554557,
+          "zero_continuous": 0.026181417974689803,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-03-10",
+          "discount": 0.79982727808035092,
+          "zero_continuous": 0.026273351309628757,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2035-04-10",
+          "discount": 0.79736048339260979,
+          "zero_continuous": 0.026373218493887331,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-05-10",
+          "discount": 0.79498050678503118,
+          "zero_continuous": 0.026468000886353257,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-06-10",
+          "discount": 0.7925286603117504,
+          "zero_continuous": 0.026564072754455895,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-07-10",
+          "discount": 0.79016310582082283,
+          "zero_continuous": 0.026655286975214087,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-08-10",
+          "discount": 0.78772611697922446,
+          "zero_continuous": 0.026747775841870474,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-09-10",
+          "discount": 0.78529664419927259,
+          "zero_continuous": 0.026838520166472472,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-10-10",
+          "discount": 0.78295267596641993,
+          "zero_continuous": 0.026924722288747038,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-11-10",
+          "discount": 0.78053792523866017,
+          "zero_continuous": 0.027012174873906433,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2035-12-10",
+          "discount": 0.77820816091990197,
+          "zero_continuous": 0.027095278129786123,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2036-01-10",
+          "discount": 0.7758080430320482,
+          "zero_continuous": 0.027179614892485295,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-02-10",
+          "discount": 0.77341532748994835,
+          "zero_continuous": 0.02726243163213583,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-03-10",
+          "discount": 0.77118366186301968,
+          "zero_continuous": 0.027338565366860808,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-04-10",
+          "discount": 0.76880520864881807,
+          "zero_continuous": 0.027418554543915681,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2036-05-10",
+          "discount": 0.76651046436379444,
+          "zero_continuous": 0.027494625764386341,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-06-10",
+          "discount": 0.76414642403482669,
+          "zero_continuous": 0.027571886153987243,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2036-07-10",
+          "discount": 0.761865585377975,
+          "zero_continuous": 0.02764538419351921,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-08-10",
+          "discount": 0.75951587059543624,
+          "zero_continuous": 0.027720053088070747,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-09-10",
+          "discount": 0.7571734027074486,
+          "zero_continuous": 0.027793454675898457,
+          "forward_1d_simple": 0.036371413529645569
+        },
+        {
+          "date": "2036-09-15",
+          "discount": 0.7567962624865856,
+          "zero_continuous": 0.027805177129165363,
+          "forward_1d_simple": 0.036371413529564522
+        },
+        {
+          "date": "2036-09-16",
+          "discount": 0.7567208569873638,
+          "zero_continuous": 0.027807517775341038,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2036-09-17",
+          "discount": 0.75663817591675686,
+          "zero_continuous": 0.027810817066353983,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2036-10-10",
+          "discount": 0.75473900265940719,
+          "zero_continuous": 0.027886206269116722,
+          "forward_1d_simple": 0.039885101931178557
+        },
+        {
+          "date": "2036-11-10",
+          "discount": 0.75218678762357205,
+          "zero_continuous": 0.027986340414248655,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2036-12-10",
+          "discount": 0.74972511982320422,
+          "zero_continuous": 0.028081665594284044,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-01-10",
+          "discount": 0.74718985966464102,
+          "zero_continuous": 0.02817857658128798,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-02-10",
+          "discount": 0.74466317270697724,
+          "zero_continuous": 0.02827390888169333,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-03-10",
+          "discount": 0.74238834857449298,
+          "zero_continuous": 0.028358690413260158,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-04-10",
+          "discount": 0.73987789834072437,
+          "zero_continuous": 0.028451122808228219,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2037-05-10",
+          "discount": 0.73745651361485931,
+          "zero_continuous": 0.028539172616246996,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2037-06-10",
+          "discount": 0.73496274080639112,
+          "zero_continuous": 0.028628743746725607,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-07-10",
+          "discount": 0.73255744182576266,
+          "zero_continuous": 0.028714088886785814,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-08-10",
+          "discount": 0.7300802356511078,
+          "zero_continuous": 0.028800929582515011,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-09-10",
+          "discount": 0.72761140636279853,
+          "zero_continuous": 0.028886430277463928,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-10-10",
+          "discount": 0.72523016595855994,
+          "zero_continuous": 0.028967926023055843,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-11-10",
+          "discount": 0.72277773759924813,
+          "zero_continuous": 0.029050878928828801,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2037-12-10",
+          "discount": 0.72041231625345181,
+          "zero_continuous": 0.02912996418524522,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-01-10",
+          "discount": 0.71797617986847073,
+          "zero_continuous": 0.029210481508824951,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-02-10",
+          "discount": 0.71554828148879901,
+          "zero_continuous": 0.029289801979356971,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-03-10",
+          "discount": 0.71336239858449046,
+          "zero_continuous": 0.029360439603861054,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-04-10",
+          "discount": 0.71095010210418197,
+          "zero_continuous": 0.029437554729544978,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-05-10",
+          "discount": 0.70862338884251019,
+          "zero_continuous": 0.029511113660200754,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-06-10",
+          "discount": 0.7062271177323971,
+          "zero_continuous": 0.029586043999491458,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-07-10",
+          "discount": 0.70391586129440376,
+          "zero_continuous": 0.029657533554338783,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-08-10",
+          "discount": 0.70153550909473195,
+          "zero_continuous": 0.02973037065663155,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-09-10",
+          "discount": 0.69916320626133532,
+          "zero_continuous": 0.029802177437148792,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-10-10",
+          "discount": 0.69687506775588104,
+          "zero_continuous": 0.029870707317811725,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2038-11-10",
+          "discount": 0.69451852460684782,
+          "zero_continuous": 0.029940549505595361,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2038-12-10",
+          "discount": 0.69224558666521607,
+          "zero_continuous": 0.030007217185817125,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-01-10",
+          "discount": 0.6899046985057965,
+          "zero_continuous": 0.030075174317138392,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-02-10",
+          "discount": 0.68757172626159624,
+          "zero_continuous": 0.030142202581144421,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2039-03-10",
+          "discount": 0.68547130715529347,
+          "zero_continuous": 0.030201961601399166,
+          "forward_1d_simple": 0.039885101931178557
+        },
+        {
+          "date": "2039-04-10",
+          "discount": 0.68315332680633734,
+          "zero_continuous": 0.030267273853786372,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-05-10",
+          "discount": 0.6809175835375324,
+          "zero_continuous": 0.03032964563127101,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-06-10",
+          "discount": 0.67861500199776104,
+          "zero_continuous": 0.030393252073451688,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-07-10",
+          "discount": 0.67639411122069459,
+          "zero_continuous": 0.030454005407697611,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-08-10",
+          "discount": 0.67410682619272455,
+          "zero_continuous": 0.030515972005476722,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-09-10",
+          "discount": 0.67182727581636137,
+          "zero_continuous": 0.030577129435382554,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-10-10",
+          "discount": 0.66962859910534001,
+          "zero_continuous": 0.030635558444051136,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2039-11-10",
+          "discount": 0.66736419224013233,
+          "zero_continuous": 0.030695169235815965,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2039-12-10",
+          "discount": 0.66518012178025854,
+          "zero_continuous": 0.030752129890787145,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-01-10",
+          "discount": 0.66293075782481925,
+          "zero_continuous": 0.030810251981700544,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-02-10",
+          "discount": 0.66068900028760924,
+          "zero_continuous": 0.030867638800294681,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-03-10",
+          "discount": 0.65859873562582738,
+          "zero_continuous": 0.030920669883132173,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-04-10",
+          "discount": 0.65637162719533215,
+          "zero_continuous": 0.030976672673494101,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-05-10",
+          "discount": 0.65422353189995142,
+          "zero_continuous": 0.031030206535701099,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-06-10",
+          "discount": 0.65201121859822875,
+          "zero_continuous": 0.031084852932904597,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-07-10",
+          "discount": 0.64987739353148877,
+          "zero_continuous": 0.031137098003865167,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2040-08-10",
+          "discount": 0.64767977707152558,
+          "zero_continuous": 0.031190436695827179,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-09-10",
+          "discount": 0.6454895920411724,
+          "zero_continuous": 0.03124312873176617,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2040-10-10",
+          "discount": 0.64337711018115407,
+          "zero_continuous": 0.03129351633373486,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2040-11-10",
+          "discount": 0.64120147499000757,
+          "zero_continuous": 0.031344969783593198,
+          "forward_1d_simple": 0.039885101931178557
+        },
+        {
+          "date": "2040-12-10",
+          "discount": 0.63910302677142339,
+          "zero_continuous": 0.031394179887910621,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-01-10",
+          "discount": 0.63694184476197857,
+          "zero_continuous": 0.031444437915572478,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-02-10",
+          "discount": 0.63478797097590678,
+          "zero_continuous": 0.031494104335542068,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2041-03-10",
+          "discount": 0.6328487976042233,
+          "zero_continuous": 0.031538464471390887,
+          "forward_1d_simple": 0.03988510193134065
+        },
+        {
+          "date": "2041-04-10",
+          "discount": 0.63070876481015203,
+          "zero_continuous": 0.031587033418208302,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-05-10",
+          "discount": 0.62864465589028107,
+          "zero_continuous": 0.031633500312146637,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-06-10",
+          "discount": 0.62651883976403455,
+          "zero_continuous": 0.031680972393023948,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-07-10",
+          "discount": 0.62446844313443728,
+          "zero_continuous": 0.031726395785065538,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-08-10",
+          "discount": 0.62235674923183459,
+          "zero_continuous": 0.031772807741751591,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-09-10",
+          "discount": 0.62025219620430305,
+          "zero_continuous": 0.031818694503819189,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-09-16",
+          "discount": 0.61984568612400459,
+          "zero_continuous": 0.031827515902228133,
+          "forward_1d_simple": 0.039885101931259603
+        },
+        {
+          "date": "2041-09-17",
+          "discount": 0.61977796035106392,
+          "zero_continuous": 0.031828984259315352,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2041-09-18",
+          "discount": 0.61970418946290418,
+          "zero_continuous": 0.031831101772760592,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2041-10-10",
+          "discount": 0.61808344961494344,
+          "zero_continuous": 0.031877492575580396,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2041-11-10",
+          "discount": 0.61580687182490301,
+          "zero_continuous": 0.031942236064153105,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2041-12-10",
+          "discount": 0.61361171625364541,
+          "zero_continuous": 0.032004204885351974,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2042-01-10",
+          "discount": 0.61135160913412634,
+          "zero_continuous": 0.032067541940358199,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2042-02-10",
+          "discount": 0.60909982663432438,
+          "zero_continuous": 0.032130181747954907,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2042-03-10",
+          "discount": 0.6070730882514872,
+          "zero_continuous": 0.03218616986915504,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2042-04-10",
+          "discount": 0.60483706476549115,
+          "zero_continuous": 0.032247514084686915,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2042-05-10",
+          "discount": 0.60268101306621635,
+          "zero_continuous": 0.032306246472986466,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2042-06-10",
+          "discount": 0.60046116684693918,
+          "zero_continuous": 0.032366292988263441,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2042-07-10",
+          "discount": 0.59832071383149643,
+          "zero_continuous": 0.032423789464630523,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2042-08-10",
+          "discount": 0.59611692783904102,
+          "zero_continuous": 0.032482579026497413,
+          "forward_1d_simple": 0.043450366539518059
+        },
+        {
+          "date": "2042-09-10",
+          "discount": 0.59392125901951376,
+          "zero_continuous": 0.032540744879802387,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2042-10-10",
+          "discount": 0.59180411869472083,
+          "zero_continuous": 0.032596449862711527,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2042-11-10",
+          "discount": 0.58962433518245549,
+          "zero_continuous": 0.032653417051668625,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2042-12-10",
+          "discount": 0.5875225120240205,
+          "zero_continuous": 0.032707979967330346,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-01-10",
+          "discount": 0.58535849889139924,
+          "zero_continuous": 0.032763785166383071,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-02-10",
+          "discount": 0.58320245643690916,
+          "zero_continuous": 0.032819013423241145,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-03-10",
+          "discount": 0.58126188979784632,
+          "zero_continuous": 0.032868408523504158,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2043-04-10",
+          "discount": 0.5791209363241121,
+          "zero_continuous": 0.032922563168865326,
+          "forward_1d_simple": 0.043450366539518059
+        },
+        {
+          "date": "2043-05-10",
+          "discount": 0.57705655444081727,
+          "zero_continuous": 0.032974445607402335,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2043-06-10",
+          "discount": 0.57493109041770585,
+          "zero_continuous": 0.033027522831974236,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2043-07-10",
+          "discount": 0.57288164400201436,
+          "zero_continuous": 0.033078378164826547,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-08-10",
+          "discount": 0.57077155736586627,
+          "zero_continuous": 0.033130409805070329,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-09-10",
+          "discount": 0.56866924278116848,
+          "zero_continuous": 0.033181921883114869,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-10-10",
+          "discount": 0.56664211786001473,
+          "zero_continuous": 0.033231284883517002,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2043-11-10",
+          "discount": 0.56455501317985357,
+          "zero_continuous": 0.033281797062966238,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2043-12-10",
+          "discount": 0.56254255417823396,
+          "zero_continuous": 0.033330206508063592,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-01-10",
+          "discount": 0.5604705493614206,
+          "zero_continuous": 0.033379747622387691,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-02-10",
+          "discount": 0.55840617632984568,
+          "zero_continuous": 0.033428805940564625,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-03-10",
+          "discount": 0.5564818728611054,
+          "zero_continuous": 0.033474268350702718,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-04-10",
+          "discount": 0.55443219126373389,
+          "zero_continuous": 0.033522412056349551,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-05-10",
+          "discount": 0.55245581690154055,
+          "zero_continuous": 0.033568562250756225,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-06-10",
+          "discount": 0.5504209644175917,
+          "zero_continuous": 0.033615802072869794,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2044-07-10",
+          "discount": 0.54845888880288207,
+          "zero_continuous": 0.033661089859422261,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2044-08-10",
+          "discount": 0.54643875814612897,
+          "zero_continuous": 0.033707451016343662,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2044-09-10",
+          "discount": 0.54442606820727413,
+          "zero_continuous": 0.033753375003420336,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2044-10-10",
+          "discount": 0.54248536249020163,
+          "zero_continuous": 0.033797407125433922,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2044-11-10",
+          "discount": 0.54048723403612864,
+          "zero_continuous": 0.033842488737195114,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2044-12-10",
+          "discount": 0.53856056900968607,
+          "zero_continuous": 0.033885716873091672,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2045-01-10",
+          "discount": 0.53657689669041786,
+          "zero_continuous": 0.03392997907608853,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-02-10",
+          "discount": 0.53460053080258318,
+          "zero_continuous": 0.033973833393148127,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-03-10",
+          "discount": 0.53282168377639083,
+          "zero_continuous": 0.034013097827714056,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-04-10",
+          "discount": 0.53085914940972412,
+          "zero_continuous": 0.034056191265739194,
+          "forward_1d_simple": 0.043450366539518059
+        },
+        {
+          "date": "2045-05-10",
+          "discount": 0.52896680544167696,
+          "zero_continuous": 0.034097521422410765,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2045-06-10",
+          "discount": 0.5270184696923742,
+          "zero_continuous": 0.034139848822007886,
+          "forward_1d_simple": 0.043450366539518059
+        },
+        {
+          "date": "2045-07-10",
+          "discount": 0.52513981652555819,
+          "zero_continuous": 0.034180447535491765,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-08-10",
+          "discount": 0.52320557666892931,
+          "zero_continuous": 0.034222029142516722,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-09-10",
+          "discount": 0.52127846116986232,
+          "zero_continuous": 0.034263239271208036,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-10-10",
+          "discount": 0.51942026930717222,
+          "zero_continuous": 0.034302771012652236,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2045-11-10",
+          "discount": 0.51750709617571533,
+          "zero_continuous": 0.034343264555738016,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2045-12-10",
+          "discount": 0.51566234802932165,
+          "zero_continuous": 0.034382111871813996,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2046-01-10",
+          "discount": 0.51376301639470989,
+          "zero_continuous": 0.034421907358717072,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-02-10",
+          "discount": 0.51187068054071316,
+          "zero_continuous": 0.034461354992781017,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-03-10",
+          "discount": 0.51016746555043269,
+          "zero_continuous": 0.034496689905733915,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-04-10",
+          "discount": 0.50828837313662212,
+          "zero_continuous": 0.03453548797752614,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-05-10",
+          "discount": 0.50647648680480861,
+          "zero_continuous": 0.034572715598895756,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-06-10",
+          "discount": 0.50461098931938686,
+          "zero_continuous": 0.034610858814335919,
+          "forward_1d_simple": 0.043450366539680152
+        },
+        {
+          "date": "2046-07-10",
+          "discount": 0.50281221169087531,
+          "zero_continuous": 0.03464746072674408,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-08-10",
+          "discount": 0.50096021077674369,
+          "zero_continuous": 0.034684965526580035,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-09-10",
+          "discount": 0.49911503131067197,
+          "zero_continuous": 0.03472215201052415,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-09-13",
+          "discount": 0.49893682663550409,
+          "zero_continuous": 0.034725733959835664,
+          "forward_1d_simple": 0.043450366539599106
+        },
+        {
+          "date": "2046-09-14",
+          "discount": 0.49887743921744288,
+          "zero_continuous": 0.034726927289507804,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2046-09-15",
+          "discount": 0.49882161178529466,
+          "zero_continuous": 0.034727764647567945,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2046-10-10",
+          "discount": 0.49742795457997663,
+          "zero_continuous": 0.034748624395562727,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2046-11-10",
+          "discount": 0.49570522605868494,
+          "zero_continuous": 0.034774293836198601,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2046-12-10",
+          "discount": 0.49404375032842823,
+          "zero_continuous": 0.03479893034595942,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2047-01-10",
+          "discount": 0.49233274222842038,
+          "zero_continuous": 0.034824178981379038,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2047-02-10",
+          "discount": 0.49062765981559375,
+          "zero_continuous": 0.034849217719319973,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2047-03-10",
+          "discount": 0.4890926615609919,
+          "zero_continuous": 0.034871655111213859,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2047-04-10",
+          "discount": 0.48739880043021361,
+          "zero_continuous": 0.034896301532331142,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2047-05-10",
+          "discount": 0.48576516569065326,
+          "zero_continuous": 0.034919960124527652,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2047-06-10",
+          "discount": 0.48408282858458557,
+          "zero_continuous": 0.03494421054576359,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2047-07-10",
+          "discount": 0.48246030812515406,
+          "zero_continuous": 0.034967490530635317,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2047-08-10",
+          "discount": 0.48078941664117997,
+          "zero_continuous": 0.034991354419827168,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2047-09-10",
+          "discount": 0.47912431190961674,
+          "zero_continuous": 0.035015025406655277,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2047-10-10",
+          "discount": 0.47751841111582599,
+          "zero_continuous": 0.035037751339002991,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2047-11-10",
+          "discount": 0.475864634767519,
+          "zero_continuous": 0.035061049510581976,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2047-12-10",
+          "discount": 0.47426965956856854,
+          "zero_continuous": 0.035083418916065749,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-01-10",
+          "discount": 0.47262713453192895,
+          "zero_continuous": 0.035106353011238774,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-02-10",
+          "discount": 0.47099029800696524,
+          "zero_continuous": 0.035129105345718878,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-03-10",
+          "discount": 0.4694641962349797,
+          "zero_continuous": 0.035150227145456778,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-04-10",
+          "discount": 0.46783831382701935,
+          "zero_continuous": 0.035172633769137755,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-05-10",
+          "discount": 0.46627024078028523,
+          "zero_continuous": 0.035194150441474774,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2048-06-10",
+          "discount": 0.46465541991019566,
+          "zero_continuous": 0.035216213607675746,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2048-07-10",
+          "discount": 0.46309801510078646,
+          "zero_continuous": 0.035237401723181981,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-08-10",
+          "discount": 0.46149418051243629,
+          "zero_continuous": 0.035259129268786923,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-09-10",
+          "discount": 0.45989590044019907,
+          "zero_continuous": 0.035280689180267007,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2048-10-10",
+          "discount": 0.45835444830925953,
+          "zero_continuous": 0.035301395821212833,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2048-11-10",
+          "discount": 0.45676704198500101,
+          "zero_continuous": 0.035322631486956767,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2048-12-10",
+          "discount": 0.45523607697849239,
+          "zero_continuous": 0.035343027881280423,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2049-01-10",
+          "discount": 0.45365947042369204,
+          "zero_continuous": 0.035363946561308188,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-02-10",
+          "discount": 0.45208832408690669,
+          "zero_continuous": 0.035384706863248079,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-03-10",
+          "discount": 0.45067390161292686,
+          "zero_continuous": 0.0354033234653763,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-04-10",
+          "discount": 0.44911309511429343,
+          "zero_continuous": 0.035423787266123101,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-05-10",
+          "discount": 0.44760778415841379,
+          "zero_continuous": 0.035443445012353261,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2049-06-10",
+          "discount": 0.44605759645982945,
+          "zero_continuous": 0.035463608890148823,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-07-10",
+          "discount": 0.44456252674529922,
+          "zero_continuous": 0.035482979579029086,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2049-08-10",
+          "discount": 0.44302288560275777,
+          "zero_continuous": 0.035502850079511331,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-09-10",
+          "discount": 0.44148857665693814,
+          "zero_continuous": 0.035522573934233553,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2049-10-10",
+          "discount": 0.44000882111525602,
+          "zero_continuous": 0.035541523432899194,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2049-11-10",
+          "discount": 0.43848495069588,
+          "zero_continuous": 0.035560963426939179,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2049-12-10",
+          "discount": 0.43701526253169304,
+          "zero_continuous": 0.03557964118700381,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2050-01-10",
+          "discount": 0.43550175962122878,
+          "zero_continuous": 0.035598803404437711,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-02-10",
+          "discount": 0.43399349838366791,
+          "zero_continuous": 0.035617826732757644,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-03-10",
+          "discount": 0.43263568813958608,
+          "zero_continuous": 0.035634890967591169,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-04-10",
+          "discount": 0.43113735288837157,
+          "zero_continuous": 0.035653654097277797,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-05-10",
+          "discount": 0.42969229197197445,
+          "zero_continuous": 0.035671683811307503,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2050-06-10",
+          "discount": 0.42820415050355953,
+          "zero_continuous": 0.035690183495171425,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-07-10",
+          "discount": 0.42676892092304125,
+          "zero_continuous": 0.035707960946506669,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2050-08-10",
+          "discount": 0.42529090388498447,
+          "zero_continuous": 0.035726202694262195,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-09-10",
+          "discount": 0.42381800562258737,
+          "zero_continuous": 0.035744315422127144,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2050-10-10",
+          "discount": 0.42239747726546972,
+          "zero_continuous": 0.035761722309190946,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2050-11-10",
+          "discount": 0.42093459972771391,
+          "zero_continuous": 0.035779585123782688,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2050-12-10",
+          "discount": 0.41952373580151803,
+          "zero_continuous": 0.035796752662177585,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2051-01-10",
+          "discount": 0.41807081081334702,
+          "zero_continuous": 0.03581437070037051,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2051-02-10",
+          "discount": 0.41662291770023113,
+          "zero_continuous": 0.03583186626761737,
+          "forward_1d_simple": 0.04085030049367333
+        },
+        {
+          "date": "2051-03-10",
+          "discount": 0.41531945378273127,
+          "zero_continuous": 0.035847564507962212,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2051-04-10",
+          "discount": 0.41388108936856616,
+          "zero_continuous": 0.035864830486603272,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2051-05-10",
+          "discount": 0.41249386698508317,
+          "zero_continuous": 0.035881426348801197,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2051-06-10",
+          "discount": 0.4110652883477745,
+          "zero_continuous": 0.035898459675405184,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2051-07-10",
+          "discount": 0.40968750380115765,
+          "zero_continuous": 0.035914832665923969,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2051-08-10",
+          "discount": 0.40826864436409416,
+          "zero_continuous": 0.035931638011346231,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2051-09-10",
+          "discount": 0.40685469882380182,
+          "zero_continuous": 0.035948329247534432,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2051-10-10",
+          "discount": 0.40549102708442686,
+          "zero_continuous": 0.035964374500656475,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2051-11-10",
+          "discount": 0.40408670118948187,
+          "zero_continuous": 0.035980844566634057,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2051-12-10",
+          "discount": 0.40273230706238344,
+          "zero_continuous": 0.035996677911274914,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2052-01-10",
+          "discount": 0.40133753536643452,
+          "zero_continuous": 0.036012931174080137,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2052-02-10",
+          "discount": 0.3999475941448471,
+          "zero_continuous": 0.036029075895061366,
+          "forward_1d_simple": 0.04085030049367333
+        },
+        {
+          "date": "2052-03-10",
+          "discount": 0.39865168479234314,
+          "zero_continuous": 0.03604408171763316,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2052-04-10",
+          "discount": 0.39727104540300157,
+          "zero_continuous": 0.036060019423405795,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2052-05-10",
+          "discount": 0.39593949559159675,
+          "zero_continuous": 0.036075342642797187,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2052-06-10",
+          "discount": 0.39456824925234057,
+          "zero_continuous": 0.036091073938284646,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2052-07-10",
+          "discount": 0.39324575851469989,
+          "zero_continuous": 0.036106199346141399,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2052-08-10",
+          "discount": 0.39188384132079734,
+          "zero_continuous": 0.036121728215384577,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2052-09-10",
+          "discount": 0.3905266408171652,
+          "zero_continuous": 0.036137155706309002,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2052-10-10",
+          "discount": 0.38921769650585464,
+          "zero_continuous": 0.036151989942699025,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2052-11-10",
+          "discount": 0.38786972958805599,
+          "zero_continuous": 0.036167220824448613,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2052-12-10",
+          "discount": 0.38656969055611823,
+          "zero_continuous": 0.036181866612573728,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2053-01-10",
+          "discount": 0.38523089440432118,
+          "zero_continuous": 0.036196904619746673,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2053-02-10",
+          "discount": 0.38389673486832693,
+          "zero_continuous": 0.036211846009671443,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2053-03-10",
+          "discount": 0.38269565945771572,
+          "zero_continuous": 0.036225259186318241,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2053-04-10",
+          "discount": 0.38137028013101698,
+          "zero_continuous": 0.036240019246181296,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2053-05-10",
+          "discount": 0.38009202557292626,
+          "zero_continuous": 0.036254213708024563,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2053-06-10",
+          "discount": 0.37877566333968005,
+          "zero_continuous": 0.036268789739860544,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2053-07-10",
+          "discount": 0.37750610526611578,
+          "zero_continuous": 0.036282807775481075,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2053-08-10",
+          "discount": 0.37619869877937578,
+          "zero_continuous": 0.036297203199644065,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2053-09-10",
+          "discount": 0.37489582019747686,
+          "zero_continuous": 0.036311508123269831,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2053-10-10",
+          "discount": 0.37363926635481259,
+          "zero_continuous": 0.036325266230586746,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2053-11-10",
+          "discount": 0.3723452517846676,
+          "zero_continuous": 0.036339395546603884,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2053-12-10",
+          "discount": 0.37109724678775569,
+          "zero_continuous": 0.03635298527581908,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2054-01-10",
+          "discount": 0.36981203592389517,
+          "zero_continuous": 0.036366942198138387,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-02-10",
+          "discount": 0.36853127609538699,
+          "zero_continuous": 0.036380812717144273,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-03-10",
+          "discount": 0.36737827370293075,
+          "zero_continuous": 0.036393267327895891,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2054-04-10",
+          "discount": 0.36610594265602492,
+          "zero_continuous": 0.03640697560353829,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-05-10",
+          "discount": 0.36487885020985061,
+          "zero_continuous": 0.036420161586631201,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2054-06-10",
+          "discount": 0.36361517534742077,
+          "zero_continuous": 0.036433705093962307,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-07-10",
+          "discount": 0.36239643130916183,
+          "zero_continuous": 0.036446733061346284,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-08-10",
+          "discount": 0.36114135373967182,
+          "zero_continuous": 0.03646011475329259,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-09-10",
+          "discount": 0.35989062284572654,
+          "zero_continuous": 0.036473415320285273,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2054-10-10",
+          "discount": 0.35868436254429814,
+          "zero_continuous": 0.03648621028778732,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2054-11-10",
+          "discount": 0.35744214088022197,
+          "zero_continuous": 0.036499353360985684,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2054-12-10",
+          "discount": 0.35624408725717377,
+          "zero_continuous": 0.036511997268763106,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2055-01-10",
+          "discount": 0.35501031693122242,
+          "zero_continuous": 0.036524985629054409,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-02-10",
+          "discount": 0.35378081948802659,
+          "zero_continuous": 0.036537896409544343,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-03-10",
+          "discount": 0.35267396599218043,
+          "zero_continuous": 0.036549491654777944,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2055-04-10",
+          "discount": 0.35145255996877989,
+          "zero_continuous": 0.036562256691150027,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-05-10",
+          "discount": 0.35027458187206401,
+          "zero_continuous": 0.036574537973081682,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2055-06-10",
+          "discount": 0.34906148556953703,
+          "zero_continuous": 0.036587154904397942,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-07-10",
+          "discount": 0.34789152173588456,
+          "zero_continuous": 0.036599294106121123,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-08-10",
+          "discount": 0.3466866786198276,
+          "zero_continuous": 0.036611765495070704,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-09-10",
+          "discount": 0.34548600820371778,
+          "zero_continuous": 0.036624163883065323,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2055-10-10",
+          "discount": 0.34432802844559063,
+          "zero_continuous": 0.036636093418443323,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2055-11-10",
+          "discount": 0.34313552667760255,
+          "zero_continuous": 0.036648350018463456,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2055-12-10",
+          "discount": 0.34198542512572527,
+          "zero_continuous": 0.036660143516612211,
+          "forward_1d_simple": 0.040850300493430192
+        },
+        {
+          "date": "2056-01-10",
+          "discount": 0.34080103643123066,
+          "zero_continuous": 0.036672260747055672,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2056-02-10",
+          "discount": 0.33962074959744865,
+          "zero_continuous": 0.03668430805955708,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2056-03-10",
+          "discount": 0.33852031115963599,
+          "zero_continuous": 0.036695515363514807,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2056-04-10",
+          "discount": 0.3373479230988089,
+          "zero_continuous": 0.036707429058999978,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2056-05-10",
+          "discount": 0.33621722009747546,
+          "zero_continuous": 0.036718893532420104,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2056-06-10",
+          "discount": 0.33505280826842898,
+          "zero_continuous": 0.036730673649894914,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2056-07-10",
+          "discount": 0.33392979789849908,
+          "zero_continuous": 0.036742009941357838,
+          "forward_1d_simple": 0.040850300493592284
+        },
+        {
+          "date": "2056-08-10",
+          "discount": 0.33277330803569138,
+          "zero_continuous": 0.036753658714836768,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2056-09-10",
+          "discount": 0.33162082341234178,
+          "zero_continuous": 0.036765241579942293,
+          "forward_1d_simple": 0.040850300493511238
+        },
+        {
+          "date": "2056-09-13",
+          "discount": 0.33150950468436186,
+          "zero_continuous": 0.036766359025374992,
+          "forward_1d_simple": 0.040850300493592284
+        }
+      ],
+      "swap": {
+        "npv": 1512212.819901228,
+        "fixed_leg_npv": -1598684789.7603791,
+        "overnight_leg_npv": 1600197002.5802803,
+        "fixed_leg_bps": -6416149.8075630935,
+        "par_rate": 0.024940144020547002,
+        "cashflows": [
+          {
+            "leg": "fixed",
+            "accrual_start": "2026-09-14",
+            "accrual_end": "2027-09-14",
+            "payment_date": "2027-09-14",
+            "amount": 249165751.69050992
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2027-09-14",
+            "accrual_end": "2028-09-14",
+            "payment_date": "2028-09-14",
+            "amount": 249848397.58555254
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2028-09-14",
+            "accrual_end": "2029-09-14",
+            "payment_date": "2029-09-14",
+            "amount": 249165751.69050992
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2029-09-14",
+            "accrual_end": "2030-09-17",
+            "payment_date": "2030-09-17",
+            "amount": 251213689.37563783
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2030-09-17",
+            "accrual_end": "2031-09-16",
+            "payment_date": "2031-09-16",
+            "amount": 248483105.79546729
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2031-09-16",
+            "accrual_end": "2032-09-14",
+            "payment_date": "2032-09-14",
+            "amount": 248483105.79546729
+          },
+          {
+            "leg": "fixed",
+            "accrual_start": "2032-09-14",
+            "accrual_end": "2033-09-14",
+            "payment_date": "2033-09-14",
+            "amount": 249165751.69050992
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2026-09-14",
+            "accrual_end": "2027-09-14",
+            "payment_date": "2027-09-14",
+            "amount": 154999999.99999624
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2027-09-14",
+            "accrual_end": "2028-09-14",
+            "payment_date": "2028-09-14",
+            "amount": 208036786.05469722
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2028-09-14",
+            "accrual_end": "2029-09-14",
+            "payment_date": "2029-09-14",
+            "amount": 233202459.88817322
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2029-09-14",
+            "accrual_end": "2030-09-17",
+            "payment_date": "2030-09-17",
+            "amount": 257841192.85772178
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2030-09-17",
+            "accrual_end": "2031-09-16",
+            "payment_date": "2031-09-16",
+            "amount": 279952531.0734064
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2031-09-16",
+            "accrual_end": "2032-09-14",
+            "payment_date": "2032-09-14",
+            "amount": 316007642.43095553
+          },
+          {
+            "leg": "overnight",
+            "accrual_start": "2032-09-14",
+            "accrual_end": "2033-09-14",
+            "payment_date": "2033-09-14",
+            "amount": 316889407.87410802
+          }
+        ]
+      }
+    }
+  },
+  "pv_change": 1512212.8198971748
+}
