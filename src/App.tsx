@@ -6,6 +6,7 @@ import BlackModel from "./content/part2/black-model.mdx";
 import DeterministicCashflow from "./content/part2/deterministic-cashflow.mdx";
 import IrsCalibration from "./content/part2/irs-calibration.mdx";
 import RateModels from "./content/part2/rate-models.mdx";
+import EarlyRedemption from "./content/part2/early-redemption.mdx";
 import { CurveProvider } from "./components/curves";
 import { TOC } from "./book/toc";
 import { TocPage } from "./book/TocPage";
@@ -15,6 +16,11 @@ import { AswDetailPage, AswListPage } from "./asw/pages";
 import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
+  "/part2/early-redemption": () => (
+    <article className="prose">
+      <EarlyRedemption />
+    </article>
+  ),
   "/part2/rate-models": () => (
     <article className="prose">
       <RateModels />
