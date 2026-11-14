@@ -3,3 +3,6 @@ dist
 test-results
 *.log
 .scratch
+
+# market and disclosure data fetched locally (EDINET XBRL, prices via tidyquant): not committed
+market_data/
