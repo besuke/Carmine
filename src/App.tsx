@@ -4,6 +4,7 @@ import JgbFutures from "./content/part2/jgb-futures.mdx";
 import CreditCds from "./content/part2/credit-cds.mdx";
 import BlackModel from "./content/part2/black-model.mdx";
 import DeterministicCashflow from "./content/part2/deterministic-cashflow.mdx";
+import IrsCalibration from "./content/part2/irs-calibration.mdx";
 import { CurveProvider } from "./components/curves";
 import { TOC } from "./book/toc";
 import { TocPage } from "./book/TocPage";
@@ -13,6 +14,11 @@ import { AswDetailPage, AswListPage } from "./asw/pages";
 import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
+  "/part2/irs-calibration": () => (
+    <article className="prose">
+      <IrsCalibration />
+    </article>
+  ),
   "/part2/deterministic-cashflow": () => (
     <article className="prose">
       <DeterministicCashflow />

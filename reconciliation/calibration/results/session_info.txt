@@ -1,0 +1,3 @@
+run_at: 2026-11-14 21:04:05 JST
+GaussQuant 2026.6.18.1 QuantLib 1.42; the manuscript's R functions
+RiemannFinMath 0.3.0

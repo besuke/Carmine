@@ -1,0 +1,89 @@
+import { CalibrationProvider, CalibrationStatus, CalibrationControls, NormalPanel, SabrPanel, HullWhitePanel, BgmPanel } from "../../components/calibration";
+
+<CalibrationProvider>
+
+# 第II部 第6章 金利デリバティブのキャリブレーション
+
+この章は、原稿の第II-6章『金利デリバティブのキャリブレーション』の React 版です。モデルの価格とボラティリティは R の HTTP API が **RiemannFinMath** で計算します。原稿のあてはめの手順（R の `optim`、L-BFGS-B、同じ初期値・範囲・目的関数）を RiemannFinMath の関数の上で動かし、RiemannFinMath 自身のキャリブレーション関数の結果と並べました。原稿のコードを GaussQuant で動かした結果、原稿の計算結果と照合しています（`reconciliation/calibration/`）。
+
+<CalibrationStatus />
+
+> 入力値はすべて原稿の説明用の値です。原稿のとおり、市場の実勢値ではありません。
+
+## II-6.1 市場価格からモデルパラメータへ
+
+キャリブレーションでは、契約条件（評価対象）、割引・予測カーブ（市場の状態）、オプション市場（合わせる対象）、モデル（推定するパラメータ）を区別します。市場商品の価格を $V_i^{\mathrm{mkt}}$、パラメータ $\boldsymbol\theta$ での価格を $V_i(\boldsymbol\theta)$ として、たとえば重み付き価格誤差
+
+$$
+J(\boldsymbol\theta) = \sum_{i=1}^{n} w_i \left[V_i(\boldsymbol\theta) - V_i^{\mathrm{mkt}}\right]^2
+$$
+
+を最小化します。市場ボラティリティに直接合わせる場合は、価格の代わりに同じ定義・単位のボラティリティを使います。
+
+## II-6.2 Black 型と Normal 型のボラティリティ
+
+Normal（Bachelier）型の価格は
+
+$$
+V_N = D\left[\omega(F - K)N(\omega d) + \sigma_N\sqrt{T}\,\phi(d)\right], \qquad d = \frac{F - K}{\sigma_N\sqrt{T}}
+$$
+
+で、$F$ や $K$ が負でも定義できます。Black 型は正の $F$、$K$ を必要とするので、負金利を含む場合は Normal 型か、共通のシフトを加える Shifted Black 型が候補になります。同じ「40」でも、Black 40% は相対変動の年率、Normal 40bp は金利の絶対変動の年率で、意味がまったく違います。
+
+<CalibrationControls which="normal" />
+
+<NormalPanel />
+
+## II-6.3 SABR によるスマイル・キャリブレーション
+
+SABR は、フォワード $F_t$ とそのボラティリティ水準 $\alpha_t$ を確率変数として扱い、近似インプライド・ボラティリティ $\sigma_{\mathrm{impl}}(K) = g(F_0, K, T; \alpha, \beta, \nu, \rho)$ を与えます。市場クォートは説明用の7点（単一満期2年、フォワード 0.56%）で、$\beta$ を固定して $\alpha$、$\nu$、$\rho$ をボラティリティの二乗誤差の平均で推定します。
+
+原稿の手順（`optim`、L-BFGS-B、初期値 0.1）と、RiemannFinMath の `calibrate_sabr`（Levenberg–Marquardt）を並べます。二つは最適化の方法が違うので、パラメータは少し違う値に止まります。同じクォートへの当てはまりは RMSE で比べます。$\beta$ を変えると、$\alpha$ と $\nu$・$\rho$ がどう補い合うか（パラメータの識別の難しさ）を見られます。
+
+<CalibrationControls which="sabr" />
+
+<SabrPanel />
+
+## II-6.4 Hull–White のパラメータ推定
+
+Hull–White 1因子モデル $dr_t = \{\theta(t) - a r_t\}dt + \sigma\,dW_t$ では、満期 $S$ の割引債に対する満期 $T$ のコールは
+
+$$
+C = P(0,S)N(h) - KP(0,T)N(h - v), \qquad h = \frac{\log[P(0,S)/(KP(0,T))]}{v} + \frac{v}{2}, \qquad
+v = \frac{\sigma}{a}\left(1 - e^{-a(S-T)}\right)\sqrt{\frac{1 - e^{-2aT}}{2a}}
+$$
+
+で、$v$ はオプション満期までに蓄積される債券価格の標準偏差です。原稿と同じく、基準の $a$・$\sigma$ で4本の債券オプションの「市場価格」を作り、3本で $a$・$\sigma$ を推定し、残りの1本で検証します。目的関数は価格差を1万倍した二乗和です。
+
+<CalibrationControls which="hw" />
+
+<HullWhitePanel />
+
+原稿の手順は、目的関数がまだ小さくなる位置で止まります。Riemann の比較資料（`comparison/chapters/ch11_hull_white.qmd`）は、`optim` が勾配を差分で求める刻み（`ndeps`）を細かくすると、基準の値に近づくことを示しています。RiemannFinMath の `calibrate_hull_white` は、価格を作った基準の $a$・$\sigma$ まで戻ります。検証用のオプションの誤差は、少数の市場点からの同時推定がどこまで外の商品を説明できるかを示します。
+
+## II-6.5 BGM モデルと Brigo–Mercurio への接続
+
+フォワード金利の変動係数を $\sigma_i$、スワップレートを局所的に固定ウェイト $w_i$ の和で近似すると、分散率は
+
+$$
+\sigma_S^2 \approx \sum_{i,j} w_i w_j \sigma_i \sigma_j \rho_{ij}, \qquad \rho_{ij} = e^{-\beta |T_i - T_j|}
+$$
+
+で近似できます。これは説明用の固定ウェイト近似で、BGM の測度変換やドリフト、ボラティリティの期間依存は入っていません。キャップレットだけでは相関を識別できないので、スワップションのボラティリティから相関の減衰 $\beta$ を推定します。
+
+次の表とグラフでは、同じキャップレット・ボラティリティで RiemannFinMath の対数正規フォワード・マーケット・モデルを作り、Rebonato の近似と `calibrate_lmm_correlation` による減衰の推定も並べました（このページで加えたもの。フォワード 3% は仮定）。
+
+<CalibrationControls which="bgm" />
+
+<BgmPanel />
+
+## II-6.6 キャリブレーションサマリー
+
+| 確認項目 | SABR | Hull–White | BGM |
+|---|---|---|---|
+| 主な入力 | 行使金利別のオプション・ボラティリティ | 満期・スワップ年限別のオプション価格 | Caplet、Swaption、相関の情報 |
+| 主な推定対象 | $\alpha, \nu, \rho$（必要なら $\beta$） | $a, \sigma$ | フォワード・ボラティリティと相関構造 |
+| よくある不足 | $\beta$ を含むパラメータの識別 | 少数市場点からの同時推定 | Caplet だけでは相関を識別できない |
+| 検証 | スマイルと市場点外の形 | 複数満期の価格と未使用商品 | Cap と Swaption の同時再評価 |
+
+</CalibrationProvider>

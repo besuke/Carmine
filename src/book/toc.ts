@@ -146,6 +146,8 @@ export const TOC: Part[] = [
         id: "II-6",
         title: "金利デリバティブのキャリブレーション",
         source: "part2_quantive_riemann/ch06_irs_calibration.qmd",
+        route: "/part2/irs-calibration",
+        routeNote: "II-6.1〜6.6 を実装済み（Normal・Black の比較、SABR の β、Hull–White の基準パラメータ、BGM の相関の減衰を操作。原稿の optim の手順と RiemannFinMath のキャリブレーション関数を並べ、GaussQuant と原稿の結果に照合）",
         operations: [
           "SABR のパラメータを動かして、市場スマイルとの当てはまりを見る。校正ボタンで最適値へ",
           "Black 型と Normal 型のボラティリティを換算して比べる",

@@ -12,6 +12,7 @@
 #   POST /api/cds                 {"flat":{"spreadBp":130,...},"isda":{"spreadBp":30.426,...}} -> CDS legs, hazard, ISDA (II-5)
 #   POST /api/black               {"black":{...},"mc":{"sequence":"pseudo","paths":200},"bsm":{...},"lsm":{"paths":2048}} -> II-4
 #   POST /api/bond                {"shapes":{...},"bond":{"simpleYieldPct":6.515,"couponPct":7.5,"zSpreadBp":50}} -> II-1
+#   POST /api/calibration         {"normal":{...},"sabr":{"beta":0.5},"hw":{...},"bgm":{"decay":0.45}} -> II-6
 #   GET  /api/asw/offers          -> the ASW offer sheet (Curie demo data)
 #   GET  /api/asw/offers/<id>     -> one offer: curve, price conversion, cash flows, ASW components
 
@@ -32,6 +33,7 @@ source(file.path(script_dir, "R", "futures_model.R"))
 source(file.path(script_dir, "R", "cds_model.R"))
 source(file.path(script_dir, "R", "black_model.R"))
 source(file.path(script_dir, "R", "bond_model.R"))
+source(file.path(script_dir, "R", "calibration_model.R"))
 # the demo data do not change while the server runs
 ASW_LIST <- asw_list()
 ASW_REPORT <- asw_report()
@@ -171,6 +173,22 @@ handle <- function(req) {
     unknown <- setdiff(names(body), c("shapes", "bond"))
     if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
     result <- tryCatch(bond_compute(body),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
+  # Calibration of interest-rate derivatives (II-6)
+  if (identical(path, "/api/calibration")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"sabr\":{\"beta\":0.5}}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("normal", "sabr", "hw", "bgm"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(calibration_compute(body),
                        tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
                        error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
     if (inherits(result, "bad")) return(json_response(400, unclass(result)))
