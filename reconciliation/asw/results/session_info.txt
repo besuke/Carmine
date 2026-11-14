@@ -1,4 +1,4 @@
-run_at: 2026-11-14 15:46:20 JST
+run_at: 2026-11-14 17:05:32 JST
 R: R version 4.6.0 (2026-04-24 ucrt)
 QuantLib (R): 1.42
 GaussQuant (installed, for B): 2026.6.18.1

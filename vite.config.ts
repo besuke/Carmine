@@ -15,8 +15,8 @@ export default defineConfig({
     { enforce: "pre", ...mdx({ remarkPlugins: [remarkMath], rehypePlugins: [rehypeKatex] }) },
     react({ include: /\.(mdx|tsx|ts)$/ }),
   ],
-  server: { host: "127.0.0.1", port: 5173, strictPort: true, proxy },
-  preview: { host: "127.0.0.1", port: 4173, strictPort: true, proxy },
+  server: { host: "127.0.0.1", port: 8080, strictPort: true, proxy },
+  preview: { host: "127.0.0.1", port: 8080, strictPort: true, proxy },
   test: {
     include: ["tests/**/*.test.ts"],
     globalSetup: ["tests/globalSetup.ts"],

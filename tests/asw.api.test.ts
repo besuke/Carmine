@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
 import { fetchAswDetail, fetchAswList, type AswDetailResponse, type AswListResponse } from "../src/api/asw";
 import { ApiError } from "../src/api/client";
 
-// The ASW offer-sheet API against Curie's old demo results (tests/golden/asw_curie_demo_results.json,
+// The ASW offer-sheet API against Curie's old demo results (server/data/asw_demo/curie_reference.json,
 // written by scripts/asw/snapshot_curie_demo.R from Curie output/offer_results_*_demo_20261006.xlsx).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -17,7 +17,7 @@ interface OldRow {
   jpy_asw_status: string | null;
   validation_status: string; pricing_status: string; pricing_message: string | null;
 }
-const golden: { results: OldRow[] } = JSON.parse(readFileSync(path.join(root, "tests", "golden", "asw_curie_demo_results.json"), "utf8"));
+const golden: { results: OldRow[] } = JSON.parse(readFileSync(path.join(root, "server", "data", "asw_demo", "curie_reference.json"), "utf8"));
 
 // ASW in bp: 1e-6 bp (1e-10 as a rate, the rate tolerance of the other tests); prices per 100: 1e-10.
 const TOL = { aswBp: 1e-6, price: 1e-10, rebuiltBp: 1e-9, npvPer100: 1e-10 };

@@ -76,6 +76,100 @@ export interface AswOfferRow {
   basis_bp: number | null;
   fx_spot: number | null;
   simple_sum_bp: number | null;
+  /** Yen bonds: (compound yield − interpolated JGB compound yield) × 100. */
+  jgb_spread_bp: number | null;
+  /** Input-check codes, as Curie names them (empty when the offer passes). */
+  validation_issues: string[];
+}
+
+export interface JgbSpread {
+  status: "computed" | "not_computed";
+  reason: string;
+  remaining_years?: number;
+  compound_yield_pct?: number;
+  jgb_interpolated_yield_pct?: number;
+  jgb_spread_bp?: number;
+}
+
+export interface OfferColumn {
+  offer_book: string;
+  file: string;
+  sheet: string;
+  header_row: number;
+  source_header: string;
+  field: string;
+  size_unit: string;
+  size_multiplier: number;
+}
+
+export interface JgbSpreadQuote {
+  offer_id: string;
+  spread_bp: number;
+  jgb_interpolated_yield_pct: number;
+  compound_yield_pct: number;
+  remaining_years: number;
+  clean_price: number;
+  clean_price_3dp: number;
+  round_trip_spread_bp: number;
+  native_asw_bp: number;
+  assumption: string;
+  response: ResponseStamp;
+}
+
+type Ref = Record<string, string | number | null>;
+
+export interface ReportOffer {
+  offer_id: string;
+  book: "JPY" | "ISO";
+  ISIN: string;
+  security_name: string;
+  currency: string;
+  offer_price: number;
+  settlement_date: string;
+  validation_status: "valid" | "invalid";
+  validation_issues: string[];
+  pricing_status: "success" | "partial" | "failed" | "unsupported" | "skipped";
+  pricing_message: string;
+  native_asw_bp: number | null;
+  asw_effective_date: string | null;
+  jpy_compound_yield_pct: number | null;
+  jgb_interpolated_yield_pct: number | null;
+  jgb_spread_bp: number | null;
+  fx_spot: number | null;
+  basis_bp: number | null;
+  yen_asw_bp: number | null;
+  simple_sum_bp: number | null;
+  calibrated_discount_spread_bp: number | null;
+  calculation_end_date: string | null;
+  /** The old Curie demo's row for the same ISIN. */
+  reference: Ref | null;
+}
+
+export interface AswReport {
+  conditions: AswConditions;
+  valuation_date: string;
+  reference_note: Record<string, string>;
+  inputs: Record<"JPY" | "ISO", { offer_file: string; columns: OfferColumn[]; market_log: Ref[] }>;
+  attributes_source: string[];
+  offers: ReportOffer[];
+  curve_check: { currency: string; status: string; index: string; marketdate: string; quote_time: string; quotes: number; max_abs_quote_error_bp: number; last_pillar: string }[];
+  curve_reference: Record<"JPY" | "ISO", Ref[]>;
+  jgb: {
+    yields: { ISIN: string; security_name: string; maturity_date: string; settlement_date: string; coupon_rate: number; coupon_frequency: number; clean_price: number; remaining_years: number; compound_yield_pct: number; yield_message: string }[];
+    reference_yields: Ref[];
+    average: { maturity_date: string; settlement_date: string; jgb_yield_pct_mean: number; n_jgbs: number; jgb_isins: string }[];
+    reference_average: Ref[];
+    curve: { time: number; date: string; yield_pct: number }[] | null;
+    settlement_date: string;
+  };
+  basis: {
+    table: { currency_pair: string; notional_type: string; maturity_date: string; n_quotes: number; basis_bp_mean: number; quote_sources: string; used: boolean }[];
+    reference: Ref[];
+    curves: { currency: string; points: { maturity_date: string; time: number; basis_bp: number }[]; curve: { time: number; date: string; basis_bp: number }[] }[];
+  };
+  residuals: { offer_id: string; ISIN: string; security_name: string; currency: string; fx_spot: number; fx_spot_date: string; asw_effective_date: string; calibrated_discount_spread_bp: number; ccs_residual_yen: number; fair_spread_residual_yen: number; reference: Ref }[];
+  provenance: string[];
+  response: ResponseStamp;
 }
 
 export interface ResponseStamp {
@@ -97,6 +191,9 @@ export interface AswDetailResponse {
   reason: string;
   summary?: null | { accrued: number; dirty_price: number; fair_spread_bp: number; effective_date: string; maturity_date: string; settlement_date: string };
   yen?: null | YenAsw;
+  jgb?: null | JgbSpread;
+  validation_issues: string[];
+  offer_columns: OfferColumn[];
   detail?: null | {
     curve: {
       currency: string; index: string; day_count: string; settlement_days: number; interpolation: string;
@@ -149,3 +246,31 @@ export const fetchAswList = (options: { baseUrl?: string; signal?: AbortSignal; 
 
 export const fetchAswDetail = (offerId: string, options: { baseUrl?: string; signal?: AbortSignal; requestId?: string } = {}) =>
   getJson<AswDetailResponse>(`/api/asw/offers/${encodeURIComponent(offerId)}`, options);
+
+export const fetchAswReport = (options: { baseUrl?: string; signal?: AbortSignal; requestId?: string } = {}) =>
+  getJson<AswReport>("/api/asw/report", options);
+
+/** A quote given as a spread over JGBs (yen bonds), converted to a price by the R API. */
+export async function postJgbSpread(
+  offerId: string,
+  spreadBp: number,
+  options: { baseUrl?: string; signal?: AbortSignal; requestId?: string } = {},
+): Promise<JgbSpreadQuote> {
+  const requestId = options.requestId ?? newRequestId();
+  let res: Response;
+  try {
+    res = await fetch(`${options.baseUrl ?? ""}/api/asw/offers/${encodeURIComponent(offerId)}/jgb-spread`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Request-Id": requestId },
+      body: JSON.stringify({ spreadBp }),
+      signal: options.signal,
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throw new ApiError("R APIに接続できません。npm run api で起動してください。", null);
+  }
+  const body = (await res.json().catch(() => null)) as (JgbSpreadQuote & { error?: string }) | null;
+  if (!res.ok || !body) throw new ApiError(body?.error ?? `HTTP ${res.status}`, res.status);
+  if (body.response?.request_id !== requestId) throw new ApiError("APIの応答が要求と対応していません", res.status);
+  return body;
+}

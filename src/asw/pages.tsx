@@ -94,7 +94,7 @@ export function AswListPage() {
                   <th scope="col" className="num">単価</th>
                   <th scope="col" className="num">数量（額面）</th>
                   <th scope="col" className="num">ASW<br /><span className="muted">発行通貨のOIS</span></th>
-                  <th scope="col" className="num">円換算ASW<br /><span className="muted">円TONAR</span></th>
+                  <th scope="col" className="num">円の比較<br /><span className="muted">円債：JGB対比／外債：円換算ASW</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -114,7 +114,7 @@ export function AswListPage() {
                       {o.fair_spread_bp === null ? <span className={`status status-${o.status}`}>{STATUS_LABEL[o.status]}</span> : bpText(o.fair_spread_bp)}
                     </td>
                     <td className="num" data-testid={`yen-asw-${o.offer_id}`}>
-                      {o.yen_asw_bp !== null ? bpText(o.yen_asw_bp) : o.yen_status === "not_applicable" ? <span className="muted">円建て</span> : "—"}
+                      {o.yen_asw_bp !== null ? bpText(o.yen_asw_bp) : o.jgb_spread_bp !== null ? <>JGB {bpText(o.jgb_spread_bp)}</> : "—"}
                     </td>
                   </tr>,
                   o.reason || o.yen_reason ? (
@@ -128,7 +128,7 @@ export function AswListPage() {
           </div>
           <p className="note">
             ASW は発行通貨の OIS（JPY は TONA、USD は SOFR、EUR は €STR）に対するスプレッドで、正の値は翌日物レグに上乗せして受け取る金利です。
-            円換算 ASW は、外貨建て債券を円担保の通貨スワップで円にヘッジしたときの、円TONAR に対するスプレッドです（円担保・元本一定、満期のベーシス1点で校正した簡易モデル）。
+            円債の「JGB対比」は（複利利回り − 同じ償還日に補間したJGB複利利回り）× 100 bp。円換算 ASW は、外貨建て債券を円担保の通貨スワップで円にヘッジしたときの、円TONAR に対するスプレッドです（円担保・元本一定、満期のベーシス1点で校正した簡易モデル）。
             発行通貨の ASW とベーシスの単純な和とは一致しません。数量は額面金額（各通貨の単位）です。
           </p>
         </>
@@ -192,6 +192,7 @@ function Detail({ d }: { d: AswDetailResponse }) {
       <ConditionsBlock c={d.conditions} />
       {d.detail && <Computed d={d} />}
       {d.yen?.detail && <YenSection d={d} />}
+      {d.jgb && <JgbSection d={d} />}
       {d.yen && d.yen.status !== "computed" && (
         <>
           <h2>6. 円換算ASW</h2>
@@ -320,18 +321,71 @@ function OfferAndAttributes({ d }: { d: AswDetailResponse }) {
     ["settlement_days", "受渡日数"], ["payment_convention", "支払日の調整"], ["first_call_date", "First Call日"],
     ["redemption", "償還額（額面100）"], ["attribute_date", "属性の日付"], ["attribute_source", "属性の出所"],
   ];
+  const cols = d.offer_columns ?? [];
+  const valueOf = (field: string): string => {
+    const v = o[field];
+    if (field === "offer_size") return `${new Intl.NumberFormat("ja-JP").format(Number(v))}（元の値 × ${new Intl.NumberFormat("ja-JP").format(cols[0]?.size_multiplier ?? 1)}）`;
+    return v === null || v === undefined ? "—" : String(v);
+  };
   return (
-    <div className="two-col">
-      <table className="kv"><caption>オファー</caption><tbody>{offerRows.map(([k, v]) => <tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody></table>
-      <table className="kv">
-        <caption>銘柄属性（ISIN とオファー日で結合）</caption>
-        <tbody>
-          {a ? attrKeys.map(([k, label]) => (
-            <tr key={k}><th scope="row">{label}</th><td>{k === "coupon_rate" && typeof a[k] === "number" ? pct(a[k] as number, 3) : String(a[k] ?? "—")}</td></tr>
-          )) : <tr><td>属性が見つかりません</td></tr>}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className="two-col">
+        <table className="kv"><caption>オファー</caption><tbody>{offerRows.map(([k, v]) => <tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody></table>
+        <table className="kv">
+          <caption>銘柄属性（ISIN とオファー日で結合）</caption>
+          <tbody>
+            {a ? attrKeys.map(([k, label]) => (
+              <tr key={k}><th scope="row">{label}</th><td>{k === "coupon_rate" && typeof a[k] === "number" ? pct(a[k] as number, 3) : String(a[k] ?? "—")}</td></tr>
+            )) : <tr><td>属性が見つかりません</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      {cols.length > 0 && (
+        <div className="table-wrap">
+          <table className="data">
+            <caption>
+              オファーシートの入力項目：{cols[0].file}（シート「{cols[0].sheet}」、見出しは {cols[0].header_row} 行目）。Curie の <code>convert_offer_sheet_Curie()</code> の対応
+            </caption>
+            <thead><tr><th scope="col">元の見出し</th><th scope="col">共通形式の列</th><th scope="col">このオファーの値</th></tr></thead>
+            <tbody>
+              {cols.map((c) => <tr key={c.source_header}><td>{c.source_header}</td><td><code>{c.field}</code></td><td className="wrap">{valueOf(c.field)}</td></tr>)}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p className="note">
+        入力検証（Curie と同じ問題コード）：{d.validation_issues.length ? <strong>{d.validation_issues.join("; ")}</strong> : "合格（問題なし）"}
+      </p>
+    </>
+  );
+}
+
+function JgbSection({ d }: { d: AswDetailResponse }) {
+  const j = d.jgb!;
+  return (
+    <>
+      <h2>6. JGBスプレッド（円建て債券）</h2>
+      <p>
+        JGBスプレッド ＝（対象債の複利利回り − 同じ償還日に補間したJGB複利利回り）× 100 bp（Curie と同じ定義）。複利利回りは日本式（利払・複利とも年2回、
+        残存年数は満年数＋端数ACT/365、小数第7位未満を切り捨て）で、JGB 利回りは同じ受渡日の JGB を償還日ごとに平均し、自然3次スプラインで補間します（外挿なし）。
+      </p>
+      {j.status !== "computed" ? (
+        <div className="banner" role="status"><strong>計算できない</strong>　{j.reason}</div>
+      ) : (
+        <table className="kv">
+          <tbody>
+            <tr><th scope="row">残存年数（満年数＋端数ACT/365）</th><td>{j.remaining_years!.toFixed(7)}</td></tr>
+            <tr><th scope="row">対象債の複利利回り（単価 {Number(d.offer.offer_price).toFixed(2)} から）</th><td>{j.compound_yield_pct!.toFixed(7)} %</td></tr>
+            <tr><th scope="row">補間JGB複利利回り（満期 {String(d.attributes?.maturity_date)}）</th><td>{j.jgb_interpolated_yield_pct!.toFixed(7)} %</td></tr>
+            <tr className="changed"><th scope="row">JGBスプレッド</th><td data-testid="jgb-spread-detail">{bpText(j.jgb_spread_bp!, 4)}（丸め前 <code>{j.jgb_spread_bp}</code>）</td></tr>
+          </tbody>
+        </table>
+      )}
+      <p className="note">
+        オファーは単価で提示されています。JGB対比スプレッドで提示された場合の単価への換算は、<a href={href("/asw/poc")}>A1 オファーシート作成 POC</a> の 3.3 で試せます
+        （Curie にはない機能で、Curie のJGBスプレッドの定義を逆に解きます）。JGB の利回りと補間の明細は同じページの 5.2 にあります。
+      </p>
+    </>
   );
 }
 

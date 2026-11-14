@@ -5,15 +5,15 @@
   "type": "module",
   "description": "LagrangeFinance の数式を読みながら金融モデルをブラウザで動かす教材（初版：円OISカーブと7年OIS）",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/check-port.mjs 8080 && vite",
     "api": "node scripts/run-r.mjs server/server.R --port 8787",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "preview": "node scripts/check-port.mjs 8080 && vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
     "golden": "node scripts/run-r.mjs golden/generate_golden.R",
     "reconcile": "node scripts/run-r.mjs reconciliation/reconcile_tona_ois.R",
-    "lan": "npm run build && node scripts/run-r.mjs server/server.R --host 0.0.0.0 --port 8787 --static dist",
+    "lan": "npm run build && node scripts/check-port.mjs 8080 0.0.0.0 && node scripts/run-r.mjs server/server.R --host 0.0.0.0 --port 8080 --static dist",
     "reconcile:asw": "node scripts/run-r.mjs reconciliation/asw/reconcile_asw_jpy.R && node scripts/run-r.mjs reconciliation/asw/reconcile_yen_asw.R",
     "snapshot:asw": "node scripts/run-r.mjs scripts/asw/snapshot_curie_demo.R"
   },

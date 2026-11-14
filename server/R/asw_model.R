@@ -390,7 +390,9 @@ asw_list <- function() {
       yen_asw_bp = if (is.null(res$yen$yen_asw_bp)) NA else res$yen$yen_asw_bp,
       basis_bp = if (is.null(res$yen$basis_bp)) NA else res$yen$basis_bp,
       fx_spot = if (is.null(res$yen$fx_spot)) NA else res$yen$fx_spot,
-      simple_sum_bp = if (is.null(res$yen$simple_sum_bp)) NA else res$yen$simple_sum_bp
+      simple_sum_bp = if (is.null(res$yen$simple_sum_bp)) NA else res$yen$simple_sum_bp,
+      jgb_spread_bp = if (is.null(res$error) && identical(a$currency, "JPY")) asw_jgb_spread(a, o)$jgb_spread_bp %||% NA else NA,
+      validation_issues = I(ASW_VALIDATION[[o$offer_id]]) # I(): always a JSON array
     )
   })
   list(conditions = asw_conditions(), offers = items)
@@ -410,5 +412,8 @@ asw_detail <- function(offer_id) {
   if (!is.null(attr)) for (k in names(attr)) if (inherits(attr[[k]], "Date")) attr[[k]] <- if (is.na(attr[[k]])) NA else iso(attr[[k]])
   list(conditions = asw_conditions(), offer = offer, attributes = attr,
        status = if (is.null(res$error)) "computed" else if (startsWith(res$error, "未対応")) "unsupported" else "failed",
-       reason = if (is.null(res$error)) "" else res$error, summary = res$summary, yen = res$yen, detail = res$detail)
+       reason = if (is.null(res$error)) "" else res$error, summary = res$summary, yen = res$yen, detail = res$detail,
+       jgb = if (is.null(res$error) && identical(attr$currency, "JPY")) asw_jgb_spread(r$attr, r$offer) else NULL,
+       validation_issues = I(ASW_VALIDATION[[offer_id]]),
+       offer_columns = ASW_OFFER_COLUMNS[ASW_OFFER_COLUMNS$offer_book == r$offer$offer_book, ])
 }

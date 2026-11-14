@@ -61,7 +61,29 @@ A＝旧デモ（`offer_results_ISO_demo_20261006.xlsx`）、B＝Curie の `compu
 
 **円換算 ASW の差（1e-10 bp 程度）の原因【実行確認】**：差は z の差（7.5e-11 bp）と同じ大きさで、旧デモと Curie の再実行は一致している。z を求める解法の停止条件（Curie は `uniroot` の許容誤差 1e-12、RiemannFinMath は自前の解法）による差で、許容誤差の 1e-6 bp より十分小さい。
 
-## 4. 注意
+## 4. JGBスプレッドと A1 POC の表【実行照合済み】
+
+`npm test` の `tests/asw.poc.test.ts` が、`GET /api/asw/report`（Curie `docs/A1_offer_sheet_POC.qmd` の表に対応するデータ）を旧デモの結果（`server/data/asw_demo/curie_reference.json`）と比べる。
+
+| 項目 | 件数 | 許容誤差 | 実測の最大差 |
+|---|---|---|---|
+| 入力検証の問題コード・計算状態 | 12 | 完全一致 | 一致（変動利付債 `unsupported_coupon_type; unsupported_product`、コール条項付き債 `unsupported_product`） |
+| JGB の残存年数・複利利回り（小数第7位で切り捨て） | 8 | 完全一致 | 一致 |
+| JGB の同一償還日の平均（2033-06-20 は2銘柄） | 7 | 1e-12 % | 0 |
+| 対象債の複利利回り | 5 | 1e-10 % | 0 |
+| 補間JGB利回り（自然3次スプライン、受渡日からの実日数/365） | 5 | 1e-10 % | 4.4e-16 % |
+| **JGBスプレッド** | 5 | 1e-6 bp | **7.1e-15 bp** |
+| OIS カーブの最大再現誤差 | 3 | 1e-9 bp | 0 |
+| ベーシスの平均（mtm_reset を含む全条件） | 15 | 1e-12 bp | 0 |
+| 円換算 ASW の校正スプレッド z | 5 | 1e-6 bp | 1.1e-9 bp |
+
+複利利回りは、Curie が GaussQuant の `bond_compound_yield_from_price_YEN_GQL()`、API が RiemannFinMath の `compute_compound_yield_from_price()` で、同じ規則（Riemann `docs/spec_bonds.md` 5.1）による。
+
+**JGB対比スプレッドで提示された気配**：Curie の A1 は扱わない（オファーシートの必須項目は単価 `offer_price` で、列の対応にスプレッドの列はない。JGBスプレッドは単価から計算する出力）。API の `POST /api/asw/offers/<id>/jgb-spread` は、Curie の定義を逆に解いて単価に換算する参考機能である。照合の相手がないので、戻し確認で確かめた：5銘柄で、単価から求めた JGBスプレッドを換算し直すと、単価（切り捨てなし）の差は最大 5.3e-7、小数第3位で切り捨てた単価はオファー単価と一致、戻したスプレッドの差は最大 1.0e-5 bp（利回りを小数第7位で切り捨てるため）。
+
+**RiemannFinMath について気づいた点**：`compute_price_from_compound_yield()` のヘルプは「`digits = NA` で切り捨てなし」と書くが、R の関数は NA を受け付けない（`Must not be NA.`）。API は `digits = 20` を使う（額面100前後の価格で最下位ビット程度の差）。
+
+## 5. 注意
 
 - Curie の銘柄属性と市場データのファイルの更新日時（2026-10-27 08:14）は、旧デモの結果（同日 00:29）より後である。全10件で差が 1e-13 bp 未満なので、計算に使う値は同じと判断した（ファイルの内容の履歴は確かめていない）。
 - 旧デモの結果を作った GaussQuant（2026.9.12.1）と、今入っている GaussQuant（2026.6.18.1）は版が違う。B の再実行は今の版によるもので、A とも一致した。

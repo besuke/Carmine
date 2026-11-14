@@ -21,7 +21,10 @@ script_dir <- local({
 })
 source(file.path(script_dir, "R", "tona_ois_model.R"))
 source(file.path(script_dir, "R", "asw_model.R"))
-ASW_LIST <- asw_list() # the demo data do not change while the server runs
+source(file.path(script_dir, "R", "asw_report.R"))
+# the demo data do not change while the server runs
+ASW_LIST <- asw_list()
+ASW_REPORT <- asw_report()
 
 args <- commandArgs(trailingOnly = TRUE)
 arg_value <- function(name, default) {
@@ -86,6 +89,22 @@ handle <- function(req) {
     return(json_response(200, result, request_id = result$response$request_id))
   }
   # OIS asset swap offer sheet (Curie's demo data, read-only)
+  if (identical(path, "/api/asw/report")) {
+    if (method != "GET") return(json_response(405, list(error = "Use GET.")))
+    id <- request_id(req)
+    stamp <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, c(ASW_REPORT, list(response = stamp)), request_id = id))
+  }
+  # A quote given as a spread over JGBs, converted to a price (yen bonds only)
+  if (grepl("^/api/asw/offers/[A-Za-z0-9_-]{1,32}/jgb-spread$", path)) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"spreadBp\":11.5}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body) || !identical(names(body), "spreadBp")) return(json_response(400, list(error = "The body must be {\"spreadBp\": <number>}.")))
+    out <- asw_jgb_spread_quote(sub("^/api/asw/offers/([^/]+)/jgb-spread$", "\\1", path), body$spreadBp)
+    id <- request_id(req)
+    if (out$status != 200L) return(json_response(out$status, out$body))
+    return(json_response(200, c(out$body, list(response = list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z")))), request_id = id))
+  }
   if (identical(path, "/api/asw/offers") || startsWith(path, "/api/asw/offers/")) {
     if (method != "GET") return(json_response(405, list(error = "Use GET.")))
     id <- request_id(req)

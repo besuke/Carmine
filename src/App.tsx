@@ -4,6 +4,7 @@ import { TocPage } from "./book/TocPage";
 import { href, useRoute } from "./book/router";
 import { ScenarioProvider } from "./state/ScenarioContext";
 import { AswDetailPage, AswListPage } from "./asw/pages";
+import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
   "/part2/yield-curve-ois": () => (
@@ -22,7 +23,10 @@ function Sidebar({ route }: { route: string }) {
       <div className="sidebar-part">応用サンプル</div>
       <ul>
         <li>
-          <a href={href("/asw")} className={route.startsWith("/asw") ? "active" : undefined}>OISアセットスワップ・オファーシート</a>
+          <a href={href("/asw/poc")} className={route === "/asw/poc" ? "active" : undefined}>A1 オファーシート作成 POC</a>
+        </li>
+        <li>
+          <a href={href("/asw")} className={route.startsWith("/asw") && route !== "/asw/poc" ? "active" : undefined}>OISアセットスワップ・オファーシート</a>
         </li>
       </ul>
       {TOC.map((part) => (
@@ -63,7 +67,7 @@ export function App() {
       <div className="layout">
         <Sidebar route={route} />
         <main className="page">
-          {chapter ? chapter() : route === "/" ? <TocPage /> : route === "/asw" ? <AswListPage /> : aswId ? <AswDetailPage offerId={aswId} /> : (
+          {chapter ? chapter() : route === "/" ? <TocPage /> : route === "/asw" ? <AswListPage /> : route === "/asw/poc" ? <AswPocPage /> : aswId ? <AswDetailPage offerId={aswId} /> : (
             <p>ページが見つかりません。<a href={href("/")}>目次へ</a></p>
           )}
         </main>

@@ -1,0 +1,17 @@
+"offer_book","file","sheet","header_row","source_header","field","size_unit","size_multiplier"
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"オファー日","offer_date","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"ISINコード","ISIN","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"銘柄名","offer_security_name","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"業者名","broker_names","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"単価","offer_price","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"数量(億円)","offer_size","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"受渡日","offer_settlementdate","億円",1e+08
+"JPY","demo_offers_JPY_20261006.xlsx","円債オファー",5,"参考:発行価格","sheet_issue_price","億円",1e+08
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Trade Date","offer_date","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Settle Date","offer_settlementdate","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"ISIN","ISIN","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Security","offer_security_name","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Dealer","broker_names","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Ccy","offer_currency","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Price","offer_price","MM",1e+06
+"ISO","demo_offers_ISO_20261006.xlsx","Offers",3,"Size (MM)","offer_size","MM",1e+06

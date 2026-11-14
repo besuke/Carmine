@@ -59,7 +59,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--text-primary); }
-code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.88em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 4px; }
+code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.88em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 4px; overflow-wrap: anywhere; }
 
 .site-header { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: baseline; padding: 0.75rem 16px; border-bottom: 1px solid var(--grid); background: var(--surface-1); }
 .brand { font-weight: 700; }
@@ -181,3 +181,19 @@ tr.not-computed td, tr.not-computed th { background: var(--surface-2); }
 .bar { stroke: var(--surface-1); stroke-width: 1; }
 tr.reason-row td { padding-top: 0; white-space: normal; border-top: none; }
 table.data.offers tr.not-computed:has(+ tr.reason-row) th, table.data.offers tr.not-computed:has(+ tr.reason-row) td { border-bottom: none; }
+
+/* A1 offer-sheet POC */
+.poc-doc .subtitle { color: var(--text-secondary); margin-top: -0.5rem; }
+.poc-toc { background: var(--surface-1); border: 1px solid var(--grid); border-radius: var(--radius); padding: 0.5rem 1rem; font-size: 0.9rem; }
+.poc-toc ol { margin: 0.25rem 0; padding-left: 1.25rem; }
+.poc-section { scroll-margin-top: 1rem; }
+table.data.poc td.wrap { min-width: 6rem; }
+table.data.check { max-width: 760px; }
+.role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; font-size: 0.9rem; }
+.role-grid > div { border: 1px solid var(--grid); border-radius: var(--radius); padding: 0.6rem 0.8rem; background: var(--surface-1); }
+.role-input { grid-column: 1 / -1; }
+.role-grid ol { margin: 0.25rem 0 0; padding-left: 1.25rem; }
+.role-grid li.here { color: var(--accent); }
+.controls label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.9rem; }
+.controls select, .controls input { font: inherit; font-size: 0.9rem; padding: 0.3rem 0.4rem; border: 1px solid var(--axis); border-radius: 6px; background: var(--surface-1); color: var(--text-primary); max-width: 16rem; }
+.controls input[type="number"] { width: 7rem; }
