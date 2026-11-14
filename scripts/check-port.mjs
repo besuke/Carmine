@@ -1,8 +1,8 @@
 // Stop with a reason if the browser port is taken; never move to another port.
-//   node scripts/check-port.mjs [port=8080] [host=127.0.0.1]
+//   node scripts/check-port.mjs [port=8081] [host=127.0.0.1]
 import net from "node:net";
 
-const port = Number(process.argv[2] ?? 8080);
+const port = Number(process.argv[2] ?? 8081);
 const host = process.argv[3] ?? "127.0.0.1";
 const server = net.createServer();
 server.once("error", (e) => {

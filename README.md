@@ -4,7 +4,7 @@
 
 | 画面 | 内容 | URL（開発時） |
 |---|---|---|
-| 目次と対応状況 | 第II部・第III部の全16章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8080/#/ |
+| 目次と対応状況 | 第II部・第III部の全16章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
 | II-1 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/part2/deterministic-cashflow` |
 | II-2 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/part2/yield-curves` |
 | II-2 国債先物・CTD・先物BPV | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/part2/jgb-futures` |
@@ -33,7 +33,7 @@
 TypeScript は金融計算をしません。APIへの送信と、返ってきた値の表示だけを担当します。表示のために、2本のカーブの差（変更後 − 初期）を引き算することはあります。
 
 ```
-ブラウザ (React)  --POST /api/scenario {"bumpTenor":"5Y","bumpBp":1}-->  Vite (8080, /api を転送)  -->  R API (127.0.0.1:8787)
+ブラウザ (React)  --POST /api/scenario {"bumpTenor":"5Y","bumpBp":1}-->  Vite (8081, /api を転送)  -->  R API (127.0.0.1:8787)
                   <--------- 初期・変更後の割引係数、フォワード、7年パーレート、PV、PV差（JSON） ---------
 ```
 
@@ -50,30 +50,30 @@ npm install          # 初回のみ
 # ターミナル1：R API（127.0.0.1:8787）
 npm run api
 
-# ターミナル2：画面（http://127.0.0.1:8080/）
+# ターミナル2：画面（http://127.0.0.1:8081/）
 npm run dev
 ```
 
-ビルドした版を見る場合は、`npm run build` の後に `npm run preview`（同じく http://127.0.0.1:8080/、`/api` はR APIへ転送。`npm run dev` とは同時に使えない）を使います。R API が動いていないと、画面に起動コマンドと再試行ボタンが表示されます。
+ビルドした版を見る場合は、`npm run build` の後に `npm run preview`（同じく http://127.0.0.1:8081/、`/api` はR APIへ転送。`npm run dev` とは同時に使えない）を使います。R API が動いていないと、画面に起動コマンドと再試行ボタンが表示されます。
 
 ### ポート
 
 | 用途 | ポート |
 |---|---|
-| 画面（`npm run dev`・`npm run preview`）、社内LAN（`npm run lan`、画面とAPIを1つのポートで） | **8080** |
+| 画面（`npm run dev`・`npm run preview`）、社内LAN（`npm run lan`、画面とAPIを1つのポートで） | **8081** |
 | 開発用の R API（`npm run api`。画面の `/api` の転送先） | 8787 |
 | テスト（`npm test`）が起動する R API | 8788 |
 
-8080 は1つのプロセスしか使えないので、`npm run dev`・`npm run preview`・`npm run lan` は同時に起動しません。
+8081 は1つのプロセスしか使えないので、`npm run dev`・`npm run preview`・`npm run lan` は同時に起動しません。
 
-**8080 が使用中のとき**：3つのコマンドはどれも、起動前に `scripts/check-port.mjs` でポートを確かめ、使用中なら別のポートに切り替えずに、次のように理由を表示して止まります（終了コード 1）。Vite も `strictPort: true` なので、自分で別のポートに移ることはありません。
+**8081 が使用中のとき**：3つのコマンドはどれも、起動前に `scripts/check-port.mjs` でポートを確かめ、使用中なら別のポートに切り替えずに、次のように理由を表示して止まります（終了コード 1）。Vite も `strictPort: true` なので、自分で別のポートに移ることはありません。
 
 ```
-ポート 8080（127.0.0.1）は使用中のため起動しません（EADDRINUSE）。別のポートには切り替えません。
-使っているプロセスを止めてから、もう一度実行してください。確認：netstat -ano | findstr :8080
+ポート 8081（127.0.0.1）は使用中のため起動しません（EADDRINUSE）。別のポートには切り替えません。
+使っているプロセスを止めてから、もう一度実行してください。確認：netstat -ano | findstr :8081
 ```
 
-`netstat -ano | findstr :8080` の最後の列がプロセス番号です。`tasklist /FI "PID eq <番号>"` で何かを確かめ、不要なら止めてから実行し直してください。
+`netstat -ano | findstr :8081` の最後の列がプロセス番号です。`tasklist /FI "PID eq <番号>"` で何かを確かめ、不要なら止めてから実行し直してください。
 
 ## 社内LANで使う
 
@@ -84,26 +84,26 @@ cd C:\AnalyticFin\Projects\LagrangeFinLab
 npm run lan
 ```
 
-`npm run lan` は画面をビルドしてから、R のサーバーを起動します。サーバーは全てのネットワークインターフェース（`0.0.0.0`）の 8080 番で待ち受け、画面（`dist/`）とAPIを同じポートで返します。起動時に、他のPCから開くURL（例：`http://192.168.1.254:8080/`）が表示されます。このPCからは `http://127.0.0.1:8080/` で開けます。止めるときは Ctrl+C です。
+`npm run lan` は画面をビルドしてから、R のサーバーを起動します。サーバーは全てのネットワークインターフェース（`0.0.0.0`）の 8081 番で待ち受け、画面（`dist/`）とAPIを同じポートで返します。起動時に、他のPCから開くURL（例：`http://192.168.1.254:8081/`）が表示されます。このPCからは `http://127.0.0.1:8081/` で開けます。止めるときは Ctrl+C です。
 
 `npm run api` と `npm run dev` は、これまでどおり `127.0.0.1` だけで待ち受けます。LANに出るのは `npm run lan` のときだけです。
 
 ### Windows ファイアウォール（初回のみ、管理者のPowerShell）
 
-社内LANでは、Windows はふつう「ドメイン」ネットワークとして扱います。その場合、8080番への受信を許可する規則が必要です。
+社内LANでは、Windows はふつう「ドメイン」ネットワークとして扱います。その場合、8081番への受信を許可する規則が必要です。
 
 ```powershell
-New-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8080)" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow -Profile Domain,Private
+New-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8081)" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow -Profile Domain,Private
 ```
 
 - 規則を作らないと、他のPCからは接続できません（このPCからは開けます）。
 - 社内のセキュリティポリシーで規則が無効になる場合や、作れない場合は、情報システム部門に相談してください。
 - 公衆Wi-Fiなど「パブリック」のネットワークでは `npm run lan` を使わないでください。このPCには以前から R に対する「パブリック」の受信許可（`R for Windows front-end`）があり、`npm run lan` 中はそのネットワークからも接続できてしまいます。不要なら「Windows Defender ファイアウォール」の受信の規則から無効にできます。
-- 規則を消すとき：`Remove-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8080)"`
+- 規則を消すとき：`Remove-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8081)"`
 
 ### 確認したこと（2026-11-14）
 
-このPCの LAN のアドレス（当時のポート 8787：`http://192.168.1.254:8787/`。2026-11-14 に 8080 に変更）経由で、画面、API（5年＋1 bp で PV差 1,512,212.8199円）、ブラウザでの操作を確認しました。存在しないパスと、`dist` の外のファイルを指すパス（`/../server/server.R` など）は 404 になります。**別のPCからの接続は、まだ確認していません。** 確認したときのネットワークは「パブリック」の Wi-Fi で、社内LANではなかったためです。
+このPCの LAN のアドレス（当時のポート 8787：`http://192.168.1.254:8787/`。2026-11-14 に 8080、その後 8081 に変更）経由で、画面、API（5年＋1 bp で PV差 1,512,212.8199円）、ブラウザでの操作を確認しました。存在しないパスと、`dist` の外のファイルを指すパス（`/../server/server.R` など）は 404 になります。**別のPCからの接続は、まだ確認していません。** 確認したときのネットワークは「パブリック」の Wi-Fi で、社内LANではなかったためです。
 
 ### 制約
 
