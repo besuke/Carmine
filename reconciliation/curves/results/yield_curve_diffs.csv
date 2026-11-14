@@ -1,0 +1,8 @@
+"item","n","max_abs_diff","tolerance","pass"
+"ZeroCurve 割引係数（年限表）",11,0,1e-12,TRUE
+"ZeroCurve 割引係数（グリッド240点）",240,0,1e-12,TRUE
+"ZeroCurve 割引係数（比較300点）",300,0,1e-12,TRUE
+"DiscountCurve 割引係数（比較300点）",300,0,1e-12,TRUE
+"+50bp シフト後の割引係数（年限表）",11,0,1e-12,TRUE
+"ノードの割引係数（ZeroCurve）",9,0,1e-12,TRUE
+"ノードの割引係数（DiscountCurve）",9,0,1e-12,TRUE

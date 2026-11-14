@@ -36,6 +36,7 @@ export function TocPage() {
                 )}
               </h3>
               {ch.routeNote && <p className="note">{ch.routeNote}</p>}
+              {ch.subRoutes?.map((sr) => <p key={sr.route} className="note"><a href={href(sr.route)}>{sr.title} を読む</a></p>)}
               <h4>操作できること</h4>
               <ul>
                 {ch.operations.map((op) => <li key={op}>{op}</li>)}

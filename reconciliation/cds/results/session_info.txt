@@ -1,0 +1,3 @@
+run_at: 2026-11-14 17:27:42 JST
+GaussQuant 2026.6.18.1 QuantLib 1.42
+RiemannFinMath 0.3.0

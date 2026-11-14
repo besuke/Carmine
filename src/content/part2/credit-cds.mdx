@@ -1,0 +1,141 @@
+import { CdsProvider, CdsStatus, CdsControls, FlatProbabilityChart, FlatValuePanel, CashflowTable, HandCheckTable, CalibrationTable, SensitivityTable, IsdaSetupPanel, IsdaValuePanel, EngineComparisonTable, UpfrontChart } from "../../components/cds";
+
+<CdsProvider>
+
+# 第II部 第5章 信用リスクとCDS
+
+この章は、原稿の第II-5章『信用リスクとクレジットデリバティブ』の React 版です。計算は R の HTTP API が **RiemannFinMath** で行います。原稿のコードを GaussQuant で動かした結果と同じ入力で照合し、各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate・Hazard Rate・キャッシュフロー表の全項目が差 0 で一致しています。原稿の計算結果とも差 0 です（`reconciliation/cds/`）。
+
+<CdsStatus />
+
+> 入力値（割引率 10%、市場 Spread 130bp と 30.426bp、Recovery 40% など）は、原稿の例示的な値です。市場の気配値ではありません。
+
+Credit Default Swap（CDS）は、参照企業に信用事由が発生したとき、プロテクションの売り手が買い手へ損失を補償する契約です。買い手はその対価として、契約期間中に定期的に Premium を払います。プロテクション買い手から見た価値は
+
+$$
+V_{\mathrm{CDS}} = V_{\mathrm{protection}} + V_{\mathrm{premium}}
+$$
+
+で、Premium Leg は支払いなので負、Protection Leg は受取りなので正です。
+
+## II-5.1 信用リスクとクレジットデリバティブの基礎
+
+デフォルト時刻を $\tau$ とし、時点 $t$ まで存続する確率を生存確率 $Q(t) = P(\tau > t)$ とします。Hazard Rate $\lambda(t)$ は、$t$ まで存続している条件の下で、その直後にデフォルトする瞬間的な強度です。Hazard Rate が一定なら
+
+$$
+Q(t) = e^{-\lambda t}, \qquad P(\tau \le t) = 1 - e^{-\lambda t}
+$$
+
+です。Hazard Rate 2% でも、1年の累積デフォルト確率は $1 - e^{-0.02}$ で、2% とは一致しません。
+
+デフォルト時に回収できる元本の比率を Recovery Rate $R$、損失率を $LGD = 1 - R$ とします。連続的な Premium 支払い、一定の Hazard Rate と Recovery Rate を仮定すると、
+
+$$
+s \approx (1 - R)\,\lambda, \qquad \lambda \approx \frac{s}{1 - R}
+$$
+
+という近似が成り立ちます。実際の評価では、四半期ごとの支払い、Accrual on default、割引、標準日付が効くため、厳密な Hazard Rate とは一致しません。
+
+## II-5.2 フラットカーブによるクレジットデリバティブ評価
+
+1年物 CDS を考えます。評価日 2022年9月19日、満期 2023年9月20日、Notional 10,000,000、割引率 10%（連続複利）、市場 Spread 130bp、契約 Coupon 100bp、Recovery Rate 40% です。市場 Spread と契約 Coupon が異なるので、契約時点の価値はゼロになりません。下の欄で前提を変えると、この節から II-5.4 までの表とグラフがすべて再計算されます。
+
+<CdsControls which="flat" />
+
+### II-5.2.2 Hazard Rate 近似と確率曲線
+
+<FlatProbabilityChart />
+
+### II-5.2.3〜5.2.4 Schedule と MidPoint Engine
+
+Premium は四半期ごとに払います。評価日の翌日から満期までの Forward Schedule（週末のみ休日、Following、満期は調整なし）を作り、Premium は Actual/360 で数えます。MidPoint 法は、各 Premium 期間中のデフォルトを、その期間の中点で起きたものとして近似します。
+
+<FlatValuePanel />
+
+契約 Coupon が Fair Spread より低ければ、プロテクション買い手に有利なので NPV は正になります。契約 Coupon を市場 Spread より上げると、NPV の符号が変わることを確かめてください。
+
+### II-5.2.5 キャッシュフローと確率表
+
+<CashflowTable which="flat" />
+
+## II-5.3 Premium Leg と Protection Leg
+
+表から、二つのレグを手で計算します。$N$ は Notional、$s$ は契約 Coupon、$\alpha_i$ は利息計算期間（日数/360）、$D$ は割引係数、$Q$ は生存確率、$m_i$ は期間の中点です。
+
+$$
+V_{\mathrm{premium}} \approx -N s \sum_i \alpha_i\, D(0, t_i)\, Q(m_i), \qquad
+V_{\mathrm{protection}} \approx N (1 - R) \sum_i D(0, m_i)\, \bigl(Q(t_{i-1}) - Q(t_i)\bigr)
+$$
+
+$$
+RPV01 \approx \sum_i \alpha_i\, D(0, t_i)\, Q(m_i), \qquad
+s_{\mathrm{fair}} = \frac{V_{\mathrm{protection}} / N}{RPV01}
+$$
+
+原稿と同じく、Premium Leg には期間中点の生存確率を使います。
+
+<HandCheckTable which="flat" />
+
+手計算と MidPoint Engine は近い値ですが、厳密には一致しません。差には Accrual on default、日付の規則、Protection の開始日が含まれます。
+
+## II-5.4 Hazard Rate 推定と感応度
+
+### II-5.4.1 ゼロ NPV の CDS から Hazard Rate を推定する
+
+市場 Spread を契約 Coupon とした CDS の NPV がゼロになるフラット Hazard Rate を、原稿と同じ `uniroot()`（区間 $10^{-8}$〜0.5、tol $10^{-10}$）で求めます。
+
+<CalibrationTable />
+
+単純近似 $\lambda \approx s/(1-R)$ と推定結果は近いものの、支払頻度と割引の影響で差が出ます。
+
+### II-5.4.2 Spread と Recovery Rate の感応度
+
+同じ Spread で Recovery Rate を高く仮定すると、デフォルト時の損失が小さくなるので、その Spread を説明する Hazard Rate は高くなります。Recovery Rate と Hazard Rate は、CDS Spread だけからは別々に決まりません。実務では Recovery Rate を外から仮定し、その下で Default Probability Curve を作ります。表の右端の列は、この表の各 Spread を Coupon とする1年物でゼロ NPV になる Hazard Rate です（このページで加えた列）。
+
+<SensitivityTable />
+
+## II-5.5 標準 CDS と ISDA カーブ
+
+標準 CDS の満期は、取引日の5年後ではなく、CDS の IMM 日と CDS2015 ルールで決まります。取引日 2022年8月19日、市場 Spread 30.426bp、契約 Coupon 100bp、Notional 10,000,000、Recovery 40%、外生的な OIS 割引率 0.25% の5年物を考えます。割引カーブの構築は第II-3章で扱ったので、ここではフラットな割引率を与えます。
+
+原稿は QuantLib の `MakeCreditDefaultSwap`（GaussQuant の `make_cds_GQL()`）で CDS を作ります。Protection の開始日と取引日はどちらも取引日、最終 Coupon は最終日も数える Actual/360 です。RiemannFinMath でも同じ設定にしています。
+
+<CdsControls which="isda" />
+
+<IsdaSetupPanel />
+
+市場 Spread を Running Spread とする標準 CDS で ISDA Engine の NPV がゼロになるフラット Hazard Rate を推定し、以降の評価に使います。
+
+## II-5.6 ISDA Engine と評価比較
+
+### II-5.6.1〜5.6.3 NPV の分解、Fair Spread と Fair Upfront
+
+取引日が前回の標準 Coupon 日と次回の間にあると、契約開始時に Accrual rebate が生じます。
+
+$$
+V_{\mathrm{CDS}} = V_{\mathrm{coupon}} + V_{\mathrm{default}} + V_{\mathrm{accrual\ rebate}}
+$$
+
+<IsdaValuePanel />
+
+市場 Spread 30.426bp は契約 Coupon 100bp より低いので、プロテクション買い手は市場より多く Premium を払い、NPV は負になります。この差を契約開始時に調整するのが Fair Upfront です。Fair Upfront の符号は QuantLib の Buyer／Seller の規約に依存するので、NPV、契約 Coupon、Fair Spread、Upfront 金額を一緒に確認します。
+
+下のグラフは、契約 Coupon を固定したまま市場 Spread を 10〜300bp で動かしたときの Fair Upfront です（このページで加えたグラフ。各点で Hazard Rate を推定し直しています）。市場 Spread が契約 Coupon と等しいとき、Fair Upfront はゼロになります（その Spread でゼロ NPV になる Hazard Rate を使うため）。
+
+<UpfrontChart />
+
+### II-5.6.4〜5.6.5 ISDA 用キャッシュフロー表と MidPoint 型の近似
+
+<CashflowTable which="isda" />
+
+<HandCheckTable which="isda" />
+
+この表は CDS の経済構造を理解するための MidPoint 型の分解です。ISDA Engine は標準日付、Accrual on default、数値積分をより厳密に扱うため、表からの近似とは完全には一致しません。
+
+### II-5.6.6 MidPoint Engine と ISDA Engine の比較
+
+<EngineComparisonTable />
+
+同じ Hazard Curve、Recovery Rate、割引カーブ、標準 Coupon を使っても、MidPoint 法は期間内のデフォルト時点を中点に集約するため、ISDA Engine と Leg の NPV や Fair Spread に差が出ます。
+
+</CdsProvider>

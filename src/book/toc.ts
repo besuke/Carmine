@@ -23,6 +23,7 @@ export interface Chapter {
   rows: SectionRow[];
   additions: string[]; // what has to be implemented (Riemann or API) for the operations
   route?: string; // the React chapter, when it exists
+  subRoutes?: { route: string; title: string }[]; // further React pages of the same chapter
   routeNote?: string;
 }
 
@@ -61,9 +62,9 @@ export const TOC: Part[] = [
         title: "金利カーブ",
         source: "part2_quantive_riemann/ch02_interest_rate_curves.qmd",
         operations: [
-          "ゼロ金利ノードを編集して、割引係数・ゼロ金利・フォワードの曲線を描き直す",
-          "ゼロ金利補間と割引係数補間を切り替え、フォワードの形の違いを見る",
-          "カーブを平行シフトし、国債先物の受渡適格銘柄の Net Basis と CTD の入れ替わりを見る",
+          "【実装済み】ゼロ金利ノードを編集して、割引係数・ゼロ金利・フォワードの曲線を描き直す",
+          "【実装済み】ゼロ金利補間と割引係数補間を重ね、フォワードの形の違いを見る。平行シフトの幅を変える",
+          "【実装済み】国債先物の受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV を見る。全銘柄の利回り水準と Funding Rate を動かし、CTD の入れ替わりを見る（現物価格は架空）",
         ],
         rows: [
           { sections: "II-2.1", topic: "国債利回りのスプライン補間、年限・時間方向の変化", coverage: "対象外", riemann: "R の spline の計算で、RiemannFinMath の対象外。API で R の関数として返すことはできる" },
@@ -75,8 +76,9 @@ export const TOC: Part[] = [
           { sections: "II-2.6〜2.7", topic: "国債先物、Gross・Net Basis、CTD", coverage: "対応", riemann: "compute_future_basket、compute_future_basis" },
         ],
         additions: ["預金のヘルパー（II-2.4.1）", "Implied Term Structure（II-2.5.1）", "IBOR スワップカーブ（II-2.4.2。方針の範囲外なので要判断）"],
-        route: "/part2/yield-curve-ois",
-        routeNote: "II-2.2〜2.4 の考え方を、円OISの章（II-2・II-3）に組み込み済み",
+        route: "/part2/yield-curves",
+        subRoutes: [{ route: "/part2/jgb-futures", title: "国債先物・CTD・先物BPV（II-2.6〜2.7）" }],
+        routeNote: "II-2.2、II-2.3.1、II-2.5.2〜2.5.3 を実装済み（ゼロ金利ノードと平行シフトを操作。GaussQuant と差 0 で照合）。II-2.2〜2.4 の考え方は円OISの章にもある",
       },
       {
         id: "II-3",
@@ -121,9 +123,12 @@ export const TOC: Part[] = [
         id: "II-5",
         title: "信用リスクとCDS",
         source: "part2_quantive_riemann/ch05_credit_risk_cds.qmd",
+        route: "/part2/credit-cds",
+        routeNote: "II-5.1〜5.6 を実装済み（1年物と標準5年物の Spread・Coupon・Recovery・割引率を操作。GaussQuant と原稿の結果に差 0 で照合）。支払日ごとの表は、RiemannFinMath の割引係数と生存確率から R 側で組み立てている",
         operations: [
-          "ハザードレートと回収率を動かして、Premium Leg・Protection Leg・Fair Spread を見る",
-          "CDS の気配からハザードカーブを推定し、気配の感応度を見る",
+          "市場 Spread・契約 Coupon・回収率・割引率を動かして、Premium Leg・Protection Leg・Fair Spread・Fair Upfront を見る",
+          "ゼロ NPV のハザードレートを推定し、単純近似 s/(1−R) と比べる。Spread と回収率の感応度表",
+          "支払日ごとのキャッシュフロー表から手計算し、エンジンの値と比べる",
           "ISDA エンジンと MidPoint の評価差を見る",
         ],
         rows: [

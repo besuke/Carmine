@@ -197,3 +197,5 @@ table.data.check { max-width: 760px; }
 .controls label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.9rem; }
 .controls select, .controls input { font: inherit; font-size: 0.9rem; padding: 0.3rem 0.4rem; border: 1px solid var(--axis); border-radius: 6px; background: var(--surface-1); color: var(--text-primary); max-width: 16rem; }
 .controls input[type="number"] { width: 7rem; }
+.rate-input { width: 6.5rem; text-align: right; font: inherit; font-size: 0.9rem; padding: 0.2rem 0.35rem; border: 1px solid var(--axis); border-radius: 6px; background: var(--surface-1); color: var(--text-primary); }
+.sidebar a.sub { padding-left: 1.2rem; font-size: 0.8rem; }

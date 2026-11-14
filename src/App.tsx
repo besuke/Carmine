@@ -1,4 +1,8 @@
 import YieldCurveOis from "./content/part2/yield-curve-ois.mdx";
+import YieldCurves from "./content/part2/yield-curves.mdx";
+import JgbFutures from "./content/part2/jgb-futures.mdx";
+import CreditCds from "./content/part2/credit-cds.mdx";
+import { CurveProvider } from "./components/curves";
 import { TOC } from "./book/toc";
 import { TocPage } from "./book/TocPage";
 import { href, useRoute } from "./book/router";
@@ -7,6 +11,23 @@ import { AswDetailPage, AswListPage } from "./asw/pages";
 import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
+  "/part2/credit-cds": () => (
+    <article className="prose">
+      <CreditCds />
+    </article>
+  ),
+  "/part2/jgb-futures": () => (
+    <article className="prose">
+      <JgbFutures />
+    </article>
+  ),
+  "/part2/yield-curves": () => (
+    <CurveProvider>
+      <article className="prose">
+        <YieldCurves />
+      </article>
+    </CurveProvider>
+  ),
   "/part2/yield-curve-ois": () => (
     <ScenarioProvider>
       <article className="prose">
@@ -36,9 +57,14 @@ function Sidebar({ route }: { route: string }) {
             {part.chapters.map((ch) => (
               <li key={ch.id}>
                 {ch.route ? (
-                  <a href={href(ch.route)} className={route === ch.route ? "active" : undefined}>
-                    {ch.id} {ch.title}
-                  </a>
+                  <>
+                    <a href={href(ch.route)} className={route === ch.route ? "active" : undefined}>
+                      {ch.id} {ch.title}
+                    </a>
+                    {ch.subRoutes?.map((sr) => (
+                      <a key={sr.route} href={href(sr.route)} className={route === sr.route ? "sub active" : "sub"}>{sr.title}</a>
+                    ))}
+                  </>
                 ) : (
                   <a href={href("/")} className="planned"
                     onClick={() => setTimeout(() => document.getElementById(`toc-${ch.id}`)?.scrollIntoView(), 0)}>

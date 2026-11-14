@@ -7,6 +7,9 @@
 #
 #   GET  /api/health    -> {"status":"ok", ...}
 #   POST /api/scenario  {"bumpTenor":"5Y","bumpBp":1} -> curves, 7Y OIS par rate and PVs (see README.md)
+#   POST /api/curves/zero         {"zeroRatesPct":[...], "shiftBp":50} -> zero / discount / shifted curves (II-2)
+#   POST /api/futures/basket      {"mode":"current"} | {"mode":"flat","yieldPct":8,"fundingPct":9} -> CTD, basis, futures BPV
+#   POST /api/cds                 {"flat":{"spreadBp":130,...},"isda":{"spreadBp":30.426,...}} -> CDS legs, hazard, ISDA (II-5)
 #   GET  /api/asw/offers          -> the ASW offer sheet (Curie demo data)
 #   GET  /api/asw/offers/<id>     -> one offer: curve, price conversion, cash flows, ASW components
 
@@ -22,6 +25,9 @@ script_dir <- local({
 source(file.path(script_dir, "R", "tona_ois_model.R"))
 source(file.path(script_dir, "R", "asw_model.R"))
 source(file.path(script_dir, "R", "asw_report.R"))
+source(file.path(script_dir, "R", "curve_model.R"))
+source(file.path(script_dir, "R", "futures_model.R"))
+source(file.path(script_dir, "R", "cds_model.R"))
 # the demo data do not change while the server runs
 ASW_LIST <- asw_list()
 ASW_REPORT <- asw_report()
@@ -89,6 +95,54 @@ handle <- function(req) {
     return(json_response(200, result, request_id = result$response$request_id))
   }
   # OIS asset swap offer sheet (Curie's demo data, read-only)
+  # Zero-rate nodes to curves (yield-curve chapter)
+  if (identical(path, "/api/curves/zero")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"shiftBp\":50}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("zeroRatesPct", "shiftBp"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(curve_compute(body$zeroRatesPct, if (is.null(body$shiftBp)) 50 else body$shiftBp),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
+  # JGB futures, CTD and futures BPV (II-2.6–2.7)
+  if (identical(path, "/api/futures/basket")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"mode\":\"current\"}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("mode", "yieldPct", "fundingPct"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(fut_compute(if (is.null(body$mode)) "current" else body$mode, if (is.null(body$yieldPct)) 8 else body$yieldPct, body$fundingPct),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
+  # Credit risk and CDS (II-5)
+  if (identical(path, "/api/cds")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"flat\":{\"spreadBp\":130}}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("flat", "isda"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(cds_compute(body),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
   if (identical(path, "/api/asw/report")) {
     if (method != "GET") return(json_response(405, list(error = "Use GET.")))
     id <- request_id(req)

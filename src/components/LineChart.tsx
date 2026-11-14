@@ -31,6 +31,10 @@ interface Props {
   markers?: { x: number; label: string }[];
   zeroLine?: boolean;
   footer?: ReactNode;
+  /** A numeric x-axis instead of dates: its ticks and its title (x runs from xMin to xMax). */
+  xTicks?: { x: number; label: string }[];
+  xLabel?: string;
+  xMin?: number;
 }
 
 const MARGIN = { top: 18, right: 16, bottom: 34, left: 64 };
@@ -73,7 +77,7 @@ function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] 
   return [ref, width];
 }
 
-export function LineChart({ title, series, origin, xMax, formatY, formatTick, yLabel, height = 280, markers = [], zeroLine, footer }: Props) {
+export function LineChart({ title, series, origin, xMax, formatY, formatTick, yLabel, height = 280, markers = [], zeroLine, footer, xTicks: customTicks, xLabel, xMin = 0 }: Props) {
   const [wrapRef, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -104,12 +108,12 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
 
   const innerW = width - MARGIN.left - MARGIN.right;
   const innerH = height - MARGIN.top - MARGIN.bottom;
-  const sx = (x: number) => MARGIN.left + (x / xMax) * innerW;
+  const sx = (x: number) => MARGIN.left + ((x - xMin) / (xMax - xMin)) * innerW;
   const sy = (y: number) => MARGIN.top + (1 - (y - yMin) / (yMax - yMin)) * innerH;
 
   const yTicks = niceTicks(yMin, yMax);
   const yearStep = xMax > 12 ? 5 : width < 520 ? 2 : 1;
-  const xTicks = yearTicks(origin, xMax, yearStep);
+  const xTicks = customTicks ?? yearTicks(origin, xMax, yearStep);
   const base = visible[0]?.points ?? [];
 
   const path = (pts: SeriesPoint[]) =>
@@ -118,7 +122,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
   function onMove(e: React.PointerEvent<SVGRectElement>) {
     if (!base.length) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * xMax;
+    const x = xMin + ((e.clientX - rect.left) / rect.width) * (xMax - xMin);
     let lo = 0;
     let hi = base.length - 1;
     while (hi - lo > 1) {
@@ -167,10 +171,10 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
           {zeroLine && yMin < 0 && yMax > 0 && (
             <line className="axis" x1={MARGIN.left} x2={width - MARGIN.right} y1={sy(0)} y2={sy(0)} />
           )}
-          {markers.filter((m) => m.x <= xMax).map((m) => (
+          {markers.filter((m) => m.x <= xMax).map((m, k) => (
             <g key={m.label}>
               <line className="marker" x1={sx(m.x)} x2={sx(m.x)} y1={MARGIN.top} y2={height - MARGIN.bottom} />
-              <text className="marker-label" x={sx(m.x) + 4} y={MARGIN.top + 10}>{m.label}</text>
+              <text className="marker-label" x={sx(m.x) + 4} y={MARGIN.top + 10 + (k % 2) * 13}>{m.label}</text>
             </g>
           ))}
           {visible.map((s) => (
@@ -192,6 +196,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
           <rect x={MARGIN.left} y={MARGIN.top} width={Math.max(innerW, 0)} height={Math.max(innerH, 0)} fill="transparent"
             onPointerMove={onMove} onPointerLeave={() => setHover(null)} />
           <text className="axis-label" x={MARGIN.left} y={MARGIN.top - 6}>{yLabel}</text>
+          {xLabel && <text className="axis-label" x={width - MARGIN.right} y={height - MARGIN.bottom - 6} textAnchor="end">{xLabel}</text>}
         </svg>
         {hp && (
           <div className="tooltip" style={{ left: tipLeft, top: MARGIN.top }}>

@@ -1,0 +1,28 @@
+"item","n","max_abs_diff","tolerance","pass"
+"経過利子（評価日）RFM−GQ",11,0,1e-12,TRUE
+"経過利子（受渡日）RFM−GQ",11,0,1e-12,TRUE
+"保有期間のクーポン RFM−GQ",11,0,1e-12,TRUE
+"複利利回り（架空価格）RFM−GQ",11,0,1e-10,TRUE
+"修正デュレーション RFM−GQ",11,0,1e-08,TRUE
+"DV01（±1bpの中心差分）RFM−GQ",11,0,1e-10,TRUE
+"Gross Basis RFM−GQ",11,0,1e-10,TRUE
+"Carry RFM−GQ",11,0,1e-10,TRUE
+"Net Basis RFM−GQ",11,0,1e-10,TRUE
+"Implied Repo RFM−GQ",11,0,1e-10,TRUE
+"CTD（一致なら0）",1,0,0,TRUE
+"先物BPV = CTDのDV01 / CF RFM−GQ",1,0,1e-10,TRUE
+"ストレス：先物価格 RFM−GQ",1,0,1e-10,TRUE
+"ストレス：現物価格 RFM−GQ",11,0,1e-10,TRUE
+"ストレス：Net Basis RFM−GQ",11,0,1e-10,TRUE
+"ストレス：Implied Repo RFM−GQ",11,0,1e-10,TRUE
+"ストレス：修正デュレーション RFM−GQ",11,0,1e-08,TRUE
+"ストレス：先物BPV RFM−GQ",1,0,1e-10,TRUE
+"経過利子（評価日）RFM−原稿",11,0,1e-10,TRUE
+"経過利子（受渡日）RFM−原稿",11,0,1e-10,TRUE
+"保有期間のクーポン RFM−原稿",11,0,1e-10,TRUE
+"ストレス：先物価格 RFM−原稿",1,0,1e-10,TRUE
+"ストレス：現物価格 RFM−原稿",11,0,1e-10,TRUE
+"ストレス：Gross Basis RFM−原稿",11,0,1e-10,TRUE
+"ストレス：Net Basis RFM−原稿",11,0,1e-10,TRUE
+"ストレス：Implied Repo（%）RFM−原稿",11,0,1e-08,TRUE
+"ストレス：CTD RFM−原稿",1,0,0,TRUE

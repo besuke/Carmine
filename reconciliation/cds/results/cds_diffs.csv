@@ -1,0 +1,65 @@
+"item","n","max_abs_diff","tolerance","pass"
+"1年物：Hazard 近似 s/(1−R)",1,0,0,TRUE
+"1年物：割引係数（満期）",1,0,1e-15,TRUE
+"1年物：生存確率（満期）",1,0,1e-15,TRUE
+"1年物：NPV",1,0,1e-08,TRUE
+"1年物：Coupon Leg",1,0,1e-08,TRUE
+"1年物：Default Leg",1,0,1e-08,TRUE
+"1年物：Fair Spread",1,0,1e-15,TRUE
+"1年物：Fair Upfront",1,0,1e-15,TRUE
+"1年物：Schedule の日付（日数）",4,0,0,TRUE
+"1年物 CF表：accrual_days",4,0,9.2e-11,TRUE
+"1年物 CF表：coupon_amount",4,0,2.55555555555556e-08,TRUE
+"1年物 CF表：discount_factor",5,0,1e-12,TRUE
+"1年物 CF表：survival_probability",5,0,1e-12,TRUE
+"1年物 CF表：default_probability",5,0,1e-12,TRUE
+"1年物 CF表：midpoint_discount_factor",4,0,1e-12,TRUE
+"1年物 CF表：midpoint_survival_probability",4,0,1e-12,TRUE
+"1年物：手計算 Premium Leg",1,0,1e-08,TRUE
+"1年物：手計算 Protection Leg",1,0,1e-08,TRUE
+"1年物：手計算 Risky PV01",1,0,1e-15,TRUE
+"1年物：手計算 Fair Spread",1,0,1e-15,TRUE
+"1年物：ゼロNPVの Hazard Rate",1,0,1e-10,TRUE
+"感応度：9通りの近似 Hazard",9,0,0,TRUE
+"感応度：9通りのゼロNPV Hazard",9,0,1e-10,TRUE
+"標準5年物：満期（シリアル）",1,0,0,TRUE
+"標準5年物：CDS2015 Schedule（日数）",21,0,0,TRUE
+"標準5年物：割引係数（満期）",1,0,1e-15,TRUE
+"標準5年物：ゼロNPVの Hazard Rate",1,0,1e-10,TRUE
+"ISDA：NPV",1,0,1e-08,TRUE
+"ISDA：Coupon Leg",1,0,1e-08,TRUE
+"ISDA：Default Leg",1,0,1e-08,TRUE
+"ISDA：Accrual Rebate",1,0,1e-08,TRUE
+"ISDA：Fair Spread",1,0,1e-15,TRUE
+"ISDA：Fair Upfront",1,0,1e-15,TRUE
+"MidPoint（標準5年物）：NPV",1,0,1e-08,TRUE
+"MidPoint（標準5年物）：Coupon Leg",1,0,1e-08,TRUE
+"MidPoint（標準5年物）：Default Leg",1,0,1e-08,TRUE
+"MidPoint（標準5年物）：Fair Spread",1,0,1e-15,TRUE
+"標準5年物 CF表：accrual_days",20,0,9.4e-11,TRUE
+"標準5年物 CF表：coupon_amount",20,0,2.61111111111111e-08,TRUE
+"標準5年物 CF表：discount_factor",21,0,1e-12,TRUE
+"標準5年物 CF表：survival_probability",21,0,1e-12,TRUE
+"標準5年物 CF表：default_probability",21,0,1e-12,TRUE
+"標準5年物 CF表：midpoint_discount_factor",20,0,1e-12,TRUE
+"標準5年物 CF表：midpoint_survival_probability",20,0,1e-12,TRUE
+"標準5年物：手計算 Premium Leg",1,0,1e-08,TRUE
+"標準5年物：手計算 Protection Leg",1,0,1e-08,TRUE
+"標準5年物：手計算 Fair Spread",1,0,1e-15,TRUE
+"原稿：1年物 NPV",1,0,1e-08,TRUE
+"原稿：1年物 Fair Spread（bp）",1,0,1e-10,TRUE
+"原稿：1年物 Coupon Leg",1,0,1e-08,TRUE
+"原稿：1年物 Default Leg",1,0,1e-08,TRUE
+"原稿：1年物 ゼロNPV Hazard（%）",1,0,1e-08,TRUE
+"原稿：標準5年物 満期（シリアル）",1,0,0,TRUE
+"原稿：ISDA Hazard",1,0,1e-10,TRUE
+"原稿：ISDA NPV",1,0,1e-08,TRUE
+"原稿：ISDA Coupon Leg",1,0,1e-08,TRUE
+"原稿：ISDA Default Leg",1,0,1e-08,TRUE
+"原稿：ISDA Accrual Rebate",1,0,1e-08,TRUE
+"原稿：ISDA Fair Spread（bp）",1,0,1e-10,TRUE
+"原稿：ISDA Fair Upfront（%）",1,0,1e-12,TRUE
+"原稿：MidPoint NPV",1,0,1e-08,TRUE
+"原稿：MidPoint Coupon Leg",1,0,1e-08,TRUE
+"原稿：MidPoint Default Leg",1,0,1e-08,TRUE
+"原稿：MidPoint Fair Spread（bp）",1,0,1e-10,TRUE
