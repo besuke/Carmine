@@ -7,6 +7,7 @@ import DeterministicCashflow from "./content/part2/deterministic-cashflow.mdx";
 import IrsCalibration from "./content/part2/irs-calibration.mdx";
 import RateModels from "./content/part2/rate-models.mdx";
 import EarlyRedemption from "./content/part2/early-redemption.mdx";
+import Prdc from "./content/part2/prdc.mdx";
 import { CurveProvider } from "./components/curves";
 import { TOC } from "./book/toc";
 import { TocPage } from "./book/TocPage";
@@ -16,6 +17,11 @@ import { AswDetailPage, AswListPage } from "./asw/pages";
 import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
+  "/part2/prdc": () => (
+    <article className="prose">
+      <Prdc />
+    </article>
+  ),
   "/part2/early-redemption": () => (
     <article className="prose">
       <EarlyRedemption />

@@ -15,6 +15,7 @@
 #   POST /api/calibration         {"normal":{...},"sabr":{"beta":0.5},"hw":{...},"bgm":{"decay":0.45}} -> II-6
 #   POST /api/rate-models         {"hw":{...},"caplet":{...},"shocks":{...},"fixings":{...}} -> II-7
 #   POST /api/callable            {"bond":{...},"mbs":{"psaPct":100,...}} -> callable bond and MBS (II-8)
+#   POST /api/prdc                {"note":{...},"mc":{"paths":3000,"seed":123}} -> PRDC note (II-9)
 #   GET  /api/asw/offers          -> the ASW offer sheet (Curie demo data)
 #   GET  /api/asw/offers/<id>     -> one offer: curve, price conversion, cash flows, ASW components
 
@@ -38,6 +39,7 @@ source(file.path(script_dir, "R", "bond_model.R"))
 source(file.path(script_dir, "R", "calibration_model.R"))
 source(file.path(script_dir, "R", "rate_models_model.R"))
 source(file.path(script_dir, "R", "callable_model.R"))
+source(file.path(script_dir, "R", "prdc_model.R"))
 # the demo data do not change while the server runs
 ASW_LIST <- asw_list()
 ASW_REPORT <- asw_report()
@@ -225,6 +227,22 @@ handle <- function(req) {
     unknown <- setdiff(names(body), c("bond", "mbs"))
     if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
     result <- tryCatch(callable_compute(body),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
+  # PRDC note (II-9)
+  if (identical(path, "/api/prdc")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"note\":{\"spot\":133.2681}}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("note", "mc"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(prdc_compute(body),
                        tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
                        error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
     if (inherits(result, "bad")) return(json_response(400, unclass(result)))
