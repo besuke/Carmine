@@ -1,0 +1,4 @@
+run_at: 2026-11-14 22:55:55 JST
+R version 4.6.0 (2026-04-24 ucrt)
+torch 0.17.0
+RiemannFinMath 0.3.0

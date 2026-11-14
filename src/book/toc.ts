@@ -235,6 +235,7 @@ export const TOC: Part[] = [
         id: "III-2",
         title: "分散コンピューティングとジョブ・タスク",
         source: "part3_enterprise_riemann/ch02_distributed_computing_jobtask.qmd",
+        routeNote: "第III部の残り（III-2〜III-7）は、III-7 の PRDC を題材に自動微分・並列・分散を一つにまとめたページで扱う（目次の III-7 から開く）",
         operations: ["計算の分割と分配の流れを図で追う（数値計算はしない）"],
         rows: [{ sections: "III-2.1〜2.5", topic: "処理の分割、資源への分配、制御、統合", coverage: "対象外", riemann: "説明の章。Riemann の docs/design_distributed.md が対応する設計" }],
         additions: ["なし（図と説明）"],
@@ -243,6 +244,7 @@ export const TOC: Part[] = [
         id: "III-3",
         title: "エンタープライズ金融計算",
         source: "part3_enterprise_riemann/ch03_enterprise_financial_computing.qmd",
+        routeNote: "第III部の残り（III-2〜III-7）は、III-7 の PRDC を題材に自動微分・並列・分散を一つにまとめたページで扱う（目次の III-7 から開く）",
         operations: ["シナリオの格子を選んで PRDC を一括評価し、リスクを集計する"],
         rows: [
           { sections: "III-3.1〜3.3", topic: "取引・市場データ、プライシング・エンジン、シナリオ", coverage: "対象外", riemann: "説明の節" },
@@ -254,6 +256,7 @@ export const TOC: Part[] = [
         id: "III-4",
         title: "自動微分",
         source: "part3_enterprise_riemann/ch04_automatic_differentiation.qmd",
+        routeNote: "第III部の残り（III-2〜III-7）は、III-7 の PRDC を題材に自動微分・並列・分散を一つにまとめたページで扱う（目次の III-7 から開く）",
         operations: ["有限差分の刻み幅を変えて、自動微分との差を見る（Riemann の感応度を題材に）"],
         rows: [
           { sections: "III-4.1〜4.3", topic: "金融計算と微分、有限差分、自動微分の原理", coverage: "一部", riemann: "自動微分はライブラリの計算の内部（例：compute_curve_node_sensitivity）" },
@@ -265,6 +268,7 @@ export const TOC: Part[] = [
         id: "III-5",
         title: "オプションのグリークスと自動微分",
         source: "part3_enterprise_riemann/ch05_option_greeks_autodiff.qmd",
+        routeNote: "第III部の残り（III-2〜III-7）は、III-7 の PRDC を題材に自動微分・並列・分散を一つにまとめたページで扱う（目次の III-7 から開く）",
         operations: ["解析解とモンテカルロ＋自動微分のグリークスを並べ、パス数による差を見る"],
         rows: [
           { sections: "III-5.2〜5.3", topic: "解析解と MC のグリークス", coverage: "対応", riemann: "compute_european_option_value、compute_monte_carlo_european_value" },
@@ -276,6 +280,7 @@ export const TOC: Part[] = [
         id: "III-6",
         title: "金利リスクと自動微分",
         source: "part3_enterprise_riemann/ch06_interest_rate_risk_autodiff.qmd",
+        routeNote: "第III部の残り（III-2〜III-7）は、III-7 の PRDC を題材に自動微分・並列・分散を一つにまとめたページで扱う（目次の III-7 から開く）",
         operations: [
           "円OISの章の7年OISについて、各クォートに対する感応度（自動微分）を棒グラフで見る。5年の値が「＋1 bp で約151万円」と合うことを確かめる",
           "バケット DV01 と GPS を表示する",
@@ -290,7 +295,9 @@ export const TOC: Part[] = [
         id: "III-7",
         title: "PRDC と自動微分",
         source: "part3_enterprise_riemann/ch07_prdc_autodiff.qmd",
-        operations: ["多因子 MC の PRDC について、FX・ボラティリティ・カーブ節点の感応度を見る"],
+        route: "/part3/prdc-risk",
+        routeNote: "第III部のまとめのページ：III-7 の PRDC で、自動微分と Bump & Revalue、パスごとの自動微分、スレッドによる並列計算、ジョブに分けた分散計算を扱う（原稿の torch の値とも照合）",
+        operations: ["PRDC の FX・ボラティリティ・カーブ節点の感応度を自動微分で一度に求め、Bump & Revalue と比べる", "モンテカルロをスレッドで並列に計算し、シナリオの格子をジョブに分けて送り、集約する"],
         rows: [{ sections: "III-7.1〜7.5", topic: "多因子 MC、感応度、非線形ペイオフ、集計", coverage: "対応", riemann: "compute_prdc_value（curve_sensitivity）、compute_prdc_three_factor_value" }],
         additions: ["なし（API の入口とグラフの追加だけ）"],
       },

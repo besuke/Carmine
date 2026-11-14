@@ -17,6 +17,8 @@
 #   POST /api/callable            {"bond":{...},"mbs":{"psaPct":100,...}} -> callable bond and MBS (II-8)
 #   POST /api/prdc                {"note":{...},"mc":{"paths":3000,"seed":123}} -> PRDC note (II-9)
 #   POST /api/parallel            {"batch":{"count":10000,"maxThreads":8}} -> parallel valuation timing (III-1)
+#   POST /api/prdc-risk           {"market":{...},"mc":{...},"threads":{...}} -> PRDC risk: AD vs bump, threads (Part III)
+#   POST /api/prdc-risk/job       {"scenarios":[{"id":1,"spot":150,"volPct":12},...]} -> one job of the distributed grid
 #   GET  /api/asw/offers          -> the ASW offer sheet (Curie demo data)
 #   GET  /api/asw/offers/<id>     -> one offer: curve, price conversion, cash flows, ASW components
 
@@ -42,6 +44,7 @@ source(file.path(script_dir, "R", "rate_models_model.R"))
 source(file.path(script_dir, "R", "callable_model.R"))
 source(file.path(script_dir, "R", "prdc_model.R"))
 source(file.path(script_dir, "R", "parallel_model.R"))
+source(file.path(script_dir, "R", "prdc_risk_model.R"))
 # the demo data do not change while the server runs
 ASW_LIST <- asw_list()
 ASW_REPORT <- asw_report()
@@ -261,6 +264,38 @@ handle <- function(req) {
     unknown <- setdiff(names(body), c("batch"))
     if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
     result <- tryCatch(parallel_compute(body),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
+  # PRDC risk by automatic differentiation, in parallel and distributed (Part III)
+  if (identical(path, "/api/prdc-risk")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"market\":{\"spot\":150}}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("market", "mc", "threads"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(prdc_risk_compute(body),
+                       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
+                       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
+    if (inherits(result, "bad")) return(json_response(400, unclass(result)))
+    if (inherits(result, "failed")) return(json_response(500, unclass(result)))
+    id <- request_id(req)
+    result$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, result, request_id = id))
+  }
+  # One job of the distributed scenario grid (Part III)
+  if (identical(path, "/api/prdc-risk/job")) {
+    if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"scenarios\":[{\"id\":1,\"spot\":150,\"volPct\":12}]}.")))
+    body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
+    if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
+    unknown <- setdiff(names(body), c("scenarios"))
+    if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
+    result <- tryCatch(prdc_risk_job(body),
                        tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
                        error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
     if (inherits(result, "bad")) return(json_response(400, unclass(result)))

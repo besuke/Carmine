@@ -1,0 +1,69 @@
+import { PrdcRiskProvider, PrdcRiskStatus, RiskControls, NotePanel, AdPanel, McPanel, ThreadsPanel, DistributedPanel } from "../../components/prdcRisk";
+
+<PrdcRiskProvider>
+
+# 第III部 自動微分・並列・分散による PRDC のリスク計算
+
+第III部の流れは、二つの方向に要約できます。一つは計算を分けて多くの計算資源で処理すること（並列計算と分散コンピューティング、III-1〜III-3）、もう一つは評価のプログラムそのものを微分できる形にして、感応度を一度に求めること（自動微分、III-4〜III-7）です。このページでは、原稿の III-7 の PRDC を題材に、この二つを一つの流れで確かめます。計算は R の HTTP API が **RiemannFinMath** で行い、照合しています（`reconciliation/prdc_risk/`）。
+
+$$
+\text{Scale Up / Scale Out} + \text{Automatic Differentiation} = \text{Enterprise Differentiable Risk Engine}
+$$
+
+<PrdcRiskStatus />
+
+> 入力値は原稿 III-7 の説明用の値です。
+
+## PRDC と市場の入力（III-7.1）
+
+5年間、年1回クーポンを払う簡略な PRDC です。各年の円金利と外貨金利は、その年のあいだ一定とします。FX は Garman–Kohlhagen モデルに従い、ドリフトはその年の円金利 − 外貨金利、割引は円金利です。
+
+<RiskControls which="market" />
+
+<NotePanel />
+
+## 自動微分と Bump & Revalue（III-1.3、III-4〜III-7）
+
+価格 $V(S_{FX}, \mathbf r_{JPY}, \mathbf r_{Foreign}, \sigma_{FX})$ の感応度を中心差分で求めると、リスクファクターごとに評価を2回ずつやり直します。FX スポット、FX ボラティリティ、円カーブ5節点、外貨カーブ5節点の12個で、24回の評価です。自動微分は、評価の計算グラフを逆向きにたどって、すべての感応度を評価1回分の手間で返します。
+
+$$
+\nabla V = \left(\frac{\partial V}{\partial S_{FX}},\ \frac{\partial V}{\partial \sigma_{FX}},\ \frac{\partial V}{\partial r_{JPY,1}}, \ldots,\ \frac{\partial V}{\partial r_{Foreign,5}}\right)
+$$
+
+<AdPanel />
+
+二つの方法の値は、中心差分の打ち切り誤差の範囲で一致します。違いは評価の回数で、リスクファクターが増えるほど差は広がります。PRDC のように「多数の入力・少数の出力」の評価では、逆向き（リバース・モード）の自動微分の利点が最も大きくなります。
+
+## モンテカルロとパスごとの自動微分（III-5、III-7.2）
+
+クーポンはキャップとフロアで折れ曲がる非線形なペイオフですが、各パスの微分を平均すれば、モンテカルロでも感応度が求まります。パス数と乱数の種を変えて、閉じた式との差を見られます。
+
+<RiskControls which="mc" />
+
+<McPanel />
+
+## 並列計算（III-1）
+
+同じモンテカルロを、1、2、4、8 スレッドで計算します。乱数はパスごとに決まるので、結果はスレッド数によらず同じです。
+
+<RiskControls which="threads" />
+
+<ThreadsPanel />
+
+## 分散計算：ジョブを送って集約する（III-2〜III-3）
+
+FX スポット9通り × ボラティリティ5通りの45シナリオを、ジョブに分けて計算します。ここではブラウザがスケジューラーになり、ジョブをキューから取り出して R の API（ワーカー）へ送り、返ってきた結果を集約します。計算の関数そのものは変えず、「どこで計算するか」を実行の仕組みの側に分けるのが分散計算の考え方です。
+
+```text
+Scenario Grid -> Task Generation -> Job Queue -> Scheduler (browser) -> Worker (R API) -> Result Aggregation
+```
+
+<DistributedPanel />
+
+ワーカーが1台（このサーバー1つ）なので、同時に送るジョブを増やしても、サーバーは届いた順に計算し、全体の時間はあまり縮みません。1ジョブあたりのシナリオを減らすと、通信の往復が増えて、そのぶん時間がかかります。ワーカーを社内 LAN の別のサーバーやクラウドのワーカーに置き換えれば、同じ仕組みのまま計算を分担できます。
+
+## まとめ
+
+計算資源を増やして評価を速くする方向（並列・分散）と、感応度のために評価を繰り返す構造そのものをなくす方向（自動微分）は、互いに置き換えるものではなく、組み合わせるものです。シナリオやジョブは並列・分散で処理し、その一つひとつの評価で感応度を自動微分で一度に求める。これが、エンタープライズの金融リスク計算の骨組みになります。
+
+</PrdcRiskProvider>

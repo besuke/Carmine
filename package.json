@@ -14,6 +14,7 @@
     "golden": "node scripts/run-r.mjs golden/generate_golden.R",
     "reconcile": "node scripts/run-r.mjs reconciliation/reconcile_tona_ois.R",
     "lan": "npm run build && node scripts/check-port.mjs 8080 0.0.0.0 && node scripts/run-r.mjs server/server.R --host 0.0.0.0 --port 8080 --static dist",
+    "reconcile:prdc-risk": "node scripts/run-r.mjs reconciliation/prdc_risk/reconcile_prdc_risk.R",
     "reconcile:parallel": "node scripts/run-r.mjs reconciliation/parallel/reconcile_parallel.R",
     "reconcile:prdc": "node scripts/run-r.mjs reconciliation/prdc/reconcile_prdc.R",
     "reconcile:callable": "node scripts/run-r.mjs reconciliation/callable/reconcile_callable.R",

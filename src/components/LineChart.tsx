@@ -168,8 +168,8 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
               </text>
             </g>
           ))}
-          {xTicks.map((t) => (
-            <g key={`x${t.label}`}>
+          {xTicks.map((t, i) => (
+            <g key={`x${i}-${t.label}`}>
               <line className="axis" x1={sx(t.x)} x2={sx(t.x)} y1={height - MARGIN.bottom} y2={height - MARGIN.bottom + 4} />
               <text className="tick" x={sx(t.x)} y={height - MARGIN.bottom + 17} textAnchor="middle">{t.label}</text>
             </g>
