@@ -44,7 +44,7 @@ export const TOC: Part[] = [
         id: "II-1",
         title: "確定キャッシュフロー",
         source: "part2_quantive_riemann/ch01_deterministic_cashflow.qmd",
-        route: "/part2/deterministic-cashflow",
+        route: "/deterministic-cashflow",
         routeNote: "II-1.1〜1.8 を実装済み（模式図の水準と傾き、債券の単利利回り・クーポン・Zスプレッドを操作。GaussQuant と原稿の結果に照合）。数値解法（II-1.8）は原稿と同じ R の関数を API が実行する",
         operations: [
           "利回りを動かして、単価・経過利子・デュレーション・コンベクシティ・BPVの変化を見る",
@@ -78,8 +78,8 @@ export const TOC: Part[] = [
           { sections: "II-2.6〜2.7", topic: "国債先物、Gross・Net Basis、CTD", coverage: "対応", riemann: "compute_future_basket、compute_future_basis" },
         ],
         additions: ["預金のヘルパー（II-2.4.1）", "Implied Term Structure（II-2.5.1）"],
-        route: "/part2/yield-curves",
-        subRoutes: [{ route: "/part2/jgb-futures", title: "国債先物・CTD・先物BPV（II-2.6〜2.7）" }],
+        route: "/yield-curves",
+        subRoutes: [{ route: "/jgb-futures", title: "国債先物・CTD・先物BPV（II-2.6〜2.7）" }],
         routeNote: "II-2.2、II-2.3.1、II-2.5.2〜2.5.3 を実装済み（ゼロ金利ノードと平行シフトを操作。GaussQuant と差 0 で照合）。II-2.2〜2.4 の考え方は円OISの章にもある",
       },
       {
@@ -100,14 +100,14 @@ export const TOC: Part[] = [
           { sections: "II-3.7", topic: "4通貨 OIS カーブ、OIS アセットスワップ、円ベーシス込み ASW", coverage: "対応", riemann: "bootstrap_ois_curve、compute_ois_asset_swap、compute_yen_asset_swap、compute_ctd_time_value" },
         ],
         additions: ["期間（7Y など）と受渡日数から OIS の日付を作る関数（今は API 側で MakeOIS の規則を再現）"],
-        route: "/part2/yield-curve-ois",
+        route: "/yield-curve-ois",
         routeNote: "II-3.1.3、II-3.2 と、市場レート変動による評価損益（II-3.6 の考え方を TONA で）",
       },
       {
         id: "II-4",
         title: "ブラックモデル",
         source: "part2_quantive_riemann/ch04_black_model.qmd",
-        route: "/part2/black-model",
+        route: "/black-model",
         routeNote: "II-4.1〜4.6 を実装済み（Black 76・BSM の入力、MC の乱数とパス数、LSM のパス数を操作。GaussQuant と原稿の結果に照合。疑似乱数の MC は乱数が別なので判定しない）",
         operations: [
           "原資産・権利行使価格・ボラティリティ・満期を動かして、Black76 と BSM の価格とグリークスを見る",
@@ -127,7 +127,7 @@ export const TOC: Part[] = [
         id: "II-5",
         title: "信用リスクとCDS",
         source: "part2_quantive_riemann/ch05_credit_risk_cds.qmd",
-        route: "/part2/credit-cds",
+        route: "/credit-cds",
         routeNote: "II-5.1〜5.6 を実装済み（1年物と標準5年物の Spread・Coupon・Recovery・割引率を操作。GaussQuant と原稿の結果に差 0 で照合）。支払日ごとの表は、RiemannFinMath の割引係数と生存確率から R 側で組み立てている",
         operations: [
           "市場 Spread・契約 Coupon・回収率・割引率を動かして、Premium Leg・Protection Leg・Fair Spread・Fair Upfront を見る",
@@ -146,7 +146,7 @@ export const TOC: Part[] = [
         id: "II-6",
         title: "金利デリバティブのキャリブレーション",
         source: "part2_quantive_riemann/ch06_irs_calibration.qmd",
-        route: "/part2/irs-calibration",
+        route: "/irs-calibration",
         routeNote: "II-6.1〜6.6 を実装済み（Normal・Black の比較、SABR の β、Hull–White の基準パラメータ、BGM の相関の減衰を操作。原稿の optim の手順と RiemannFinMath のキャリブレーション関数を並べ、GaussQuant と原稿の結果に照合）",
         operations: [
           "SABR のパラメータを動かして、市場スマイルとの当てはまりを見る。校正ボタンで最適値へ",
@@ -163,7 +163,7 @@ export const TOC: Part[] = [
         id: "II-7",
         title: "金利モデル",
         source: "part2_quantive_riemann/ch07_irs_rate_models.qmd",
-        route: "/part2/rate-models",
+        route: "/rate-models",
         routeNote: "II-7.1〜7.6 を実装済み（Hull–White の a・σ、キャップレット、目標相関、架空の翌日物金利を操作。原稿と同じ R の乱数を使い、原稿のコードと原稿の結果に照合）。II-7.2 の経路は原稿の R の手順で作り、RiemannFinMath の月次の経路を並べる",
         operations: [
           "Hull–White の a と σ を動かして、短期金利の経路を描く",
@@ -181,7 +181,7 @@ export const TOC: Part[] = [
         id: "II-8",
         title: "早期償還モデル",
         source: "part2_quantive_riemann/ch08_early_redemption_models.qmd",
-        route: "/part2/early-redemption",
+        route: "/early-redemption",
         routeNote: "II-8.1〜8.8 を実装済み（Hull–White の a・σ、クーポン、コール日とコール価格、MBS の PSA・借換えの感応度とコストを操作。原稿の結果に照合）",
         operations: [
           "Hull–White のパラメータと金利水準を動かして、コール債の価格とコールオプション価値を見る",
@@ -198,7 +198,7 @@ export const TOC: Part[] = [
         id: "II-9",
         title: "金利為替系デリバティブ（PRDC）",
         source: "part2_quantive_riemann/ch09_exotic_derivatives_prdc.qmd",
-        route: "/part2/prdc",
+        route: "/prdc",
         routeNote: "II-9.1〜9.6 を実装済み（FX スポット・ボラ・金利、クーポンの条件、モンテカルロのパス数と seed を操作。原稿の結果に照合）",
         operations: [
           "FX スポット・ボラティリティ・金利とクーポンの条件を動かして、PRDC の現在価値と FX デルタ・ベガを見る。モンテカルロのパス数で標準誤差を見る",
@@ -221,7 +221,7 @@ export const TOC: Part[] = [
         id: "III-1",
         title: "計算の進化と並列計算",
         source: "part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd",
-        route: "/part3/parallel",
+        route: "/parallel",
         routeNote: "III-1.1〜1.7 を実装済み（債券の件数とスレッド数の上限を選び、一括評価の時間をサーバーで測る。原稿の逐次・並列の例と照合）",
         operations: ["件数とスレッド数を選んで、債券やカーブの一括計算の時間をサーバーで測る"],
         rows: [
@@ -295,7 +295,7 @@ export const TOC: Part[] = [
         id: "III-7",
         title: "PRDC と自動微分",
         source: "part3_enterprise_riemann/ch07_prdc_autodiff.qmd",
-        route: "/part3/prdc-risk",
+        route: "/prdc-risk",
         routeNote: "第III部のまとめのページ：III-7 の PRDC で、自動微分と Bump & Revalue、パスごとの自動微分、スレッドによる並列計算、ジョブに分けた分散計算を扱う（原稿の torch の値とも照合）",
         operations: ["PRDC の FX・ボラティリティ・カーブ節点の感応度を自動微分で一度に求め、Bump & Revalue と比べる", "モンテカルロをスレッドで並列に計算し、シナリオの格子をジョブに分けて送り、集約する"],
         rows: [{ sections: "III-7.1〜7.5", topic: "多因子 MC、感応度、非線形ペイオフ、集計", coverage: "対応", riemann: "compute_prdc_value（curve_sensitivity）、compute_prdc_three_factor_value" }],

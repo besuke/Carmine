@@ -212,3 +212,15 @@ table.data.check { max-width: 760px; }
 
 /* code blocks (e.g. the timeline of III-1) scroll inside themselves on a phone */
 .prose pre { max-width: 100%; overflow-x: auto; }
+
+/* connection to the calculation server: state in words and an icon, never by color alone */
+.site-header .server-indicator { margin-left: auto; font-size: 0.85rem; font-weight: 600; text-decoration: none; padding: 0.1rem 0.6rem; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.server-connected { color: var(--delta-good); }
+.server-disconnected { color: var(--critical); }
+.server-connecting { color: var(--text-secondary); }
+.server-status { border: 1px solid var(--grid); border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; background: var(--surface-1); }
+.server-status h2 { margin-top: 0; }
+.server-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.5rem 1rem; margin: 0.5rem 0 0.75rem; color: var(--text-primary); }
+.server-facts dt { font-size: 0.8rem; color: var(--text-secondary); }
+.server-facts dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+.server-controls { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }

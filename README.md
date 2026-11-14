@@ -5,18 +5,18 @@
 | 画面 | 内容 | URL（開発時） |
 |---|---|---|
 | 目次と対応状況 | 第II部・第III部の全16章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
-| II-1 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/part2/deterministic-cashflow` |
-| II-2 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/part2/yield-curves` |
-| II-2 国債先物・CTD・先物BPV | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/part2/jgb-futures` |
-| II-4 ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/part2/black-model` |
-| II-5 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/part2/credit-cds` |
-| II-6 金利デリバティブのキャリブレーション | Normal・Black ボラの比較、SABR のスマイル（原稿の optim と calibrate_sabr）、Hull–White の債券オプションへの適合と未使用商品の検証、BGM の相関の減衰（II-6.1〜6.6。GaussQuant・原稿の結果に照合） | `#/part2/irs-calibration` |
-| II-7 金利モデル | Hull–White の短期金利の経路と割引の検証、HJM のフォワードの変動係数、キャップレットの公式とモンテカルロ・満期のフォワードの分布、相関ショック、後決め金利の複利（II-7.1〜7.6。原稿のコードと原稿の結果に照合） | `#/part2/rate-models` |
-| II-8 早期償還モデル | Hull–White のコール債（Bullet・Callable・コール権の価値、コール日ごとの判断、ボラティリティと格子の検証）、MBS のプリペイメント（シナリオ別の CPR と加重平均残存年数、金利経路、PSA 別の静的 OAS）（II-8.1〜8.8。原稿の結果に照合） | `#/part2/early-redemption` |
-| II-9 金利為替系デリバティブ（PRDC） | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/part2/prdc` |
-| III-1 計算の進化と並列計算 | 6シナリオの逐次・並列の例、債券の件数とスレッド数を選んで一括評価の時間を測る（結果はスレッド数によらず同じ）（III-1.1〜1.7。原稿の例と照合） | `#/part3/parallel` |
-| 第III部 自動微分・並列・分散による PRDC のリスク計算 | III-7 の PRDC で、12 の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べ、モンテカルロをスレッドで並列に、45シナリオをジョブに分けてブラウザから R API へ送って集約する（III-2〜III-7 をまとめたページ） | `#/part3/prdc-risk` |
-| II-2・II-3 イールドカーブと円OIS | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/part2/yield-curve-ois` |
+| II-1 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/deterministic-cashflow` |
+| II-2 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/yield-curves` |
+| II-2 国債先物・CTD・先物BPV | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/jgb-futures` |
+| II-4 ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/black-model` |
+| II-5 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/credit-cds` |
+| II-6 金利デリバティブのキャリブレーション | Normal・Black ボラの比較、SABR のスマイル（原稿の optim と calibrate_sabr）、Hull–White の債券オプションへの適合と未使用商品の検証、BGM の相関の減衰（II-6.1〜6.6。GaussQuant・原稿の結果に照合） | `#/irs-calibration` |
+| II-7 金利モデル | Hull–White の短期金利の経路と割引の検証、HJM のフォワードの変動係数、キャップレットの公式とモンテカルロ・満期のフォワードの分布、相関ショック、後決め金利の複利（II-7.1〜7.6。原稿のコードと原稿の結果に照合） | `#/rate-models` |
+| II-8 早期償還モデル | Hull–White のコール債（Bullet・Callable・コール権の価値、コール日ごとの判断、ボラティリティと格子の検証）、MBS のプリペイメント（シナリオ別の CPR と加重平均残存年数、金利経路、PSA 別の静的 OAS）（II-8.1〜8.8。原稿の結果に照合） | `#/early-redemption` |
+| II-9 金利為替系デリバティブ（PRDC） | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
+| III-1 計算の進化と並列計算 | 6シナリオの逐次・並列の例、債券の件数とスレッド数を選んで一括評価の時間を測る（結果はスレッド数によらず同じ）（III-1.1〜1.7。原稿の例と照合） | `#/parallel` |
+| 第III部 自動微分・並列・分散による PRDC のリスク計算 | III-7 の PRDC で、12 の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べ、モンテカルロをスレッドで並列に、45シナリオをジョブに分けてブラウザから R API へ送って集約する（III-2〜III-7 をまとめたページ） | `#/prdc-risk` |
+| II-2・II-3 イールドカーブと円OIS | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/yield-curve-ois` |
 | 応用：A1 オファーシート作成 POC | Curie の `docs/A1_offer_sheet_POC.qmd` の章立てと表を React にしたもの。各表の下に Curie の旧デモとの照合 | `#/asw/poc` |
 | 応用：OISアセットスワップ・オファーシート | Curie のデモのオファー一覧と、銘柄ごとの ASW・JGBスプレッド・円換算 ASW の計算 | `#/asw` |
 
@@ -225,7 +225,7 @@ src/book/                    共通目次（toc.ts）、目次画面、ルータ
 src/api/                     APIの型とクライアント
 src/state/ScenarioContext.tsx  円OIS章の操作の状態とAPI呼び出し
 src/components/              グラフ（LineChart、FlowChart）と円OIS章の部品（表示のみ）
-src/content/part2/           章の本文と数式（MDX）
+src/content/           章の本文と数式（MDX）
 src/asw/                     オファー一覧と詳細の画面
 scripts/asw/                 Curie のデモデータの複製
 golden/generate_golden.R     照合済みJSONの生成
