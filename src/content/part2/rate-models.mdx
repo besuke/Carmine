@@ -1,0 +1,115 @@
+import { RateModelsProvider, RateModelsStatus, RateModelsControls, HwPathsChart, HwDiscountTable, HjmLoadingChart, CapletPanel, ShockPanel, FixingsPanel } from "../../components/rateModels";
+
+<RateModelsProvider>
+
+# 第II部 第7章 金利モデル
+
+この章は、原稿の第II-7章『金利モデル』の React 版です。原稿は乱数を R（`set.seed`、`rnorm`）で作るので、API も同じ種で同じ乱数を作り、RiemannFinMath が正規乱数を受け取る計算（キャップレット、相関ショック）にはその乱数を渡しています。Hull–White の経路は原稿と同じ R の手順で作り、RiemannFinMath の月次の Hull–White の経路を並べました。原稿のコードと原稿の計算結果に照合しています（`reconciliation/rate_models/`）。
+
+<RateModelsStatus />
+
+> 入力値はすべて原稿の説明用の値で、翌日物金利は架空のものです。
+
+## II-7.1 短期金利とフォワード金利
+
+期間 $[T_i, T_{i+1}]$ のフォワード金利は、単一曲線を仮定すると
+
+$$
+L_i(t) = \frac{1}{\Delta_i}\left(\frac{P(t, T_i)}{P(t, T_{i+1})} - 1\right), \qquad \Delta_i = \operatorname{yearfrac}(T_i, T_{i+1}), \quad t \le T_i
+$$
+
+です。
+
+| 枠組み | 主に動かす量 | 自然な用途 | 注意点 |
+|---|---|---|---|
+| Hull–White 1因子 | 短期金利 $r_t$ | 割引、債券オプション、行使判断 | 単一因子では曲線変動の形に制約がある |
+| HJM | 瞬間フォワード曲線 $f(t,T)$ | 曲線全体の整合的な記述 | ボラティリティに応じたドリフト制約が必要 |
+| BGM/LMM | 期間別フォワード $L_i(t)$ | Caplet、Swaption と複数金利の共変動 | 古典的な定義は期間開始時に確定するフォワード金利を想定する |
+| RFR 向け FMM | 後決め複利金利に対応する市場フォワード | 翌日物金利の複利支払を含む契約 | 金利期間中の確定済み部分と未確定部分を分ける |
+
+実務の複数曲線の設定では、OIS の割引係数と予測対象の期間金利を同じ $P(t,T)$ から機械的に作りません。
+
+## II-7.2 短期金利：Vasicek から Hull–White へ
+
+Vasicek モデル $dr_t = a(b - r_t)\,dt + \sigma\,dW_t$ のドリフトを時間依存にしたのが Hull–White 1因子モデル $dr_t = [\theta(t) - a r_t]dt + \sigma\,dW_t$ です。$r_t = \phi(t) + x_t$ と分けると、$x_0 = 0$ の OU 過程 $dx_t = -a x_t\,dt + \sigma\,dW_t$ と、決定論的な項
+
+$$
+\phi(t) = f(0,t) + \frac{\sigma^2}{2a^2}\left(1 - e^{-at}\right)^2
+$$
+
+になります。初期曲線がフラットな連続複利 $P(0,T) = e^{-r_0 T}$ なら $f(0,t) = r_0$ です。刻み $h$ の OU 状態の遷移
+
+$$
+x_{t+h} = e^{-ah} x_t + \sigma\sqrt{\frac{1 - e^{-2ah}}{2a}}\,Z, \qquad Z \sim N(0,1)
+$$
+
+は**状態の遷移**としては厳密ですが、割引係数 $\exp(-\int_0^T r_s\,ds)$ を左端の値の和で近似する部分には時間の離散化誤差が残ります。
+
+<RateModelsControls which="hw" />
+
+<HwPathsChart />
+
+$E[x_t] = 0$ なので、8000本の短期金利の平均は $\phi(t)$ にほぼ重なります。経路別の割引係数の平均は、初期曲線の割引係数を標準誤差の範囲で再現します。下の表には、RiemannFinMath の月次の Hull–White の経路（パッケージの乱数、antithetic）の結果も並べました。
+
+<HwDiscountTable />
+
+## II-7.3 HJM：瞬間フォワードモデル
+
+HJM では満期ごとの瞬間フォワード $f(t,T)$ を $df(t,T) = \alpha(t,T)\,dt + \sum_k \sigma_k(t,T)\,dW_{k,t}$ と置き、無裁定の条件
+
+$$
+\alpha(t,T) = \sum_{k=1}^{m} \sigma_k(t,T) \int_t^T \sigma_k(t,u)\,du
+$$
+
+からドリフトが決まります。ボラティリティ曲面を指定すれば、ドリフトは自由な調整項ではありません。1因子 Hull–White はフォワードの変動係数 $\sigma e^{-a(T-t)}$ の HJM に当たります（上の欄の $a$、$\sigma$ を使います）。
+
+<HjmLoadingChart />
+
+## II-7.4 BGM/LMM：期間別フォワード
+
+$L_i$ は、その支払時点 $T_{i+1}$ のフォワード測度の下でマルチンゲールです（$dL_i/L_i = \boldsymbol\sigma_i(t)\cdot d\boldsymbol W_t^{T_{i+1}}$）。ボラティリティが一定なら、満期 $T_i$ の周辺分布は
+
+$$
+L_i(T_i) = L_i(0)\exp\left[-\tfrac12 \nu_i^2 T_i + \nu_i\sqrt{T_i}\,Z\right]
+$$
+
+で、キャップレットは Black の公式で評価できます。同じ分布からのモンテカルロと並べます。
+
+<RateModelsControls which="caplet" />
+
+<CapletPanel />
+
+### II-7.4.3 マルチフォワードレートと相関
+
+複数のフォワード金利を同時に動かすには、相関した正規ショックが必要です。独立な正規乱数に、目標の相関行列のコレスキー因子を掛けます。相関行列が正定値でない組み合わせは計算できません（その場合は API がその旨を返します）。
+
+<RateModelsControls which="shocks" />
+
+<ShockPanel />
+
+## II-7.5 後決め金利と FMM モデル
+
+期間内の各日の翌日物金利を $R_j$、日数割合を $\delta_j$、全期間の日数割合を $\Delta_i$ とすると、確定後の期間複利金利は
+
+$$
+R_i^{\mathrm{comp}} = \frac{\prod_{j \in [T_i, T_{i+1})} (1 + \delta_j R_j) - 1}{\Delta_i}
+$$
+
+です。期間の途中では、確定済みの部分と未確定の部分を分けて扱います。下の欄の架空の翌日物金利で、当日までの確定分から計算した年率がどう動くかを見られます。
+
+<RateModelsControls which="fixings" />
+
+<FixingsPanel />
+
+## II-7.6 各種モデルサマリー
+
+第8章の早期償還債では、各行使日に「その日に償還する価値」と「保有を続ける価値」を比べます。
+
+| 論点 | Hull–White | BGM/LMM または RFR 向け FMM |
+|---|---|---|
+| 状態の次元 | 1因子の基本形は比較的小さい | 期間別金利が多いほど大きい |
+| 代表的な計算法 | 1因子の格子・木、またはモンテカルロ | 共通測度のモンテカルロと条件付き期待値の推定 |
+| 強み | 曲線に合わせ、行使日の状態を整理しやすい | 複数期間のフォワードの変動と相関を直接設定しやすい |
+| 第6章との接続 | Swaption 等から $a, \sigma$ を推定 | Caplet 等から期間別変動、Swaption 等から相関を推定 |
+
+</RateModelsProvider>

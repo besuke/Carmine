@@ -206,3 +206,6 @@ table.data.check { max-width: 760px; }
 /* two charts side by side (facets), one column on a phone */
 .chart-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 0.75rem; }
 .chart-pair > .chart { min-width: 0; }
+
+/* an error message next to the inputs that caused it */
+.error-text { color: var(--critical, #d03b3b); font-size: 0.85rem; }

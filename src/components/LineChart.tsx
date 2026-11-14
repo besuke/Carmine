@@ -19,6 +19,7 @@ export interface Series {
   dots?: SeriesPoint[]; // points drawn as markers (e.g. the pillars), in the series color
   strokeWidth?: number; // default 2; thin lines for many paths
   opacity?: number; // stroke opacity, default 1
+  inLegend?: boolean; // false keeps the series out of the legend (one entry stands for many paths drawn alike)
 }
 
 interface Props {
@@ -147,7 +148,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
       <figcaption className="chart-title">{title}</figcaption>
       {(legend ?? visible.length > 1) && (
         <ul className="legend" aria-label="凡例">
-          {visible.map((s) => (
+          {visible.filter((s) => s.inLegend !== false).map((s) => (
             <li key={s.key}>
               <svg width="22" height="10" aria-hidden="true">
                 <line x1="1" x2="21" y1="5" y2="5" stroke={s.color} strokeWidth="2" strokeDasharray={s.dashed ? "4 3" : undefined} />

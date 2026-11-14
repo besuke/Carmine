@@ -163,6 +163,8 @@ export const TOC: Part[] = [
         id: "II-7",
         title: "金利モデル",
         source: "part2_quantive_riemann/ch07_irs_rate_models.qmd",
+        route: "/part2/rate-models",
+        routeNote: "II-7.1〜7.6 を実装済み（Hull–White の a・σ、キャップレット、目標相関、架空の翌日物金利を操作。原稿と同じ R の乱数を使い、原稿のコードと原稿の結果に照合）。II-7.2 の経路は原稿の R の手順で作り、RiemannFinMath の月次の経路を並べる",
         operations: [
           "Hull–White の a と σ を動かして、短期金利の経路を描く",
           "LMM のキャップレット価格と相関ショックを見る",
