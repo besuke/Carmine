@@ -209,3 +209,6 @@ table.data.check { max-width: 760px; }
 
 /* an error message next to the inputs that caused it */
 .error-text { color: var(--critical, #d03b3b); font-size: 0.85rem; }
+
+/* code blocks (e.g. the timeline of III-1) scroll inside themselves on a phone */
+.prose pre { max-width: 100%; overflow-x: auto; }

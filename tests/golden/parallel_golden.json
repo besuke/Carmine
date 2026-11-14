@@ -1,0 +1,31 @@
+{
+  "engine": "the manuscript's purrr and furrr examples",
+  "present_value": [99.009900990099013, 97.066174864714043, 94.232233454704456, 90.595064479975505, 86.260878438416398, 81.350064430775291],
+  "one_by_one": [
+    {
+      "row": 1,
+      "clean_price": 113.06434737283953,
+      "duration_modified": 8.8115166023242661
+    },
+    {
+      "row": 500,
+      "clean_price": 106.0869059548273,
+      "duration_modified": 8.7564740432693817
+    },
+    {
+      "row": 1000,
+      "clean_price": 99.566677764603043,
+      "duration_modified": 8.7008005645617299
+    },
+    {
+      "row": 1500,
+      "clean_price": 93.484482145836097,
+      "duration_modified": 8.644583277306392
+    },
+    {
+      "row": 2000,
+      "clean_price": 87.80917945745496,
+      "duration_modified": 8.5877996619362715
+    }
+  ]
+}

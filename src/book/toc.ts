@@ -221,13 +221,15 @@ export const TOC: Part[] = [
         id: "III-1",
         title: "計算の進化と並列計算",
         source: "part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd",
+        route: "/part3/parallel",
+        routeNote: "III-1.1〜1.7 を実装済み（債券の件数とスレッド数の上限を選び、一括評価の時間をサーバーで測る。原稿の逐次・並列の例と照合）",
         operations: ["件数とスレッド数を選んで、債券やカーブの一括計算の時間をサーバーで測る"],
         rows: [
           { sections: "III-1.1〜1.4", topic: "金融と情報工学の歩み、ハードウェアの限界", coverage: "対象外", riemann: "説明の節" },
           { sections: "III-1.5〜1.6", topic: "R による並列計算と効果", coverage: "一部", riemann: "Rust の並列バッチ compute_bond_values_batch、compute_curve_values_batch。R の future・furrr そのものは対象外" },
           { sections: "III-1.7", topic: "自動微分の導入", coverage: "対象外", riemann: "説明の節（計算は III-4 以降）" },
         ],
-        additions: ["計算時間を測って返す API（並列数を指定）"],
+        additions: ["なし（RiemannFinMath の並列バッチで測る API を追加済み）"],
       },
       {
         id: "III-2",

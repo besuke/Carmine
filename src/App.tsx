@@ -8,6 +8,7 @@ import IrsCalibration from "./content/part2/irs-calibration.mdx";
 import RateModels from "./content/part2/rate-models.mdx";
 import EarlyRedemption from "./content/part2/early-redemption.mdx";
 import Prdc from "./content/part2/prdc.mdx";
+import Parallel from "./content/part3/parallel.mdx";
 import { CurveProvider } from "./components/curves";
 import { TOC } from "./book/toc";
 import { TocPage } from "./book/TocPage";
@@ -17,6 +18,11 @@ import { AswDetailPage, AswListPage } from "./asw/pages";
 import { AswPocPage } from "./asw/poc";
 
 const CHAPTERS: Record<string, () => React.ReactNode> = {
+  "/part3/parallel": () => (
+    <article className="prose">
+      <Parallel />
+    </article>
+  ),
   "/part2/prdc": () => (
     <article className="prose">
       <Prdc />
