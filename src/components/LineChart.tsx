@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 // A small SVG line chart drawn from the API's numbers. One y-axis; the x-axis is the date (ticks at
 // 1 January, labelled with the year, as scale_x_date(date_labels = "%Y") in the Quarto figures).
@@ -62,9 +62,10 @@ function yearTicks(origin: string, xMax: number, step: number): { x: number; lab
 function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {
   const ref = useRef<T>(null);
   const [width, setWidth] = useState(640);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    setWidth(Math.max(280, Math.floor(el.getBoundingClientRect().width)));
     const ro = new ResizeObserver(([entry]) => setWidth(Math.max(280, Math.floor(entry.contentRect.width))));
     ro.observe(el);
     return () => ro.disconnect();

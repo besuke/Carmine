@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 // Cash flows by payment date: receipts above zero, payments below. Bars sit on a date axis
 // (ticks on 1 January, labelled with the year). Values come unrounded from the API.
@@ -44,9 +44,10 @@ export function FlowChart({ title, origin, xMax, bars, series, yLabel, formatY, 
   const ref = useRef<HTMLElement>(null);
   const [width, setWidth] = useState(640);
   const [hover, setHover] = useState<FlowBar | null>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    setWidth(Math.max(280, Math.floor(el.getBoundingClientRect().width)));
     const ro = new ResizeObserver(([e]) => setWidth(Math.max(280, Math.floor(e.contentRect.width))));
     ro.observe(el);
     return () => ro.disconnect();

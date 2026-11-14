@@ -9,10 +9,47 @@ export interface AswConditions {
   curve: { interpolation: string; payment_frequency: number; payment_lag: number; extrapolation: boolean };
   attribute_policy: string;
   data_note: string;
+  yen_asw: { collateral: string; ccs: string; calibration: string; fx: string; not_included: string };
   engine: string;
 }
 
 export type AswStatus = "computed" | "unsupported" | "failed";
+/** Yen-converted ASW: only for foreign-currency bonds whose native ASW is computed. */
+export type YenStatus = "computed" | "not_computed" | "not_applicable";
+
+export interface YenAsw {
+  status: Exclude<YenStatus, "not_applicable">;
+  reason: string;
+  fx_spot: number | null;
+  basis_bp: number | null;
+  yen_asw_bp: number | null;
+  native_asw_bp?: number;
+  simple_sum_bp?: number;
+  calibrated_discount_spread_bp?: number;
+  hedged_bond_pv_yen?: number;
+  yen_base_leg_pv?: number;
+  upfront_pv_yen?: number;
+  spread_annuity_yen?: number;
+  npv_yen?: number;
+  detail?: {
+    fx: { spot: number; spot_date: string; quote_time: string; convention: string; source: string };
+    basis: {
+      terms: { spread_leg: string; pay_leg: string; receive_leg: string; notional_type: string; collateral_currency: string };
+      interpolated_bp: number; maturity_date: string; maturity_time: number; method: string;
+      points: { maturity_date: string; time: number; basis_bp: number; n_quotes: number }[];
+      curve: { time: number; date: string; basis_bp: number }[];
+    };
+    hedged_cashflows: { payment_date: string; kind: string; foreign_amount: number; fx_forward: number; yen_amount: number; yen_discount: number; yen_pv: number }[];
+    components: {
+      fx_spot: number; z_bp: number; hedged_bond_pv: number; yen_base_leg_pv: number; upfront_pv: number; annuity: number;
+      foreign_base_leg_pv: number; basis_annuity_pv: number; yen_asw_bp: number;
+    };
+    checks: {
+      rebuilt_yen_asw_bp: number; rebuilt_minus_engine_bp: number; hedged_bond_pv_minus_engine: number;
+      yen_base_leg_pv_minus_engine: number; ccs_residual_yen: number; npv_at_fair_spread_yen: number;
+    };
+  };
+}
 
 export interface AswOfferRow {
   offer_id: string;
@@ -33,6 +70,12 @@ export interface AswOfferRow {
   fair_spread_bp: number | null;
   accrued: number | null;
   dirty_price: number | null;
+  yen_status: YenStatus;
+  yen_reason: string;
+  yen_asw_bp: number | null;
+  basis_bp: number | null;
+  fx_spot: number | null;
+  simple_sum_bp: number | null;
 }
 
 export interface ResponseStamp {
@@ -53,6 +96,7 @@ export interface AswDetailResponse {
   status: AswStatus;
   reason: string;
   summary?: null | { accrued: number; dirty_price: number; fair_spread_bp: number; effective_date: string; maturity_date: string; settlement_date: string };
+  yen?: null | YenAsw;
   detail?: null | {
     curve: {
       currency: string; index: string; day_count: string; settlement_days: number; interpolation: string;

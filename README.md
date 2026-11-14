@@ -129,8 +129,9 @@ LagrangeFinance の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW �
 - **規約**（Curie の旧デモと同じ）：OIS カーブは MonotonicLogCubic・年1回払い・支払ラグ0・外挿なし（JPY は TONA、USD は SOFR、EUR は €STR、受渡2営業日）。ASW の翌日物レグは年2回・支払ラグ0（Curie のデモの仮定）。銘柄属性は ISIN とオファー日で結合（exact）。
 - **計算しない行**：変動利付債、期限前償還条項付き債、償還額が100でない債券、カーブの最後のピラーより後に満期がある債券、受渡日が合わないオファーなど。理由を表示し、行は残します。
 - **データの更新**：`npm run snapshot:asw`（`scripts/asw/snapshot_curie_demo.R`）が Curie から `server/data/asw_demo/` と `tests/golden/asw_curie_demo_results.json`（旧デモの結果）を作ります。出所は `server/data/asw_demo/PROVENANCE.md`。
-- **照合**：`npm run reconcile:asw` と `reconciliation/asw/RECONCILIATION_ASW.md`。テスト円債B（JPTEST000022）の ASW は旧デモ 10.484125871669359 bp との差 5.3e-15 bp。全10件で最大 2.8e-14 bp。
-- **未対応**：通貨ベーシスを反映した円換算 ASW（RiemannFinMath に `compute_yen_asset_swap` はあるが、FX とベーシス気配の取込・補間を API にまだ入れていない）、JGB スプレッド、スプレッド提示のオファーの価格換算。
+- **照合**：`npm run reconcile:asw` と `reconciliation/asw/RECONCILIATION_ASW.md`。テスト円債B（JPTEST000022）の ASW は旧デモ 10.484125871669359 bp との差 5.3e-15 bp（全10件で最大 2.8e-14 bp）。TEST USD BOND F（USTEST000016）の円換算 ASW は旧デモ 86.349380112377887 bp との差 7.3e-11 bp（全5件で最大 1.1e-9 bp）。
+- **円換算 ASW**（外貨建て債券）：円担保・元本一定の通貨スワップ（外貨翌日物フラット支払、円TONAR＋ベーシス受取）で円にヘッジしたときの、円TONAR に対するフェア・スプレッド $s_j^* = (B_j - Q_j - U_j)/A_j$。満期のベーシス1点で外貨割引の一定スプレッド $z$ を $Q_f(z) - Q_j - bA_j = 0$ から校正する（CCS の期間構造の校正ではない）。計算は RiemannFinMath の `compute_yen_asset_swap`。ベーシスは、元本一定・円担保の気配だけを同じ満期で平均し、評価日からの年数で自然3次スプライン補間（外挿なし、R の `stats::splinefun`）。FX スポットの受渡日が ASW の開始日と違う行は計算しない。データは `server/data/asw_demo/fx.txt`・`basis.txt`。
+- **未対応**：JGB スプレッド、スプレッド提示のオファーの価格換算、元本リセット型 CCS、FX スワップによる受渡日の調整、CCS の期間構造の校正。
 
 ## 照合済みJSON（回帰テストの期待値）
 
@@ -156,7 +157,7 @@ npm run golden
 npm test
 ```
 
-テストは R API を `127.0.0.1:8788` で起動し（`tests/globalSetup.ts`）、`{"bumpTenor":"5Y","bumpBp":1}` と `{"bumpTenor":"5Y","bumpBp":0}` を送って、照合済みJSONと比べます。ASW は `tests/asw.api.test.ts` が全オファーを Curie の旧デモの結果と比べます（ASW 1e-6 bp、価格 1e-10。結果は `test-results/asw-report.json`）。終わるとAPIを止めます。動いているAPIを使う場合は `LFL_TEST_API_URL=http://127.0.0.1:8787` を指定します。各項目の最大差は `test-results/regression-report.json` に書き出します。
+テストは R API を `127.0.0.1:8788` で起動し（`tests/globalSetup.ts`）、`{"bumpTenor":"5Y","bumpBp":1}` と `{"bumpTenor":"5Y","bumpBp":0}` を送って、照合済みJSONと比べます。ASW は `tests/asw.api.test.ts` が全オファーを Curie の旧デモの結果と比べます（ASW・円換算 ASW・ベーシス 1e-6 bp、価格 1e-10、CCS 校正の残差 1e-6 円。結果は `test-results/asw-report.json`）。終わるとAPIを止めます。動いているAPIを使う場合は `LFL_TEST_API_URL=http://127.0.0.1:8787` を指定します。各項目の最大差は `test-results/regression-report.json` に書き出します。
 
 ### 許容誤差と実測差（2026-11-14）
 

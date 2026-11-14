@@ -12,6 +12,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 interface OldRow {
   ISIN: string; broker_names: string; offer_price: number; accrued_per_100: number | null; dirty_price: number | null;
   native_asw_bp: number | null; asw_effective_date: string | null; asw_maturity_date: string | null;
+  fx_spot: number | null; basis_bp: number | null; jpy_asw_bp: number | null; simple_sum_bp: number | null;
+  calibrated_discount_spread_bp: number | null; ccs_repricing_npv_jpy: number | null; fair_spread_npv_jpy: number | null;
+  jpy_asw_status: string | null;
   validation_status: string; pricing_status: string; pricing_message: string | null;
 }
 const golden: { results: OldRow[] } = JSON.parse(readFileSync(path.join(root, "tests", "golden", "asw_curie_demo_results.json"), "utf8"));
@@ -112,5 +115,67 @@ describe("ASW offer sheet API", () => {
     await expect(fetchAswDetail("../x", { baseUrl })).rejects.toBeInstanceOf(ApiError);
     const r = await fetchAswList({ baseUrl, requestId: "asw-test-1" });
     expect(r.response.request_id).toBe("asw-test-1");
+  });
+});
+
+// Yen-converted ASW (円担保・元本一定・満期のベーシス1点で校正) against the old demo's jpy_asw_bp.
+// Tolerance 1e-6 bp as for the native ASW; the CCS and fair-spread residuals are in yen per 100 of foreign face.
+const YEN_TOL = { bp: 1e-6, residualYen: 1e-6, rebuiltBp: 1e-9 };
+
+describe("Yen-converted ASW", () => {
+  it("reproduces the old demo's yen-converted ASW, basis and FX for every foreign-currency offer", () => {
+    let compared = 0;
+    list.offers.forEach((o, i) => {
+      const old = golden.results[i];
+      if (o.currency === "JPY") {
+        expect(o.yen_status).toBe("not_applicable");
+        expect(o.yen_asw_bp).toBeNull();
+        return;
+      }
+      if (old.jpy_asw_status !== "computed") {
+        expect(o.yen_asw_bp, o.ISIN).toBeNull();
+        return;
+      }
+      expect(o.yen_status, o.ISIN).toBe("computed");
+      expect(o.fx_spot).toBe(old.fx_spot);
+      for (const [item, api, ref] of [
+        ["円換算ASW（bp）", o.yen_asw_bp!, old.jpy_asw_bp!],
+        ["補間したベーシス（bp）", o.basis_bp!, old.basis_bp!],
+        ["単純和（bp）", o.simple_sum_bp!, old.simple_sum_bp!],
+      ] as const) {
+        record(item, api - ref, YEN_TOL.bp);
+        expect(Math.abs(api - ref), `${o.ISIN} ${item}`).toBeLessThanOrEqual(YEN_TOL.bp);
+      }
+      compared += 1;
+    });
+    expect(compared).toBe(5);
+  });
+
+  it("explains the reconciled offer (ISO-01, TEST USD BOND F) in a way that adds up", async () => {
+    const d = await fetchAswDetail("ISO-01", { baseUrl });
+    const old = golden.results.find((r) => r.ISIN === "USTEST000016")!;
+    const y = d.yen!;
+    const x = y.detail!;
+    expect(y.status).toBe("computed");
+    expect(x.fx.spot_date).toBe(d.summary!.effective_date);
+    record("外貨割引の一定スプレッド z（bp）", x.components.z_bp - old.calibrated_discount_spread_bp!, YEN_TOL.bp);
+    expect(Math.abs(x.components.z_bp - old.calibrated_discount_spread_bp!)).toBeLessThanOrEqual(YEN_TOL.bp);
+    record("CCS 校正の残差（円）", x.checks.ccs_residual_yen, YEN_TOL.residualYen);
+    expect(Math.abs(x.checks.ccs_residual_yen)).toBeLessThanOrEqual(YEN_TOL.residualYen);
+    record("フェアスプレッドでのNPV（円）", x.checks.npv_at_fair_spread_yen, YEN_TOL.residualYen);
+    expect(Math.abs(x.checks.npv_at_fair_spread_yen)).toBeLessThanOrEqual(YEN_TOL.residualYen);
+    record("内訳から組み立てた円換算ASW − エンジン（bp）", x.checks.rebuilt_minus_engine_bp, YEN_TOL.rebuiltBp);
+    expect(Math.abs(x.checks.rebuilt_minus_engine_bp)).toBeLessThanOrEqual(YEN_TOL.rebuiltBp);
+    expect(Math.abs(x.checks.hedged_bond_pv_minus_engine)).toBeLessThanOrEqual(1e-7);
+    expect(Math.abs(x.checks.yen_base_leg_pv_minus_engine)).toBeLessThanOrEqual(1e-7);
+    expect(Math.abs(x.hedged_cashflows.reduce((s, f) => s + f.yen_pv, 0) - x.components.hedged_bond_pv)).toBeLessThanOrEqual(1e-9);
+    // Only constant-notional quotes are used: two sources per maturity, the MtM-reset quotes are left out
+    expect(x.basis.points.every((p) => p.n_quotes === 2)).toBe(true);
+    expect(x.basis.terms.notional_type).toBe("constant");
+  });
+
+  it("has no yen-converted ASW for yen bonds", async () => {
+    const d = await fetchAswDetail("JPY-02", { baseUrl });
+    expect(d.yen ?? null).toBeNull();
   });
 });

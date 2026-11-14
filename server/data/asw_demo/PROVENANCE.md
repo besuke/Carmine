@@ -4,7 +4,7 @@ Curie の A1 オファーシートのデモデータ（**すべて架空**。実
 `scripts/asw/snapshot_curie_demo.R` が作る。Curie は読むだけで変更しない。
 
 - Curie のコミット：`60940de`
-- 作成日時：2026-11-14 15:24:38 JST
+- 作成日時：2026-11-14 15:34:47 JST
 
 | このフォルダ | Curie の元ファイル | 更新日時 | SHA-256 |
 |---|---|---|---|
@@ -14,6 +14,8 @@ Curie の A1 オファーシートのデモデータ（**すべて架空**。実
 | `ois_JPY.txt` | `data/demo/market/demo_ois_JPY_20261006.txt` | 2026-10-27 08:14 | `e7f112063be6a45630986eb81d03c56819af93d90fb456d53d9542cc7e382b32` |
 | `ois_USD.txt` | `data/demo/market/demo_ois_USD_20261006.txt` | 2026-10-27 08:14 | `c332a6e3ad8f248a4dbc409543e72ba6d870984a658b77463ef689b50393ddd8` |
 | `ois_EUR.txt` | `data/demo/market/demo_ois_EUR_20261006.txt` | 2026-10-27 08:14 | `b1d1d798d93de07eea668147f558cec891357de321be16dd7060389c748f9db8` |
+| `fx.txt` | `data/demo/market/demo_fx_20261006.txt` | 2026-10-27 08:14 | `ff31ed383e813f41d5aecae399aef26f456859df2c63d7f2af94c33ee470bf82` |
+| `basis.txt` | `data/demo/market/demo_basis_20261006.txt` | 2026-10-27 08:14 | `e61c85caa2065983edf22dc6b8fb89cda1d9f49f48e4129abbfaccee0c1cbea4` |
 
 オファーは、Curie の `convert_offer_sheet_Curie()` がデモの Excel（`data/demo/offers/`）から読んだ標準形式（`output/work/`）を使う。
 単価は額面100あたりのクリーン価格、数量は額面金額（通貨単位）。

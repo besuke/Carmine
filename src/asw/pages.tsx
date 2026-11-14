@@ -91,32 +91,35 @@ export function AswListPage() {
                   <th scope="col">通貨</th>
                   <th scope="col">満期</th>
                   <th scope="col" className="num">クーポン</th>
-                  <th scope="col">業者</th>
                   <th scope="col" className="num">単価</th>
                   <th scope="col" className="num">数量（額面）</th>
-                  <th scope="col">受渡日</th>
-                  <th scope="col" className="num">ASW</th>
+                  <th scope="col" className="num">ASW<br /><span className="muted">発行通貨のOIS</span></th>
+                  <th scope="col" className="num">円換算ASW<br /><span className="muted">円TONAR</span></th>
                 </tr>
               </thead>
               <tbody>
                 {data.offers.map((o) => [
                   <tr key={o.offer_id} className={o.status === "computed" ? undefined : "not-computed"}>
                     <th scope="row"><a href={href(`/asw/${o.offer_id}`)}>{o.offer_id}</a></th>
-                    <td className="wrap"><a href={href(`/asw/${o.offer_id}`)}>{o.security_name}</a><br /><span className="muted">{o.ISIN}</span></td>
+                    <td className="wrap">
+                      <a href={href(`/asw/${o.offer_id}`)}>{o.security_name}</a>
+                      <br /><span className="muted">{o.ISIN}・{o.broker}・受渡 {o.settlement_date}</span>
+                    </td>
                     <td>{o.currency}</td>
                     <td>{o.maturity_date ?? "—"}</td>
                     <td className="num">{o.coupon_rate === null ? "—" : pct(o.coupon_rate, 2)}</td>
-                    <td>{o.broker}</td>
                     <td className="num">{o.offer_price.toFixed(2)}</td>
                     <td className="num">{new Intl.NumberFormat("ja-JP").format(o.offer_size)}</td>
-                    <td>{o.settlement_date}</td>
                     <td className="num" data-testid={`asw-${o.offer_id}`}>
                       {o.fair_spread_bp === null ? <span className={`status status-${o.status}`}>{STATUS_LABEL[o.status]}</span> : bpText(o.fair_spread_bp)}
                     </td>
+                    <td className="num" data-testid={`yen-asw-${o.offer_id}`}>
+                      {o.yen_asw_bp !== null ? bpText(o.yen_asw_bp) : o.yen_status === "not_applicable" ? <span className="muted">円建て</span> : "—"}
+                    </td>
                   </tr>,
-                  o.reason ? (
+                  o.reason || o.yen_reason ? (
                     <tr key={`${o.offer_id}-reason`} className="not-computed reason-row">
-                      <td colSpan={10}><span className="reason">理由：{o.reason}</span></td>
+                      <td colSpan={9}><span className="reason">理由：{o.reason || `円換算ASW：${o.yen_reason}`}</span></td>
                     </tr>
                   ) : null,
                 ])}
@@ -125,7 +128,8 @@ export function AswListPage() {
           </div>
           <p className="note">
             ASW は発行通貨の OIS（JPY は TONA、USD は SOFR、EUR は €STR）に対するスプレッドで、正の値は翌日物レグに上乗せして受け取る金利です。
-            通貨ベーシスを反映した円換算 ASW はまだ表示していません。数量は額面金額（各通貨の単位）です。
+            円換算 ASW は、外貨建て債券を円担保の通貨スワップで円にヘッジしたときの、円TONAR に対するスプレッドです（円担保・元本一定、満期のベーシス1点で校正した簡易モデル）。
+            発行通貨の ASW とベーシスの単純な和とは一致しません。数量は額面金額（各通貨の単位）です。
           </p>
         </>
       )}
@@ -162,6 +166,13 @@ function Detail({ d }: { d: AswDetailResponse }) {
             <div className="tile-value" data-testid="asw-detail">{bpText(d.summary!.fair_spread_bp, 4)}</div>
             <div className="tile-note">丸め前 <code>{d.summary!.fair_spread_bp}</code> bp</div>
           </div>
+          {d.yen && (
+            <div className="tile emphasis">
+              <div className="tile-label">円換算ASW（円TONAR に対して）</div>
+              <div className="tile-value" data-testid="yen-asw-detail">{d.yen.yen_asw_bp === null ? "—" : bpText(d.yen.yen_asw_bp, 4)}</div>
+              <div className="tile-note">{d.yen.status === "computed" ? <>丸め前 <code>{d.yen.yen_asw_bp}</code> bp（6. を参照）</> : d.yen.reason}</div>
+            </div>
+          )}
           <div className="tile">
             <div className="tile-label">ダーティ価格（額面100）</div>
             <div className="tile-value">{d.summary!.dirty_price.toFixed(6)}</div>
@@ -180,6 +191,117 @@ function Detail({ d }: { d: AswDetailResponse }) {
       <h2>計算条件</h2>
       <ConditionsBlock c={d.conditions} />
       {d.detail && <Computed d={d} />}
+      {d.yen?.detail && <YenSection d={d} />}
+      {d.yen && d.yen.status !== "computed" && (
+        <>
+          <h2>6. 円換算ASW</h2>
+          <div className="banner" role="status"><strong>計算できない</strong>　{d.yen.reason}</div>
+        </>
+      )}
+    </>
+  );
+}
+
+function YenSection({ d }: { d: AswDetailResponse }) {
+  const y = d.yen!;
+  const x = y.detail!;
+  const c = x.components;
+  const k = x.checks;
+  const ccy = d.attributes?.currency as string;
+  const origin = d.conditions.valuation_date;
+  const footer = <Stamp r={d.response} />;
+  const yearsOf = (date: string) => (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${origin}T00:00:00Z`)) / 86_400_000 / 365;
+  const xMax = Math.ceil(Math.max(x.basis.points[x.basis.points.length - 1].time, x.basis.maturity_time) + 0.25);
+  const yen = (v: number, digits = 4) => `${v.toFixed(digits)} 円`;
+  const sumRows: [string, string, number][] = [
+    ["B_j", "ヘッジ後の債券キャッシュフローの円の現在価値（支払）", c.hedged_bond_pv],
+    ["Q_j", "円TONARレグ＋満期元本の現在価値（受取、FXスポット換算）", c.yen_base_leg_pv],
+    ["U_j", "受渡日の価格調整の円の現在価値（開始日の FX で換算）", c.upfront_pv],
+    ["A_j", "円のスプレッド・アニュイティ", c.annuity],
+  ];
+  return (
+    <>
+      <h2>6. 円換算ASW（通貨ベーシスを反映）</h2>
+      <p>
+        {ccy} 建ての債券を、円担保の通貨スワップで円にヘッジしたときの、円TONAR に対するフェア・スプレッドです。通貨スワップは「{x.basis.terms.pay_leg} を支払い、
+        {x.basis.terms.receive_leg} を受け取る」形で、元本は一定、開始日と満期日に交換します。満期に対応するベーシス1点で、外貨割引の一定スプレッド z を校正します。
+        CCS の期間構造全体を校正したモデルではありません。
+      </p>
+      <table className="kv">
+        <caption>前提（{d.conditions.engine}）</caption>
+        <tbody>
+          {Object.entries(d.conditions.yen_asw).map(([key, v]) => (
+            <tr key={key}><th scope="row">{{ collateral: "担保・元本", ccs: "通貨スワップ", calibration: "校正", fx: "FXスポット", not_included: "含まないもの" }[key] ?? key}</th><td>{v}</td></tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3>FXスポットとベーシス</h3>
+      <table className="kv">
+        <tbody>
+          <tr><th scope="row">FXスポット X（{ccy}JPY）</th><td>{x.fx.spot}（{x.fx.convention}、受渡日 {x.fx.spot_date} = ASW 開始日、取得時刻 {x.fx.quote_time}）</td></tr>
+          <tr><th scope="row">ベーシス b（満期 {x.basis.maturity_date} に補間）</th><td><span className="num-cell">{x.basis.interpolated_bp.toFixed(6)} bp</span></td></tr>
+          <tr><th scope="row">補間の方法</th><td>{x.basis.method}</td></tr>
+          <tr><th scope="row">使った気配の条件</th><td>{Object.values(x.basis.terms).join("・")}（元本リセット型の気配は使わない）</td></tr>
+        </tbody>
+      </table>
+      <LineChart title={`${ccy}JPY ベーシス（円レッグに加算、点は同じ満期の気配の平均）`} origin={origin} xMax={xMax} yLabel="ベーシス（bp）"
+        series={[{ key: "basis", label: "補間（自然3次スプライン）", color: "var(--series-1)",
+          points: x.basis.curve.map((p) => ({ x: p.time, y: p.basis_bp, date: p.date })),
+          dots: x.basis.points.map((p) => ({ x: p.time, y: p.basis_bp, date: p.maturity_date })) }]}
+        formatY={(v) => `${v.toFixed(3)} bp`} formatTick={(v) => v.toFixed(0)} markers={[{ x: x.basis.maturity_time, label: "債券満期" }]} footer={footer} />
+      <div className="table-wrap">
+        <table className="data">
+          <caption>ベーシス気配（同じ満期の平均）</caption>
+          <thead><tr><th scope="col">満期</th><th scope="col" className="num">年数</th><th scope="col" className="num">ベーシス（bp）</th><th scope="col" className="num">気配の数</th></tr></thead>
+          <tbody>{x.basis.points.map((p) => <tr key={p.maturity_date}><td>{p.maturity_date}</td><td className="num">{p.time.toFixed(4)}</td><td className="num">{p.basis_bp.toFixed(2)}</td><td className="num">{p.n_quotes}</td></tr>)}</tbody>
+        </table>
+      </div>
+
+      <h3>FXフォワードとヘッジ後の債券キャッシュフロー</h3>
+      <p className="formula">F(S,T) = X · [D_f(T)/D_f(S)] / [D_j(T)/D_j(S)] · exp(−z·τ(S,T))　　z = {c.z_bp.toFixed(6)} bp</p>
+      <FlowChart title={`債券キャッシュフローの円換算額の現在価値（${ccy} 額面100あたり、利息だけ）`} origin={origin} xMax={Math.ceil(x.basis.maturity_time + 0.25)}
+        bars={x.hedged_cashflows.filter((f) => f.kind !== "redemption").map((f) => ({ date: f.payment_date, x: yearsOf(f.payment_date), value: -f.yen_pv, series: "bond", label: "クーポン（円換算、支払）" }))}
+        series={[{ key: "bond", label: "債券のクーポン（円換算、支払）", color: "var(--series-2)" }]} yLabel="現在価値（円）"
+        formatY={(v) => v.toFixed(2)} footer={footer} />
+      <div className="table-wrap">
+        <table className="data">
+          <caption>ヘッジ後の債券キャッシュフロー（{ccy} 額面100あたり）</caption>
+          <thead><tr><th scope="col">支払日</th><th scope="col">種類</th><th scope="col" className="num">外貨額</th><th scope="col" className="num">FXフォワード</th><th scope="col" className="num">円額</th><th scope="col" className="num">円の割引係数</th><th scope="col" className="num">円の現在価値</th></tr></thead>
+          <tbody>
+            {x.hedged_cashflows.map((f) => (
+              <tr key={`${f.payment_date}-${f.kind}`}><td>{f.payment_date}</td><td>{f.kind === "redemption" ? "償還" : "クーポン"}</td><td className="num">{f.foreign_amount.toFixed(6)}</td>
+                <td className="num">{f.fx_forward.toFixed(6)}</td><td className="num">{f.yen_amount.toFixed(4)}</td><td className="num">{df(f.yen_discount)}</td><td className="num">{f.yen_pv.toFixed(4)}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3>z の校正と円換算ASW</h3>
+      <p>z は、ベーシス b の通貨スワップが満期でちょうど等価になるように決めます：Q_f(z) − Q_j − b·A_j = 0。そのうえで、</p>
+      <p className="formula">s_j* = ( B_j − Q_j − U_j ) / A_j</p>
+      <div className="table-wrap">
+        <table className="data">
+          <caption>計算の内訳（{ccy} 額面100あたり、円）　<Stamp r={d.response} /></caption>
+          <thead><tr><th scope="col">記号</th><th scope="col">内容</th><th scope="col" className="num">値</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Q_f(z)</th><td>外貨翌日物レグ＋満期元本の円の現在価値（z で校正）</td><td className="num">{yen(c.foreign_base_leg_pv)}</td></tr>
+            <tr><th scope="row">b·A_j</th><td>ベーシスの現在価値</td><td className="num">{yen(c.basis_annuity_pv)}</td></tr>
+            {sumRows.map(([sym, label, v]) => <tr key={sym}><th scope="row">{sym}</th><td>{label}</td><td className="num">{yen(v)}</td></tr>)}
+            <tr className="changed"><th scope="row">s_j*</th><td>(B_j − Q_j − U_j) / A_j × 10⁴</td><td className="num">{bpText(c.yen_asw_bp, 10)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <table className="kv">
+        <caption>比較と確かめ</caption>
+        <tbody>
+          <tr><th scope="row">発行通貨建て ASW ＋ ベーシス（単純和、参考値）</th><td>{y.simple_sum_bp !== undefined ? bpText(y.simple_sum_bp, 4) : "—"}（PV・支払日・アニュイティが違うので、円換算ASWとは一致しない）</td></tr>
+          <tr><th scope="row">CCS 校正の残差 Q_f(z) − Q_j − b·A_j</th><td>{k.ccs_residual_yen.toExponential(2)} 円</td></tr>
+          <tr><th scope="row">s_j* を戻したときの NPV</th><td>{k.npv_at_fair_spread_yen.toExponential(2)} 円</td></tr>
+          <tr><th scope="row">内訳から組み立てた s_j* と RiemannFinMath の compute_yen_asset_swap の差</th><td>{k.rebuilt_minus_engine_bp.toExponential(2)} bp</td></tr>
+          <tr><th scope="row">ヘッジ後の債券PV・円の基準レグPV のエンジンとの差</th><td>{k.hedged_bond_pv_minus_engine.toExponential(2)} 円・{k.yen_base_leg_pv_minus_engine.toExponential(2)} 円</td></tr>
+        </tbody>
+      </table>
     </>
   );
 }

@@ -7,6 +7,7 @@
 #                                          (Curie output/work/{JPY,ISO}/offers_standard_*_20261006.xlsx)
 #   server/data/asw_demo/attributes.csv   bond attributes (Curie data/demo/attributes/demo_attributes_20261006.rds)
 #   server/data/asw_demo/ois_{JPY,USD,EUR}.txt  OIS quotes, copied unchanged (Curie data/demo/market)
+#   server/data/asw_demo/fx.txt, basis.txt      FX spots and cross-currency basis quotes, copied unchanged
 #   server/data/asw_demo/PROVENANCE.md    sources, Curie commit, file times and SHA-256
 #   tests/golden/asw_curie_demo_results.json  the old demo results (Curie output/offer_results_*_demo_20261006.xlsx)
 # Curie is only read.
@@ -25,6 +26,8 @@ src <- list(
   ois_JPY = "data/demo/market/demo_ois_JPY_20261006.txt",
   ois_USD = "data/demo/market/demo_ois_USD_20261006.txt",
   ois_EUR = "data/demo/market/demo_ois_EUR_20261006.txt",
+  fx = "data/demo/market/demo_fx_20261006.txt",
+  basis = "data/demo/market/demo_basis_20261006.txt",
   results_jpy = "output/offer_results_JPY_demo_20261006.xlsx",
   results_iso = "output/offer_results_ISO_demo_20261006.xlsx"
 )
@@ -46,12 +49,21 @@ attributes <- readRDS(path("attributes")) |> tibble::as_tibble()
 utils::write.csv(attributes, file.path(data_dir, "attributes.csv"), row.names = FALSE, fileEncoding = "UTF-8", na = "")
 
 for (ccy in c("JPY", "USD", "EUR")) file.copy(path(paste0("ois_", ccy)), file.path(data_dir, paste0("ois_", ccy, ".txt")), overwrite = TRUE)
+file.copy(path("fx"), file.path(data_dir, "fx.txt"), overwrite = TRUE)
+file.copy(path("basis"), file.path(data_dir, "basis.txt"), overwrite = TRUE)
 
 # Old results, unrounded, for the regression test
 read_results <- function(key) {
-  read_excel(path(key), sheet = "オファー結果") |>
+  x <- read_excel(path(key), sheet = "オファー結果")
+  yen_cols <- c("fx_spot", "basis_bp", "jpy_asw_bp", "simple_sum_bp", "calibrated_discount_spread_bp",
+                "ccs_repricing_npv_jpy", "fair_spread_npv_jpy")
+  for (col in setdiff(yen_cols, names(x))) x[[col]] <- NA_real_
+  if (!"jpy_asw_status" %in% names(x)) x$jpy_asw_status <- NA_character_
+  x |>
     transmute(ISIN, broker_names, offer_price, accrued_per_100, dirty_price, native_asw_bp,
               asw_effective_date = format(as.Date(asw_effective_date)), asw_maturity_date = format(as.Date(asw_maturity_date)),
+              fx_spot, basis_bp, jpy_asw_bp, simple_sum_bp, calibrated_discount_spread_bp,
+              ccs_repricing_npv_jpy, fair_spread_npv_jpy, jpy_asw_status,
               validation_status, pricing_status, pricing_message)
 }
 results <- bind_rows(read_results("results_jpy"), read_results("results_iso"))
@@ -80,9 +92,9 @@ prov <- c(
   "",
   "| このフォルダ | Curie の元ファイル | 更新日時 | SHA-256 |",
   "|---|---|---|---|",
-  vapply(names(src)[1:6], function(k) {
+  vapply(names(src)[1:8], function(k) {
     out <- c(offers_jpy = "offers.csv", offers_iso = "offers.csv", attributes = "attributes.csv",
-             ois_JPY = "ois_JPY.txt", ois_USD = "ois_USD.txt", ois_EUR = "ois_EUR.txt")[[k]]
+             ois_JPY = "ois_JPY.txt", ois_USD = "ois_USD.txt", ois_EUR = "ois_EUR.txt", fx = "fx.txt", basis = "basis.txt")[[k]]
     sprintf("| `%s` | `%s` | %s | `%s` |", out, src[[k]], format(file.info(path(k))$mtime, "%Y-%m-%d %H:%M"), gsub(" ", "", sha(path(k))))
   }, ""),
   "",

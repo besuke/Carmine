@@ -20,8 +20,8 @@ asw_read_csv <- function(name) {
 
 ASW_CURRENCIES <- list(
   JPY = list(index = "tonar", settlement_days = 2L, day_count = "actual_365_fixed", index_name = "TONAR"),
-  USD = list(index = "sofr", settlement_days = 2L, day_count = "actual_360", index_name = "SOFR"),
-  EUR = list(index = "estr", settlement_days = 2L, day_count = "actual_360", index_name = "€STR")
+  USD = list(index = "sofr", settlement_days = 2L, day_count = "actual_360", index_name = "SOFR", basis_leg = "USD SOFR flat"),
+  EUR = list(index = "estr", settlement_days = 2L, day_count = "actual_360", index_name = "€STR", basis_leg = "EUR ESTR flat")
 )
 ASW_CALENDARS <- c(Japan = "japan", UnitedStates_GovernmentBond = "us_government_bond", TARGET = "target")
 ASW_DAY_COUNTS <- c(Actual365Fixed = "actual_365_fixed", Thirty360_BondBasis = "thirty_360_bond_basis", ActualActual_Bond = "act_act_isma")
@@ -40,8 +40,51 @@ ASW_DATA <- local({
     q$marketdate <- as.Date(q$marketdate)
     q
   })
-  list(offers = offers, attributes = attributes, ois = ois)
+  read_pipe <- function(name) utils::read.delim(file.path(ASW_DATA_DIR, name), sep = "|", encoding = "UTF-8", stringsAsFactors = FALSE)
+  fx <- read_pipe("fx.txt")
+  fx$marketdate <- as.Date(fx$marketdate)
+  fx$spot_date <- as.Date(fx$spot_date)
+  basis <- read_pipe("basis.txt")
+  basis$marketdate <- as.Date(basis$marketdate)
+  basis$maturity_date <- as.Date(basis$maturity_date)
+  list(offers = offers, attributes = attributes, ois = ois, fx = fx, basis = basis)
 })
+
+# The cross-currency swap the yen-converted ASW assumes (Curie basis_terms_for_model_Curie): pay the foreign
+# overnight rate flat, receive TONAR + basis, constant notional, JPY collateral. Only quotes on these terms are used.
+asw_basis_terms <- function(ccy) {
+  list(spread_leg = "JPY", pay_leg = ASW_CURRENCIES[[ccy]]$basis_leg, receive_leg = "JPY TONAR + basis_bp",
+       notional_type = "constant", collateral_currency = "JPY")
+}
+
+# Quotes on the same pair, market date, terms and maturity are averaged; the averages are interpolated by a
+# natural cubic spline in years from the valuation date (Actual/365), without extrapolation (Curie
+# spline_by_maturity_Curie). This interpolates the quotes; it is not a bootstrap of a cross-currency curve.
+asw_basis_points <- function(ccy) {
+  t <- asw_basis_terms(ccy)
+  b <- ASW_DATA$basis
+  keep <- b$marketdate == ASW_VALUATION_DATE & b$currency_pair == paste0(ccy, "JPY") & b$spread_leg == t$spread_leg &
+    b$pay_leg == t$pay_leg & b$receive_leg == t$receive_leg & b$notional_type == t$notional_type &
+    b$collateral_currency == t$collateral_currency
+  b <- b[keep, ]
+  m <- sort(unique(b$maturity_date))
+  data.frame(maturity_date = m,
+             basis_bp = vapply(m, function(d) mean(b$basis_bp[b$maturity_date == d]), 0),
+             n_quotes = vapply(m, function(d) sum(b$maturity_date == d), 0L),
+             time = as.numeric(m - ASW_VALUATION_DATE) / 365)
+}
+
+asw_interpolate_basis <- function(ccy, maturity) {
+  p <- asw_basis_points(ccy)
+  if (nrow(p) < 2L) return(list(value = NA_real_, points = p, message = paste0(ccy, "JPY のベーシス気配が2点未満のため補間できない")))
+  x0 <- as.numeric(as.Date(maturity) - ASW_VALUATION_DATE) / 365
+  if (x0 < min(p$time) || x0 > max(p$time)) {
+    return(list(value = NA_real_, points = p, message = paste0("満期 ", maturity, " がベーシス気配の範囲（", min(p$maturity_date),
+                                                              "〜", max(p$maturity_date), "）の外。外挿しない")))
+  }
+  f <- stats::splinefun(p$time, p$basis_bp, method = "natural")
+  list(value = f(x0), message = "", points = p, spline = f)
+}
 
 ASW_VALUATION_DATE <- as.Date("2026-10-06")
 
@@ -130,7 +173,9 @@ asw_price <- function(row, detail = FALSE) {
     accrued = v$accrued, dirty_price = v$dirty_price, fair_spread_bp = v$fair_spread_bp,
     effective_date = iso(v$effective_date), maturity_date = iso(v$maturity_date), settlement_date = iso(settle)
   )
-  if (!detail) return(list(summary = summary))
+  yen <- tryCatch(asw_yen(attr, offer, bond, v, detail),
+                  error = function(e) list(status = "not_computed", reason = paste("円換算ASWの計算エラー：", conditionMessage(e))))
+  if (!detail) return(list(summary = summary, yen = yen))
 
   curve <- cv$curve
   N <- 100
@@ -165,7 +210,7 @@ asw_price <- function(row, detail = FALSE) {
   zero <- RiemannFinMath::compute_zero_rate(curve, dates, "actual_365_fixed", "continuous")
   zero[dates == ASW_VALUATION_DATE] <- NA_real_
   spec <- ASW_CURRENCIES[[attr$currency]]
-  list(summary = summary, detail = list(
+  list(summary = summary, yen = yen, detail = list(
     curve = list(
       currency = attr$currency, index = spec$index_name, day_count = spec$day_count, settlement_days = spec$settlement_days,
       interpolation = ASW_SETTINGS$curve_interpolation, payment_frequency = ASW_SETTINGS$curve_payment_frequency,
@@ -204,6 +249,102 @@ asw_price <- function(row, detail = FALSE) {
   ))
 }
 
+# Yen-converted ASW of a foreign bond (LagrangeFinance asw_offer_sheet_spec.qmd "通貨ベーシスを反映した円換算ASW";
+# Curie compute_asset_swap_basis_JPY). RiemannFinMath compute_yen_asset_swap computes it. With detail = TRUE the
+# hedged cash flows, the calibration of z and the checks are rebuilt here from the same curves:
+#   F_z(S,T) = X (D_f(T)/D_f(S)) / (D_j(T)/D_j(S)) exp(-z tau(S,T)),   Q_f(z) - Q_j - b A_j = 0,
+#   s_j = (B_j - Q_j - U_j) / A_j
+asw_yen <- function(attr, offer, bond, v, detail = FALSE) {
+  ccy <- attr$currency
+  if (identical(ccy, "JPY")) return(NULL)
+  out <- list(status = "not_computed", reason = "", fx_spot = NA_real_, basis_bp = NA_real_, yen_asw_bp = NA_real_)
+  fail <- function(msg) {
+    out$reason <- msg
+    out
+  }
+  jpy <- ASW_CURVES$JPY
+  if (!is.null(jpy$error)) return(fail(paste0("JPY のOISカーブを構築できない：", jpy$error)))
+  fx <- ASW_DATA$fx[ASW_DATA$fx$marketdate == ASW_VALUATION_DATE & ASW_DATA$fx$base_currency == ccy & ASW_DATA$fx$quote_currency == "JPY", ]
+  if (nrow(fx) != 1L) return(fail(paste0("評価日の ", ccy, "JPY のFXスポットが1件に定まらない（", nrow(fx), "件）")))
+  out$fx_spot <- fx$fx_spot
+  if (fx$spot_date != as.Date(v$effective_date)) {
+    return(fail(paste0("FXの受渡日 ", fx$spot_date, " とASW開始日 ", v$effective_date, " が異なる（FXスワップでの調整は未実装）")))
+  }
+  basis <- asw_interpolate_basis(ccy, attr$maturity_date)
+  out$basis_bp <- basis$value
+  if (is.na(basis$value)) return(fail(basis$message))
+  y <- RiemannFinMath::compute_yen_asset_swap(
+    bond, offer$offer_price, ASW_CURVES[[ccy]]$curve, jpy$curve, fx$fx_spot, basis$value, ASW_VALUATION_DATE,
+    foreign_payment_frequency = ASW_SETTINGS$asw_payment_frequency, yen_payment_frequency = ASW_SETTINGS$asw_payment_frequency,
+    foreign_payment_lag = ASW_SETTINGS$asw_payment_lag, yen_payment_lag = ASW_SETTINGS$asw_payment_lag, on_error = "na"
+  )
+  if (!is.na(y$error)) return(fail(paste("円換算ASWの計算エラー：", y$error)))
+  out <- list(
+    status = "computed", reason = "", fx_spot = fx$fx_spot, basis_bp = basis$value, yen_asw_bp = y$yen_asw_bp,
+    native_asw_bp = y$native_asw_bp, simple_sum_bp = y$simple_sum_bp, calibrated_discount_spread_bp = y$calibrated_discount_spread_bp,
+    hedged_bond_pv_yen = y$hedged_bond_pv_yen, yen_base_leg_pv = y$yen_base_leg_pv, upfront_pv_yen = y$upfront_pv_yen,
+    spread_annuity_yen = y$spread_annuity_yen, npv_yen = y$npv_yen
+  )
+  if (!detail) return(out)
+
+  N <- 100
+  X <- fx$fx_spot
+  S <- as.Date(v$effective_date)
+  fcurve <- ASW_CURVES[[ccy]]$curve
+  jcurve <- jpy$curve
+  z <- y$calibrated_discount_spread_bp / 1e4
+  dfs <- function(curve, d) RiemannFinMath::compute_discount(curve, as.Date(d))
+  tau <- function(d) as.numeric(as.Date(d) - S) / 365
+  fwd <- function(d) X * (dfs(fcurve, d) / dfs(fcurve, S)) / (dfs(jcurve, d) / dfs(jcurve, S)) * exp(-z * tau(d))
+  bcf <- RiemannFinMath::get_bond_cashflows(bond)
+  bcf <- bcf[bcf$payment_date > S, ]
+  F <- fwd(bcf$payment_date)
+  dj <- dfs(jcurve, bcf$payment_date)
+  hedged <- data.frame(payment_date = iso(bcf$payment_date), kind = bcf$kind, foreign_amount = bcf$amount, fx_forward = F,
+                       yen_amount = bcf$amount * F, yen_discount = dj, yen_pv = bcf$amount * F * dj)
+  # Base legs on the dates of the ASW: the foreign overnight leg + principal (foreign curve) and the TONAR leg +
+  # principal (JPY curve), with the spread annuity of the yen leg; amounts per 100 of foreign face.
+  base_leg <- function(index, curve) {
+    sw <- RiemannFinMath::create_ois_swap("receiver", N, S, as.Date(v$maturity_date), index, 1,
+                                          fixed_frequency = ASW_SETTINGS$asw_payment_frequency,
+                                          overnight_frequency = ASW_SETTINGS$asw_payment_frequency, payment_lag = ASW_SETTINGS$asw_payment_lag)
+    cf <- RiemannFinMath::compute_ois_swap_cashflows(sw, curve, ASW_VALUATION_DATE)
+    on <- cf[cf$leg == "overnight", ]
+    list(pay = c(on$payment_date, max(on$payment_date)), amount = c(on$amount, N), unit = cf[cf$leg == "fixed", ])
+  }
+  fl <- base_leg(ASW_CURRENCIES[[ccy]]$index, fcurve)
+  jl <- base_leg("tonar", jcurve)
+  q_f <- function(z) X * dfs(jcurve, S) * sum(fl$amount * dfs(fcurve, fl$pay) / dfs(fcurve, S) * exp(-z * tau(fl$pay)))
+  q_j <- X * sum(jl$amount * dfs(jcurve, jl$pay))
+  a_j <- X * sum(jl$unit$amount * dfs(jcurve, jl$unit$payment_date))
+  u_j <- X * N * (v$dirty_price / 100 - 1) * dfs(jcurve, S)
+  b_j <- sum(hedged$yen_pv)
+  s_j <- (b_j - q_j - u_j) / a_j
+  b <- basis$value / 1e4
+  p <- basis$points
+  grid <- seq(min(p$time), max(p$time), length.out = 120)
+  out$detail <- list(
+    fx = list(spot = X, spot_date = iso(fx$spot_date), quote_time = fx$quote_time, convention = fx$quote_convention, source = fx$source),
+    basis = list(
+      terms = asw_basis_terms(ccy), interpolated_bp = basis$value, maturity_date = iso(attr$maturity_date),
+      maturity_time = tau(attr$maturity_date) + as.numeric(S - ASW_VALUATION_DATE) / 365,
+      method = "同じ通貨ペア・市場日・契約条件・償還日の気配を算術平均し、評価日からの年数（Actual/365）で自然3次スプライン補間（外挿なし）。CCSカーブのブートストラップではない",
+      points = data.frame(maturity_date = iso(p$maturity_date), time = p$time, basis_bp = p$basis_bp, n_quotes = p$n_quotes),
+      curve = data.frame(time = grid, date = iso(ASW_VALUATION_DATE + round(grid * 365)), basis_bp = basis$spline(grid))
+    ),
+    hedged_cashflows = hedged,
+    components = list(fx_spot = X, z_bp = y$calibrated_discount_spread_bp, hedged_bond_pv = b_j, yen_base_leg_pv = q_j,
+                      upfront_pv = u_j, annuity = a_j, foreign_base_leg_pv = q_f(z), basis_annuity_pv = b * a_j, yen_asw_bp = y$yen_asw_bp),
+    checks = list(
+      rebuilt_yen_asw_bp = s_j * 1e4, rebuilt_minus_engine_bp = s_j * 1e4 - y$yen_asw_bp,
+      hedged_bond_pv_minus_engine = b_j - y$hedged_bond_pv_yen, yen_base_leg_pv_minus_engine = q_j - y$yen_base_leg_pv,
+      ccs_residual_yen = q_f(z) - q_j - b * a_j,
+      npv_at_fair_spread_yen = q_j + u_j + y$yen_asw_bp / 1e4 * a_j - b_j
+    )
+  )
+  out
+}
+
 asw_conditions <- function() {
   list(
     valuation_date = iso(ASW_VALUATION_DATE),
@@ -214,6 +355,13 @@ asw_conditions <- function() {
                  payment_lag = ASW_SETTINGS$curve_payment_lag, extrapolation = ASW_SETTINGS$extrapolation),
     attribute_policy = "exact（オファー日と同じ日の属性だけを使う）",
     data_note = "Curie のデモデータ（架空）。実在の銘柄・市場価格ではない",
+    yen_asw = list(
+      collateral = "円担保。元本は一定で、開始日と満期日に交換（MtMリセットなし）",
+      ccs = "外貨の翌日物フラットを支払い、円TONAR＋ベーシスを受け取る。ベーシスは円レッグに加算",
+      calibration = "満期に対応するベーシス1点（気配の補間値）で、外貨割引の一定スプレッド z を校正する。CCSの期間構造全体の校正ではない",
+      fx = "FXスポットは ASW 開始日に交換するレート。FXの受渡日と開始日が違う行は計算しない",
+      not_included = "取引費用、売買の気配差、MtMリセット付きCCS、クオント調整、信用・資本・資金調達の調整"
+    ),
     engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))
   )
 }
@@ -236,7 +384,13 @@ asw_list <- function() {
       reason = if (is.null(res$error)) "" else res$error,
       fair_spread_bp = if (is.null(res$summary)) NA else res$summary$fair_spread_bp,
       accrued = if (is.null(res$summary)) NA else res$summary$accrued,
-      dirty_price = if (is.null(res$summary)) NA else res$summary$dirty_price
+      dirty_price = if (is.null(res$summary)) NA else res$summary$dirty_price,
+      yen_status = if (!is.null(res$yen)) res$yen$status else if (identical(a$currency, "JPY")) "not_applicable" else "not_computed",
+      yen_reason = if (is.null(res$yen)) "" else res$yen$reason,
+      yen_asw_bp = if (is.null(res$yen$yen_asw_bp)) NA else res$yen$yen_asw_bp,
+      basis_bp = if (is.null(res$yen$basis_bp)) NA else res$yen$basis_bp,
+      fx_spot = if (is.null(res$yen$fx_spot)) NA else res$yen$fx_spot,
+      simple_sum_bp = if (is.null(res$yen$simple_sum_bp)) NA else res$yen$simple_sum_bp
     )
   })
   list(conditions = asw_conditions(), offers = items)
@@ -256,5 +410,5 @@ asw_detail <- function(offer_id) {
   if (!is.null(attr)) for (k in names(attr)) if (inherits(attr[[k]], "Date")) attr[[k]] <- if (is.na(attr[[k]])) NA else iso(attr[[k]])
   list(conditions = asw_conditions(), offer = offer, attributes = attr,
        status = if (is.null(res$error)) "computed" else if (startsWith(res$error, "未対応")) "unsupported" else "failed",
-       reason = if (is.null(res$error)) "" else res$error, summary = res$summary, detail = res$detail)
+       reason = if (is.null(res$error)) "" else res$error, summary = res$summary, yen = res$yen, detail = res$detail)
 }
