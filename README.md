@@ -42,7 +42,7 @@
 | 序論 | Coral Book で手元の R を使って再現した金融モデルを、複数の利用者がブラウザから使える形にする設計の考え方（役割分担、Rust、並列・分散計算、非同期の画面） | `#/introduction` |
 |  1. 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/deterministic-cashflow` |
 |  2. 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0）。財務省の国債金利（月末、1990年1月〜）から作ったカーブを、年月スライダーと再生で切り替える | `#/yield-curves` |
-|  2. 金利カーブ：国債先物・CTD | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/jgb-futures` |
+| 2.1 国債先物・CTD | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/jgb-futures` |
 |  3. OISスワップ | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/yield-curve-ois` |
 |  4. ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/black-model` |
 |  5. 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/credit-cds` |
@@ -52,9 +52,10 @@
 |  9. 並列計算 | Coral Book III-1 の本文に、6シナリオの逐次・並列の例、債券の件数とスレッド数を選んだ一括評価の測定、PRDC のモンテカルロのスレッド比較を組み込んだ章（結果はスレッド数によらず同じ） | `#/enterprise/parallel-computing` |
 | 10. 分散計算 | Coral Book III-2・III-3 の本文に、45シナリオをジョブに分けてブラウザから R API へ送り、集約する画面を組み込んだ章 | `#/enterprise/distributed-jobs` |
 | 11. 自動微分 | Coral Book III-4〜III-7 の本文（III-1.7 を導入に）に、PRDC の12の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べる画面と、パスごとの自動微分のモンテカルロを組み込んだ章。旧ページ（`#/parallel`、`#/prdc-risk`、`#/enterprise/...`）からは、統合先の節へ移る。統合は `scripts/port/merge_part3.py` | `#/enterprise/automatic-differentiation` |
-| 11. 自動微分：PRDC | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
-| 応用：A1 オファーシート作成 POC | Curie の `docs/A1_offer_sheet_POC.qmd` の章立てと表を React にしたもの。各表の下に Curie の旧デモとの照合 | `#/asw/poc` |
-| 応用：OISアセットスワップ・オファーシート | Curie のデモのオファー一覧と、銘柄ごとの ASW・JGBスプレッド・円換算 ASW の計算 | `#/asw` |
+| 11.1 PRDC | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
+| サーバー接続 | Riemann Compute Server（R の HTTP API）との接続の状態、往復の時間、利用者が開くアドレス、API の一覧。右上の「Riemann Compute Server：接続中／未接続」からも開く | `#/server` |
+
+メニューと目次の番号は、主章が 1.〜11.、章の下のページが「2.1」「11.1」です（序論とサーバー接続は番号なし）。本文の見出しも同じ番号です。オファーシート（POC と ASW）は QuantLet に移したので、メニューと目次から外しました（`src/asw/` のコードと API は残してあります）。
 
 ## 構成
 
@@ -78,6 +79,15 @@ TypeScript は金融計算をしません。APIへの送信と、返ってきた
 ## 起動（Windows）
 
 前提：R 4.6.0（`C:/Program Files/R/R-4.6.0`）に RiemannFinMath 0.3.0、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。Node.js 26（npm 11）で確認しています。
+
+起動はプロジェクトの `CarmineStudio.ps1`（デスクトップのショートカット「Carmine Studio」）でできます。メニューの「1」でこのPCの開発用（Riemann Compute Server 127.0.0.1:8787 と画面 http://127.0.0.1:8081/）、「2」で社内LANへの公開です（次の「社内LANで使う」）。引数でも選べます：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 dev
+powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 lan
+```
+
+npm で直接起動する場合：
 
 ```powershell
 cd C:\AnalyticFin\Projects\carmine-studio
@@ -116,11 +126,22 @@ npm run dev
 このPCをサーバーにして、同じ社内LANの他のPCやスマートフォンのブラウザから使います。ログインはありません。LANに届く人なら誰でも使えます。
 
 ```powershell
-cd C:\AnalyticFin\Projects\carmine-studio
-npm run lan
+powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 lan
 ```
 
-`npm run lan` は画面をビルドしてから、R のサーバーを起動します。サーバーは全てのネットワークインターフェース（`0.0.0.0`）の 8081 番で待ち受け、画面（`dist/`）とAPIを同じポートで返します。起動時に、他のPCから開くURL（例：`http://192.168.1.254:8081/`）が表示されます。このPCからは `http://127.0.0.1:8081/` で開けます。止めるときは Ctrl+C です。
+（メニューの「2」と同じです。`npm run lan` を直接実行してもかまいません。）画面をビルドしてから Riemann Compute Server を起動し、全てのネットワークインターフェース（`0.0.0.0`）の 8081 番で画面（`dist/`）と API を同じポートで返します。止めるときは「Carmine Studio - LAN (8081)」のウィンドウを閉じます（`npm run lan` なら Ctrl+C）。
+
+### 利用者に案内するアドレス（配備先のホスト名）
+
+起動スクリプトが開く URL、起動時に表示する URL、接続ページの「利用者が開くアドレス」には、**サーバーの DNS 名か LAN の IP アドレス**を使います。`127.0.0.1` はこのPCでの開発と内部の確認だけに使います。
+
+| 優先 | 指定のしかた | 例 |
+|---|---|---|
+| 1 | 環境変数 `CARMINE_PUBLIC_HOST` | `$env:CARMINE_PUBLIC_HOST = "carmine.example.local"` |
+| 2 | プロジェクト直下の `carmine.config.json` の `publicHost`（`carmine.config.example.json` を写して作る。Git には入れない） | `{ "publicHost": "carmine.example.local", "port": 8081 }` |
+| 3 | どちらもないとき：このサーバーの LAN の IPv4 アドレス（127.* と 169.254.* を除く） | `http://192.168.1.254:8081/` |
+
+ホスト名を指定したときも、LAN の IP アドレスを続けて表示します。起動スクリプトは、指定した名前でこのPCから開けないとき（DNS 未登録、ファイアウォールなど）に注意を表示します。
 
 `npm run api` と `npm run dev` は、これまでどおり `127.0.0.1` だけで待ち受けます。LANに出るのは `npm run lan` のときだけです。
 
@@ -136,6 +157,10 @@ New-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)" -Direction Inbound 
 - 社内のセキュリティポリシーで規則が無効になる場合や、作れない場合は、情報システム部門に相談してください。
 - 公衆Wi-Fiなど「パブリック」のネットワークでは `npm run lan` を使わないでください。このPCには以前から R に対する「パブリック」の受信許可（`R for Windows front-end`）があり、`npm run lan` 中はそのネットワークからも接続できてしまいます。不要なら「Windows Defender ファイアウォール」の受信の規則から無効にできます。
 - 規則を消すとき：`Remove-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)"`
+
+### 確認したこと（2026-11-16）
+
+`CarmineStudio.ps1 lan` で起動し、このPCから LAN の IP アドレス（`http://192.168.1.254:8081/`）とホスト名（`http://CHIRO_FMV_PC:8081/`、`carmine.config.json` の `publicHost` に指定）の両方で、画面・`/api/health`・計算（`POST /api/bond`）・接続ページの「利用者が開くアドレス」を確認しました。**別の端末のブラウザからの確認は、まだしていません。**
 
 ### 確認したこと（2026-11-14）
 

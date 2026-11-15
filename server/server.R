@@ -374,14 +374,29 @@ lan_addresses <- function() {
   out[grepl("^\\d+\\.\\d+\\.\\d+\\.\\d+$", trimws(out))]
 }
 
+# The address people on the LAN use (the connection page and the startup message): the host name of the
+# deployment, from the environment variable CARMINE_PUBLIC_HOST or "publicHost" in carmine.config.json at the
+# project's root, else this server's LAN addresses. 127.0.0.1 is for this PC and the internal calls only.
+public_info <- function(host, port, static_dir) {
+  config_file <- file.path(dirname(script_dir), "carmine.config.json")
+  config <- if (file.exists(config_file)) tryCatch(jsonlite::fromJSON(config_file), error = function(e) list()) else list()
+  env <- Sys.getenv("CARMINE_PUBLIC_HOST", "")
+  configured <- if (nzchar(env)) env else if (is.character(config$publicHost) && nzchar(config$publicHost)) config$publicHost else ""
+  serving <- identical(host, "0.0.0.0") && !is.na(static_dir)
+  page_port <- if (serving) port else if (is.numeric(config$port)) as.integer(config$port) else 8081L
+  hosts <- unique(c(if (nzchar(configured)) configured, trimws(lan_addresses())))
+  list(host = if (length(hosts)) hosts[[1]] else "", source = if (nzchar(env)) "env" else if (nzchar(configured)) "config" else "lan",
+       port = page_port, serving = serving, urls = I(sprintf("http://%s:%d/", hosts, page_port)))
+}
+SERVER_PUBLIC <- public_info(host, port, static_dir)
+
 cat(sprintf("Carmine Studio API on http://%s:%d (RiemannFinMath %s, fixed rate %.17g)\n",
             host, port, as.character(utils::packageVersion("RiemannFinMath")), TONA_FIXED_RATE))
 if (!is.na(static_dir)) cat("Serving the page from", static_dir, "\n")
 if (host == "0.0.0.0") {
-  ips <- trimws(lan_addresses())
-  cat("Listening on every network interface. Other PCs on the LAN can open:\n")
-  for (ip in ips) cat(sprintf("  http://%s:%d/\n", ip, port))
-  if (!length(ips)) cat(sprintf("  http://<this PC's IP address>:%d/\n", port))
+  cat("Listening on every network interface. People on the LAN open:\n")
+  for (u in SERVER_PUBLIC$urls) cat(sprintf("  %s\n", u))
+  if (!length(SERVER_PUBLIC$urls)) cat(sprintf("  http://<this server's host name or IP address>:%d/\n", port))
 }
 flush.console()
 httpuv::runServer(host, port, app)

@@ -105,7 +105,7 @@ function Sidebar({ route }: { route: string }) {
   return (
     <nav className="sidebar" aria-label="章の一覧">
       <a href={href("/")} className={route === "/" ? "active" : undefined} title="目次と対応状況">目次</a>
-      <a href={href("/server")} className={route === "/server" ? "active" : undefined} title="計算サーバーとの接続">サーバー接続</a>
+      <a href={href("/server")} className={route === "/server" ? "active" : undefined} title="Riemann Compute Server との接続">サーバー接続</a>
       <div className="sidebar-part">章</div>
       <ul className="chapter-list">
         <li>
@@ -116,20 +116,19 @@ function Sidebar({ route }: { route: string }) {
             <a href={href(ch.route!)} className={route === ch.route ? "active" : undefined} title={`${ch.title}（Coral Book ${ch.sourceIds.join("・")}）`}>
               <ChapterNo n={ch.no} />{ch.menu ?? ch.title}
             </a>
-            {ch.subRoutes?.map((sr) => (
-              <a key={sr.route} href={href(sr.route)} className={route === sr.route ? "sub active" : "sub"} title={sr.title}>{sr.menu ?? sr.title}</a>
-            ))}
+            {ch.subRoutes?.length ? (
+              <ul className="chapter-children" aria-label={`${ch.menu ?? ch.title}の下のページ`}>
+                {ch.subRoutes.map((sr, k) => (
+                  <li key={sr.route}>
+                    <a href={href(sr.route)} className={route === sr.route ? "sub active" : "sub"} title={sr.title}>
+                      <ChapterNo n={ch.no} sub={k + 1} />{sr.menu ?? sr.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </li>
         ))}
-      </ul>
-      <div className="sidebar-part">応用サンプル</div>
-      <ul>
-        <li>
-          <a href={href("/asw/poc")} className={route === "/asw/poc" ? "active" : undefined} title="A1 オファーシート作成 POC">オファーシートPOC</a>
-        </li>
-        <li>
-          <a href={href("/asw")} className={route.startsWith("/asw") && route !== "/asw/poc" ? "active" : undefined} title="OISアセットスワップ・オファーシート">ASWオファーシート</a>
-        </li>
       </ul>
     </nav>
   );

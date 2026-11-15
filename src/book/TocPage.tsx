@@ -47,7 +47,13 @@ export function TocPage() {
                 )}
               </h3>
               {ch.routeNote && <p className="note">{ch.routeNote}</p>}
-              {ch.subRoutes?.map((sr) => <p key={sr.route} className="note"><a href={href(sr.route)}>{sr.title} を読む</a></p>)}
+              {ch.subRoutes?.length ? (
+                <ul className="toc-children">
+                  {ch.subRoutes.map((sr, k) => (
+                    <li key={sr.route}><a href={href(sr.route)}><ChapterNo n={ch.no} sub={k + 1} />{sr.menu ?? sr.title}</a><span className="muted">　{sr.title}</span></li>
+                  ))}
+                </ul>
+              ) : null}
               <h4>操作できること</h4>
               <ul>
                 {ch.operations.map((op) => <li key={op}>{op}</li>)}

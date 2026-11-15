@@ -357,4 +357,9 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px 
 .prose h1 .chapter-no { font-weight: 700; }
 .sidebar .chapter-no { color: var(--text-muted); font-size: 0.92em; }
 .sidebar a.active .chapter-no { color: inherit; }
-.sidebar .chapter-list a.sub { padding-left: calc(3ch + 1.6em); }
+/* pages under a chapter: nested under it, numbered 2.1, 11.1 in their own column */
+.sidebar .chapter-children { margin: 0 0 0.15rem calc(3ch + 0.45em); padding-left: 0.4rem; border-left: 1px solid var(--grid); }
+.sidebar .chapter-list a.sub { padding-left: 0.4rem; font-size: 0.8rem; }
+.chapter-no.chapter-sub-no { width: auto; min-width: 3ch; margin-right: 0.5em; }
+.toc-children { list-style: none; padding-left: calc(3ch + 0.45em); margin: 0.25rem 0 0.5rem; }
+.toc-children li { margin: 0.15rem 0; }

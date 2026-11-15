@@ -10,7 +10,7 @@ SERVER_REQUESTS$count <- 0L
 SERVER_ROUTES <- tibble::tribble(
   ~method, ~path,                             ~page,
   "GET",  "/api/health",                     "接続の確認",
-  "GET",  "/api/server",                     "計算サーバーとの接続（このページ）",
+  "GET",  "/api/server",                     "Riemann Compute Server との接続（このページ）",
   "POST", "/api/scenario",                   "イールドカーブと円OIS",
   "POST", "/api/curves/zero",                "金利カーブ",
   "GET",  "/api/jgb-curves",                 "金利カーブ（国債利回りの推移）",
@@ -55,6 +55,7 @@ server_info <- function(host, port, static_dir) {
     uptime_seconds = as.numeric(difftime(now, SERVER_STARTED, units = "secs")),
     requests_served = SERVER_REQUESTS$count,
     probe = server_probe(),
-    routes = SERVER_ROUTES
+    routes = SERVER_ROUTES,
+    public = if (exists("SERVER_PUBLIC")) SERVER_PUBLIC else NULL
   )
 }

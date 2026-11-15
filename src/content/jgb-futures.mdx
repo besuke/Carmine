@@ -3,7 +3,7 @@ import { FuturesProvider, FuturesStatus, FuturesControls, BasketTable, CarryTabl
 
 <FuturesProvider>
 
-# <ChapterNo n={2} />国債先物・CTD
+# <ChapterNo n={2} sub={1} />国債先物・CTD
 
 この章は、第II-2章の II-2.6（日本国債先物とCTD）と II-2.7（イールドカーブ変動と最割安銘柄）を React 版にし、先物BPV を加えたものです。計算は R の HTTP API が **RiemannFinMath** で行います。GaussQuant（原稿のコード）と同じ入力で照合し、経過利子・クーポン・利回り・デュレーション・Basis・Implied Repo・CTD・先物BPV がすべて差 0 で一致しています。ストレスシナリオは、原稿の計算結果とも差 0 です（`reconciliation/futures/`）。
 

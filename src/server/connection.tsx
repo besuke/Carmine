@@ -47,7 +47,8 @@ export function ServerConnectionProvider({ children }: { children: ReactNode }) 
     inFlight.current = c;
     const n = ++counter.current;
     setChecking(true);
-    const timeout = window.setTimeout(() => c.abort(), 8000);
+    // the R server answers one request at a time: a long calculation of another page can hold this check for a while
+    const timeout = window.setTimeout(() => c.abort(), 20000);
     fetchServerInfo({ signal: c.signal })
       .then((r) => {
         setInfo(r.info);
@@ -55,7 +56,7 @@ export function ServerConnectionProvider({ children }: { children: ReactNode }) 
       })
       .catch((e: unknown) => {
         if (e instanceof DOMException && e.name === "AbortError" && inFlight.current !== c) return; // replaced by a newer check
-        const error = e instanceof ApiError ? e.message : e instanceof DOMException && e.name === "AbortError" ? "8 秒以内に応答がありません。" : String(e);
+        const error = e instanceof ApiError ? e.message : e instanceof DOMException && e.name === "AbortError" ? "20 秒以内に応答がありません。" : String(e);
         setHistory((h) => [...h, { n, at: new Date(), ok: false, roundTripMs: null, serverMs: null, error }].slice(-HISTORY));
       })
       .finally(() => {
@@ -102,7 +103,7 @@ export function ServerIndicator() {
   return (
     <a className={`server-indicator server-${st}`} href={href("/server")} aria-live="polite"
       title={s.last?.ok ? `往復 ${s.last.roundTripMs?.toFixed(0)} ms` : s.last?.error ?? "確認中"}>
-      <span aria-hidden="true">{STATUS_ICON[st]}</span> 計算サーバー：{STATUS_LABEL[st]}
+      <span aria-hidden="true">{STATUS_ICON[st]}</span> Riemann Compute Server：{STATUS_LABEL[st]}
     </a>
   );
 }
@@ -129,8 +130,8 @@ function StatusPanel() {
       <h2 id="server-status-h"><span aria-hidden="true">{STATUS_ICON[st]}</span> {STATUS_LABEL[st]}</h2>
       {st === "disconnected" && (
         <div className="banner error" role="alert">
-          <strong>計算サーバーに接続できません。</strong> {s.last?.error}
-          <div className="banner-cmd">起動のしかた：プロジェクトのフォルダーで <code>npm run api</code>、またはデスクトップの <code>CarmineStudio.bat</code> で「1」。サーバーは <code>127.0.0.1:8787</code> で待ち受けます。</div>
+          <strong>Riemann Compute Server に接続できません。</strong> {s.last?.error}
+          <div className="banner-cmd">起動のしかた：プロジェクトのフォルダーで <code>npm run api</code>、またはプロジェクトの <code>CarmineStudio.ps1</code>（デスクトップのショートカット「Carmine Studio」）で「1」。サーバーは <code>127.0.0.1:8787</code> で待ち受けます。</div>
         </div>
       )}
       <dl className="server-facts">
@@ -184,7 +185,7 @@ function ServerFacts() {
     ["計算エンジン", `${info.engine.name} ${info.engine.version}`],
     ["R", `${info.runtime.r_version}（${info.runtime.platform}）`],
     ["待ち受け", `${info.listen.host}:${info.listen.port}${info.listen.lan ? "（社内LANのすべてのインターフェース）" : "（このPCだけ）"}`],
-    ["画面の配信", info.listen.serves_page ? "計算サーバーが画面も配信（npm run lan）" : "画面は開発サーバー（Vite）から。/api だけ計算サーバーへ転送"],
+    ["画面の配信", info.listen.serves_page ? "Riemann Compute Server が画面も配信（npm run lan）" : "画面は開発サーバー（Vite）から。/api だけ Riemann Compute Server へ転送"],
     ["起動した時刻", `${info.started_at}（稼働 ${duration(info.uptime_seconds)}）`],
     ["受け付けた要求", `${info.requests_served.toLocaleString("ja-JP")} 件（起動から）`],
     ["論理プロセッサ", `${info.runtime.logical_processors}`],
@@ -195,7 +196,7 @@ function ServerFacts() {
   return (
     <div className="table-wrap">
       <table className="data">
-        <caption>計算サーバーの情報（<code>GET /api/server</code>、応答 <code>{info.response.request_id}</code>）</caption>
+        <caption>Riemann Compute Server の情報（<code>GET /api/server</code>、応答 <code>{info.response.request_id}</code>）</caption>
         <tbody>{rows.map(([k, v]) => <tr key={k}><th scope="row">{k}</th><td className="wrap">{v}</td></tr>)}</tbody>
       </table>
     </div>
@@ -208,7 +209,7 @@ function RouteTable() {
   return (
     <div className="table-wrap">
       <table className="data">
-        <caption>計算サーバーが受け付ける API（{info.routes.length} 本）</caption>
+        <caption>Riemann Compute Server が受け付ける API（{info.routes.length} 本）</caption>
         <thead><tr><th scope="col">方法</th><th scope="col">パス</th><th scope="col">使うページ</th></tr></thead>
         <tbody>{info.routes.map((r) => <tr key={`${r.method} ${r.path}`}><td>{r.method}</td><td><code>{r.path}</code></td><td className="wrap">{r.page}</td></tr>)}</tbody>
       </table>
@@ -234,16 +235,33 @@ function CheckLog() {
   );
 }
 
+/** The addresses other people use: the configured host name (DNS) or this server's LAN addresses, never 127.0.0.1. */
+function PublicUrls() {
+  const { info } = useConnection();
+  if (!info?.public) return null;
+  const p = info.public;
+  return (
+    <div className="table-wrap">
+      <table className="data">
+        <caption>
+          利用者が開くアドレス（{p.source === "config" ? "設定 carmine.config.json の publicHost" : p.source === "env" ? "環境変数 CARMINE_PUBLIC_HOST" : "このサーバーの LAN の IP アドレス"}）
+          {p.serving ? "" : "：社内LANで公開するのは CarmineStudio.ps1 の「2」（npm run lan）で起動したときです"}
+        </caption>
+        <tbody>{p.urls.map((u, i) => (
+          <tr key={u}><th scope="row">{i === 0 ? "案内する URL" : "ほかの LAN アドレス"}</th><td><a href={u} data-testid={i === 0 ? "public-url" : undefined}>{u}</a></td></tr>
+        ))}</tbody>
+      </table>
+    </div>
+  );
+}
+
 /** The connection page. */
 export function ServerPage() {
   return (
     <article className="prose">
-      <h1>計算サーバーとの接続</h1>
-      <p>
-        このページの計算は、すべて R の計算サーバー（<code>server/server.R</code>）が <strong>RiemannFinMath</strong> で行います。画面は
-        <code> /api</code> に要求を送り、返ってきた JSON を表とグラフにします。ここでは、その計算サーバーとの接続を確かめます。
-      </p>
+      <h1>Riemann Compute Server との接続</h1>
       <StatusPanel />
+      <PublicUrls />
       <h2>時間の推移</h2>
       <p>
         往復の時間は、ブラウザが要求を送ってから応答を受け取るまでです。サーバー内の計算時間は、サーバーが RiemannFinMath の小さな計算を
@@ -252,6 +270,10 @@ export function ServerPage() {
       <HistoryChart />
       <CheckLog />
       <h2>サーバーの情報</h2>
+      <p>
+        各章の計算は、すべて Riemann Compute Server（R の HTTP API、<code>server/server.R</code>）が <strong>RiemannFinMath</strong> で行います。画面は
+        <code> /api</code> に要求を送り、返ってきた JSON を表とグラフにします。
+      </p>
       <ServerFacts />
       <RouteTable />
     </article>

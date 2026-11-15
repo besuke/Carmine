@@ -9,3 +9,7 @@ market_data/
 
 # Python bytecode of the port scripts
 __pycache__/
+
+# the deployment settings of this server (host name for the LAN); see carmine.config.example.json
+carmine.config.json
+.Rproj.user
