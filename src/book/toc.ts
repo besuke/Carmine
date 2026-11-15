@@ -23,13 +23,15 @@ export interface Chapter {
   rows: SectionRow[];
   additions: string[]; // what has to be implemented (Riemann or API) for the operations
   route?: string; // the React chapter, when it exists
-  subRoutes?: { route: string; title: string }[]; // further React pages of the same chapter
+  menu?: string; // the short name in the sidebar (the title stays the chapter's name elsewhere)
+  subRoutes?: { route: string; title: string; menu?: string }[]; // further React pages of the same chapter
   routeNote?: string;
 }
 
 export interface Part {
   id: string;
   title: string;
+  menu?: string;
   chapters: Chapter[];
 }
 
@@ -39,6 +41,7 @@ export const TOC: Part[] = [
   {
     id: "II",
     title: "第II部 金融工学　無裁定モデル",
+    menu: "第II部 無裁定モデル",
     chapters: [
       {
         id: "II-1",
@@ -69,7 +72,7 @@ export const TOC: Part[] = [
           "【実装済み】国債先物の受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV を見る。全銘柄の利回り水準と Funding Rate を動かし、CTD の入れ替わりを見る（現物価格は架空）",
         ],
         rows: [
-          { sections: "II-2.1", topic: "国債利回りのスプライン補間、年限・時間方向の変化", coverage: "対象外", riemann: "R の spline の計算で、RiemannFinMath の対象外。API で R の関数として返すことはできる" },
+          { sections: "II-2.1", topic: "国債利回りの年限・時間方向の変化（月末のカーブ、年月スライダーと再生）", coverage: "対応", riemann: "create_discount_curve（単調な対数3次補間）、compute_zero_rate。データは財務省の国債金利情報の月末値" },
           { sections: "II-2.2〜2.3", topic: "ゼロカーブ、割引係数カーブ、補間とフォワード、参照日", coverage: "対応", riemann: "create_zero_curve、create_discount_curve、compute_discount、compute_zero_rate、compute_forward_rate" },
           { sections: "II-2.4.1", topic: "預金と債券のブートストラップ", coverage: "一部", riemann: "bootstrap_bond_curve は債券だけ。預金のヘルパーがない" },
           { sections: "II-2.4.2", topic: "預金と IBOR スワップのブートストラップ", coverage: "対象外", riemann: "LIBOR は公表が終わり、市場は OIS に移った。原稿のこの節は LIBOR→OIS の流れを知らない読者向けの説明なので、React 版では作らない。カーブ構築は OIS（TONAR・€STR・SOFR・SONIA）で行う" },
@@ -79,11 +82,12 @@ export const TOC: Part[] = [
         ],
         additions: ["預金のヘルパー（II-2.4.1）", "Implied Term Structure（II-2.5.1）"],
         route: "/yield-curves",
-        subRoutes: [{ route: "/jgb-futures", title: "国債先物・CTD・先物BPV（II-2.6〜2.7）" }],
+        subRoutes: [{ route: "/jgb-futures", title: "国債先物・CTD・先物BPV（II-2.6〜2.7）", menu: "国債先物・CTD" }],
         routeNote: "II-2.2、II-2.3.1、II-2.5.2〜2.5.3 を実装済み（ゼロ金利ノードと平行シフトを操作。GaussQuant と差 0 で照合）。II-2.2〜2.4 の考え方は円OISの章にもある",
       },
       {
         id: "II-3",
+        menu: "OISスワップ",
         title: "OISスワップとマルチカーブ評価",
         source: "part2_quantive_riemann/ch03_ois_swaps_multicurve.qmd",
         operations: [
@@ -144,6 +148,7 @@ export const TOC: Part[] = [
       },
       {
         id: "II-6",
+        menu: "キャリブレーション",
         title: "金利デリバティブのキャリブレーション",
         source: "part2_quantive_riemann/ch06_irs_calibration.qmd",
         route: "/irs-calibration",
@@ -196,6 +201,7 @@ export const TOC: Part[] = [
       },
       {
         id: "II-9",
+        menu: "PRDC",
         title: "金利為替系デリバティブ（PRDC）",
         source: "part2_quantive_riemann/ch09_exotic_derivatives_prdc.qmd",
         route: "/prdc",
@@ -216,12 +222,14 @@ export const TOC: Part[] = [
   {
     id: "III",
     title: "第III部　エンタープライゼーション",
+    menu: "第III部 エンタープライズ",
     chapters: [
       {
         id: "III-1",
+        menu: "計算技術の発展",
         title: "金融計算技術の発展",
         route: "/enterprise/parallel-computing",
-        subRoutes: [{ route: "/parallel", title: "計算：債券の一括評価をスレッド数を変えて測る" }],
+        subRoutes: [{ route: "/parallel", title: "計算：債券の一括評価をスレッド数を変えて測る", menu: "計算：並列計算" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。計算は「並列計算」のページで、債券の件数とスレッド数の上限を選んでサーバーで測れる（原稿の逐次・並列の例と照合済み）",
         source: "part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd",
         operations: ["件数とスレッド数を選んで、債券やカーブの一括計算の時間をサーバーで測る"],
@@ -234,9 +242,10 @@ export const TOC: Part[] = [
       },
       {
         id: "III-2",
+        menu: "分散計算",
         title: "分散コンピューティング",
         route: "/enterprise/distributed-jobs",
-        subRoutes: [{ route: "/prdc-risk", title: "計算：シナリオをジョブに分けてサーバーへ送る" }, { route: "/server", title: "計算サーバーとの接続" }],
+        subRoutes: [{ route: "/prdc-risk", title: "計算：シナリオをジョブに分けてサーバーへ送る", menu: "計算：PRDCリスク" }, { route: "/server", title: "計算サーバーとの接続", menu: "計算：サーバー接続" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。ジョブ・タスクの分割と集約は「PRDC のリスク計算」のページで、ブラウザから R API へジョブを送って確かめられる",
         source: "part3_enterprise_riemann/ch02_distributed_computing_jobtask.qmd",
         operations: ["計算の分割と分配の流れを図で追う（数値計算はしない）"],
@@ -245,9 +254,10 @@ export const TOC: Part[] = [
       },
       {
         id: "III-3",
+        menu: "計算アーキテクチャ",
         title: "金融計算アーキテクチャ",
         route: "/enterprise/enterprise-computing",
-        subRoutes: [{ route: "/prdc-risk", title: "計算：PRDC のシナリオ評価とリスク集計" }],
+        subRoutes: [{ route: "/prdc-risk", title: "計算：PRDC のシナリオ評価とリスク集計", menu: "計算：PRDCリスク" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。PRDC のシナリオ評価とリスク表は「PRDC のリスク計算」のページで操作できる",
         source: "part3_enterprise_riemann/ch03_enterprise_financial_computing.qmd",
         operations: ["シナリオの格子を選んで PRDC を一括評価し、リスクを集計する"],
@@ -259,9 +269,10 @@ export const TOC: Part[] = [
       },
       {
         id: "III-4",
+        menu: "自動微分",
         title: "自動微分計算",
         route: "/enterprise/automatic-differentiation",
-        subRoutes: [{ route: "/prdc-risk", title: "計算：自動微分と Bump & Revalue の比較" }],
+        subRoutes: [{ route: "/prdc-risk", title: "計算：自動微分と Bump & Revalue の比較", menu: "計算：PRDCリスク" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。自動微分と Bump & Revalue の比較は「PRDC のリスク計算」のページで確かめられる",
         source: "part3_enterprise_riemann/ch04_automatic_differentiation.qmd",
         operations: ["有限差分の刻み幅を変えて、自動微分との差を見る（Riemann の感応度を題材に）"],
@@ -273,9 +284,10 @@ export const TOC: Part[] = [
       },
       {
         id: "III-5",
+        menu: "自動微分：オプション",
         title: "自動微分応用：オプション",
         route: "/enterprise/option-greeks",
-        subRoutes: [{ route: "/black-model", title: "計算：ブラックモデルの価格・Greeks・モンテカルロ" }, { route: "/prdc-risk", title: "計算：パスごとの自動微分" }],
+        subRoutes: [{ route: "/black-model", title: "計算：ブラックモデルの価格・Greeks・モンテカルロ", menu: "計算：ブラックモデル" }, { route: "/prdc-risk", title: "計算：パスごとの自動微分", menu: "計算：PRDCリスク" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。オプションの価格と Greeks は「ブラックモデル」、パスごとの自動微分は「PRDC のリスク計算」のページで操作できる",
         source: "part3_enterprise_riemann/ch05_option_greeks_autodiff.qmd",
         operations: ["解析解とモンテカルロ＋自動微分のグリークスを並べ、パス数による差を見る"],
@@ -287,9 +299,10 @@ export const TOC: Part[] = [
       },
       {
         id: "III-6",
+        menu: "自動微分：金利リスク",
         title: "自動微分応用：金利リスク",
         route: "/enterprise/interest-rate-risk",
-        subRoutes: [{ route: "/yield-curve-ois", title: "計算：OIS の気配とスワップの時価" }, { route: "/deterministic-cashflow", title: "計算：BPV・デュレーション" }, { route: "/prdc-risk", title: "計算：カーブ節点の感応度" }],
+        subRoutes: [{ route: "/yield-curve-ois", title: "計算：OIS の気配とスワップの時価", menu: "計算：OISスワップ" }, { route: "/deterministic-cashflow", title: "計算：BPV・デュレーション", menu: "計算：確定キャッシュフロー" }, { route: "/prdc-risk", title: "計算：カーブ節点の感応度", menu: "計算：PRDCリスク" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。スワップの時価と気配の感応度は「イールドカーブと円OIS」、BPV は「確定キャッシュフロー」、カーブ節点の感応度は「PRDC のリスク計算」で操作できる",
         source: "part3_enterprise_riemann/ch06_interest_rate_risk_autodiff.qmd",
         operations: [
@@ -304,9 +317,10 @@ export const TOC: Part[] = [
       },
       {
         id: "III-7",
+        menu: "自動微分：多因子",
         title: "自動微分応用：多因子モデル",
         route: "/enterprise/prdc",
-        subRoutes: [{ route: "/prdc-risk", title: "計算：自動微分・並列・分散による PRDC のリスク計算" }, { route: "/prdc", title: "計算：PRDC の評価（第II部 第9章）" }],
+        subRoutes: [{ route: "/prdc-risk", title: "計算：自動微分・並列・分散による PRDC のリスク計算", menu: "計算：PRDCリスク" }, { route: "/prdc", title: "計算：PRDC の評価（第II部 第9章）", menu: "計算：PRDC" }],
         routeNote: "本文（見出し・数式・定義・注記）を Coral Book の原稿から移植した。PRDC の感応度を自動微分で一度に求め、Bump & Revalue・スレッド・ジョブと比べる計算は「PRDC のリスク計算」のページで操作できる",
         source: "part3_enterprise_riemann/ch07_prdc_autodiff.qmd",
         operations: ["PRDC の FX・ボラティリティ・カーブ節点の感応度を自動微分で一度に求め、Bump & Revalue と比べる", "モンテカルロをスレッドで並列に計算し、シナリオの格子をジョブに分けて送り、集約する"],

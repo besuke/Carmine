@@ -1,6 +1,15 @@
-# 第III-1章 金融計算技術の発展
+import { ParallelProvider, ParallelStatus, ExampleTable, BatchControls, TimingPanel, BatchResultChart } from "../../components/parallel";
+import { PrdcRiskProvider, RiskControls, ThreadsPanel } from "../../components/prdcRisk";
+import { ChapterNo } from "../../book/ChapterNo";
 
-> この章は、Coral Book『金融工学の応用基礎』第III部の原稿 [`part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd`](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd) の本文を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。この章の計算は [並列計算](#/parallel) で、条件を変えながら R サーバー（RiemannFinMath）で確かめられます。
+<ParallelProvider>
+<PrdcRiskProvider>
+
+# <ChapterNo n={9} />並列計算
+
+> この章の本文は、Coral Book『金融工学の応用基礎』第III部の [第III-1章「金融計算技術の発展」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd) の原稿を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。銘柄ごとの評価やシナリオ計算を分けて同時に動かす計算は、各節の「R サーバーで確かめる」で条件を変えて確かめられます。
+
+<ParallelStatus />
 
 ```r
 
@@ -340,6 +349,8 @@ stopifnot(
 future::plan(future::sequential)
 ```
 
+<ExampleTable />
+
 ## III-1.5 Rによる並列計算
 
 小さすぎるTaskではWorker生成やデータ転送のOverheadが支配的になり、
@@ -406,6 +417,18 @@ show_table_LFL(tbl_benchmark)
 重要なのは、同じPricing Functionを多数の独立Taskへ適用する場合、
 Taskを複数Workerへ配分することで実行時間を短縮できるという構造である。
 
+<h3 id="measure">R サーバーで確かめる：債券の一括評価</h3>
+
+小さすぎるタスクでは、ワーカーの起動やデータの受け渡しのオーバーヘッドが勝って、並列化しても速くなるとは限りません。ここでは、ある程度の計算量を持つ独立したタスクとして、残存約10年の固定利付債を、指定した件数の利回りで評価します。同じ評価をスレッド数を 1、2、4、… と変えて実行し、このサーバーでの時間を測ります。
+
+<BatchControls />
+
+<TimingPanel />
+
+スレッドを増やしても、評価結果はまったく同じです。各債券の評価は互いに独立なので、どのスレッドがどの行を受け持っても答えは変わりません。速さはスレッド数どおりには伸びず、ある数で頭打ちになります。物理的なコアの数、メモリへのアクセス、スレッドの起動や結果の集約にかかる時間が効くためです。
+
+<BatchResultChart />
+
 ## III-1.6 並列化の効果と限界
 
 Multi-coreによる並列化には明確な限界がある。
@@ -436,13 +459,14 @@ $$
 リスクファクターごとにPricingを繰り返す構造そのものは残る。
 この問題は、本部後半の自動微分で改めて扱う。
 
-## III-1.7 自動微分
 
-本章では、金融工学の計算が解析解から数値計算、Monte Carloへ発展するにつれて計算量が増大し、
-その対応としてMulti-core CPUや並列処理が重要になったことを確認した。
+<h3 id="threads">R サーバーで確かめる：PRDC のモンテカルロをスレッドで分ける</h3>
 
-Rでは`future` / `furrr`を利用することで、逐次計算の構造を大きく変えずに
-一台のPC上で複数WorkerへTaskを配分できる。
+同じモンテカルロを、1、2、4、8 スレッドで計算します。乱数はパスごとに決まるので、結果はスレッド数によらず同じです。
 
-しかし、エンタープライズ金融計算では一台のPCだけでは計算資源が不足する。
-次章では、Taskを複数の計算機へ配布する**分散コンピューティングとJob / Task Control**へ進む。
+<RiskControls which="threads" />
+
+<ThreadsPanel />
+
+</PrdcRiskProvider>
+</ParallelProvider>

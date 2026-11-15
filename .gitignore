@@ -6,3 +6,6 @@ test-results
 
 # market and disclosure data fetched locally (EDINET XBRL, prices via tidyquant): not committed
 market_data/
+
+# Python bytecode of the port scripts
+__pycache__/

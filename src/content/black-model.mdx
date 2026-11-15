@@ -1,8 +1,9 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { BlackProvider, BlackStatus, BlackControls, BlackPanel, BlackValueChart, McPanel, McPathCharts, OnePathTable, EuropeanPutTable, AmericanPutTable, TreeConvergenceChart, SobolPathChart, LsmPanel } from "../components/black";
 
 <BlackProvider>
 
-# 第II部 第4章 ブラックモデル
+# <ChapterNo n={4} />ブラックモデル
 
 この章は、原稿の第II-4章『ブラックモデル』の React 版です。計算は R の HTTP API が **RiemannFinMath** で行います。原稿のコードを GaussQuant で動かした結果と同じ入力で照合しました。Black 76 の価格と Greeks、European put と American put の各エンジン、Sobol パス、Longstaff–Schwartz の価格・行使の内訳は、許容誤差の範囲で一致し、原稿の計算結果とも一致しています（`reconciliation/black/`）。
 

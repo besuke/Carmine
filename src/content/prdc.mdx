@@ -1,8 +1,9 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { PrdcProvider, PrdcStatus, PrdcControls, TermsPanel, PayoffChart, SamplePathsChart, ValuePanel, CouponTermPanel, DistributionCharts, SensitivityPanel } from "../components/prdc";
 
 <PrdcProvider>
 
-# 第II部 第9章 金利為替系デリバティブ（PRDC）
+# <ChapterNo n={11} />PRDC
 
 この章は、原稿の第II-9章『金利為替系デリバティブ』の React 版です。第II部の締めくくりとして、金利と為替を組み合わせた PRDC（Power Reverse Dual Currency Note）を評価します。計算は R の HTTP API が **RiemannFinMath** で行い、原稿の計算結果と照合しています（`reconciliation/prdc/`）。
 

@@ -1,8 +1,9 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { RateModelsProvider, RateModelsStatus, RateModelsControls, HwPathsChart, HwDiscountTable, HjmLoadingChart, CapletPanel, ShockPanel, FixingsPanel } from "../components/rateModels";
 
 <RateModelsProvider>
 
-# 第II部 第7章 金利モデル
+# <ChapterNo n={7} />金利モデル
 
 この章は、原稿の第II-7章『金利モデル』の React 版です。原稿は乱数を R（`set.seed`、`rnorm`）で作るので、API も同じ種で同じ乱数を作り、RiemannFinMath が正規乱数を受け取る計算（キャップレット、相関ショック）にはその乱数を渡しています。Hull–White の経路は原稿と同じ R の手順で作り、RiemannFinMath の月次の Hull–White の経路を並べました。原稿のコードと原稿の計算結果に照合しています（`reconciliation/rate_models/`）。
 

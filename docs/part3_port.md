@@ -19,3 +19,18 @@
 | 第III-7章 自動微分応用：多因子モデル | `#/enterprise/prdc`（計算：`#/prdc-risk`、`#/prdc`） | PRDC の現在価値と FX デルタ・ベガ、円・外貨カーブの DV01 を自動微分で一度に求め、有限差分と比べる | なし。計算は「PRDC のリスク計算」（/prdc-risk）にあり、原稿の torch の結果と標本誤差の範囲で照合済み | `prdc-market-input`, `prdc-jpy-foreign-curves`, `prdc-mc-common-random-numbers`, `prdc-market-risk-tensors`, `prdc-contract-tensors`, `prdc-mc-pricing-function`, `prdc-mc-present-value`, `prdc-autodiff-risk-gradient`, `prdc-fx-delta`, `prdc-jpy-curve-dv01`, `prdc-foreign-curve-dv01`, `prdc-fx-vega`, `prdc-fx-vega01`, `prdc-risk-summary`, `prdc-curve-risk-summary`, `prdc-finite-difference-fx-delta` |
 
 今回は本文の移植を優先し、上の API と図表は作っていない。作るときは、原稿のチャンクと同じ入力で RiemannFinMath の結果を照合し、`reconciliation/` に記録する。
+
+## 3 章への再編（2026-11-15）
+
+ユーザーの指示で、移植した 7 章を「 9. 並列計算」「10. 分散計算」「11. 自動微分」の 3 章にまとめ、全体を 1〜11 の通し番号にした（序論は番号なし）。
+
+| 章 | 本文（Coral Book） | 組み込んだ計算画面 | 旧 URL |
+|---|---|---|---|
+|  9. 並列計算（`#/enterprise/parallel-computing`） | III-1（III-1.7 を除く） | 6 シナリオの表、債券の一括評価の測定（`#measure`）、PRDC のモンテカルロのスレッド比較（`#threads`） | `#/parallel` → `#measure` |
+| 10. 分散計算（`#/enterprise/distributed-jobs`） | III-2、III-3（`#enterprise-computing`） | シナリオをジョブに分けて送る（`#jobs`） | `#/enterprise/enterprise-computing` |
+| 11. 自動微分（`#/enterprise/automatic-differentiation`） | III-1.7（導入）、III-4、III-5（`#option-greeks`）、III-6（`#interest-rate-risk`）、III-7（`#prdc`） | PRDC と市場の入力、パスごとの自動微分、自動微分と Bump & Revalue（`#ad-vs-bump`） | `#/enterprise/option-greeks`、`#/enterprise/interest-rate-risk`、`#/enterprise/prdc`、`#/prdc-risk` |
+
+- 各章は `scripts/port/merge_part3.py` が Coral Book の原稿から作る（本文の変換は `port_part3.py` の `convert`）。計算画面に添えた説明文は旧ページのもの（`scripts/port/former/`）。
+- 重複する導入：第III-1章の III-1.7「自動微分」は「11. 自動微分」の導入に移し、「 9. 並列計算」からは外した。旧「PRDC のリスク計算」ページの冒頭（第III部全体の要約）は、章の構成と重なるので使わず、その「まとめ」は「11. 自動微分」の末尾に置いた。
+- PRDC の評価（Coral Book II-9、`#/prdc`）は、「11. 自動微分」の下のページにした。
+- 章番号は `src/book/chapters.ts`（並びと旧 URL の行き先）と `src/book/ChapterNo.tsx`（半角 3 文字分の番号欄）。

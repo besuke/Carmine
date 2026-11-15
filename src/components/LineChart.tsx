@@ -42,6 +42,8 @@ interface Props {
   legend?: boolean;
   /** At most this many rows in the tooltip; the rest are counted. */
   tooltipRows?: number;
+  /** A fixed y-range, so that frames of an animation share their axis (default: from the data). */
+  yRange?: [number, number];
 }
 
 const MARGIN = { top: 18, right: 16, bottom: 34, left: 64 };
@@ -84,7 +86,7 @@ function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] 
   return [ref, width];
 }
 
-export function LineChart({ title, series, origin, xMax, formatY, formatTick, yLabel, height = 280, markers = [], zeroLine, footer, xTicks: customTicks, xLabel, xMin = 0, legend, tooltipRows = Infinity }: Props) {
+export function LineChart({ title, series, origin, xMax, formatY, formatTick, yLabel, height = 280, markers = [], zeroLine, footer, xTicks: customTicks, xLabel, xMin = 0, legend, tooltipRows = Infinity, yRange }: Props) {
   const [wrapRef, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -108,10 +110,11 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
       lo = Math.min(lo, 0);
       hi = Math.max(hi, 0);
     }
+    if (yRange) return yRange;
     if (!Number.isFinite(lo)) return [0, 1];
     const pad = (hi - lo) * 0.06 || Math.abs(hi) * 0.01 || 1;
     return [lo - pad, hi + pad];
-  }, [visible, zeroLine]);
+  }, [visible, zeroLine, yRange]);
 
   const innerW = width - MARGIN.left - MARGIN.right;
   const innerH = height - MARGIN.top - MARGIN.bottom;

@@ -1,12 +1,22 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { CurveStatus, NodeEditor, ZeroCurveTable, ZeroCurveCharts, InterpolationCharts, ShiftSection, ValidationTables } from "../components/curves";
+import { JgbCurveExplorer } from "../components/curves/JgbCurveExplorer";
 
-# 第II部 第2章 金利カーブ
+# <ChapterNo n={2} />金利カーブ
 
-この章は、Coral Book『金融工学の応用基礎』第II-2章「金利カーブ」の II-2.2（金利カーブの基礎）、II-2.3.1（補間とフォワード金利）、II-2.5.2（平行シフト）、II-2.5.3（カーブの検証）を React 版にしたものです。計算は R の HTTP API が **RiemannFinMath** で行い、原稿と同じ入力で GaussQuant（QuantLib 1.42）と照合して、割引係数が差 0 で一致しています（`reconciliation/curves/`）。
+この章は、Coral Book『金融工学の応用基礎』第II-2章「金利カーブ」の II-2.1（国債利回りの年限方向と時間方向の変化）、II-2.2（金利カーブの基礎）、II-2.3.1（補間とフォワード金利）、II-2.5.2（平行シフト）、II-2.5.3（カーブの検証）を React 版にしたものです。計算は R の HTTP API が **RiemannFinMath** で行い、原稿と同じ入力で GaussQuant（QuantLib 1.42）と照合して、割引係数が差 0 で一致しています（`reconciliation/curves/`）。
 
 ゼロ金利ノードと平行シフトの幅を変えると、すべての図表が API の同じ応答で描き直されます。
 
 <CurveStatus />
+
+## II-2.1 国債利回りの年限方向と時間方向の変化
+
+市場で観測される国債利回りは、1年、2年、5年、10年などの離散的な年限に限られます。ここでは財務省の国債金利情報から各月の最終観測日の複利利回りを取り出し、R サーバー上の RiemannFinMath で年限方向に滑らかなカーブを作ります。各年限の利回りを割引係数に直し、割引係数の対数を単調な3次補間でつなぐので、カーブは観測した利回りをそのまま通ります。
+
+グラフの下のスライダーで表示する年月を切り替え、再生ボタンでデータのある月を順に表示できます。全期間のカーブは最初に一度だけ受け取り、スライダーと再生ではそれを使い回します。月ごとの形を比べやすいように、軸の範囲は全期間で固定しています。
+
+<JgbCurveExplorer />
 
 ## II-2.2 金利カーブの基礎
 
@@ -87,7 +97,6 @@ $$
 
 | 節 | 理由 |
 |---|---|
-| II-2.1 国債利回りのスプライン補間 | R の `spline` による計算で、RiemannFinMath の対象外 |
 | II-2.3.2 参照日と評価日 | RiemannFinMath のカーブは参照日が固定の値で、評価日のグローバルな状態を持たない（設計の違い） |
 | II-2.4 ブートストラップ | 預金のヘルパーが RiemannFinMath にない（目次の「追加実装が必要な箇所」）。II-2.4.2 の IBOR スワップカーブは、LIBOR→OIS の流れを説明するための節なので作らない |
 | II-2.5.1 Implied Term Structure | RiemannFinMath にない |

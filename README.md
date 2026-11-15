@@ -1,6 +1,6 @@
 # Carmine Studio『エンタープライズ金融モデル』
 
-金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する** Web アプリです（旧名 LagrangeFinLab）。Coral Book『金融工学の応用基礎』第II部・第III部の数式と解説を読みながら、ブラウザで金融モデルを動かせます。計算は R の HTTP API（開発時は 127.0.0.1:8787）が RiemannFinMath で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
+金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する** Web アプリです（旧名 LagrangeFinLab）。Coral Book『金融工学の応用基礎』の無裁定モデルとエンタープライズ化（並列・分散・自動微分）の数式と解説を読みながら、ブラウザで金融モデルを動かせます。メニューと目次は部に分けず、一つの章の並びにしています（各章には Coral Book の章番号を添えています）。計算は R の HTTP API（開発時は 127.0.0.1:8787）が RiemannFinMath で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
 
 ## 三部作
 
@@ -25,24 +25,34 @@
 
 画面のパスは <http://127.0.0.1:8081/> に続けて開きます（例：<http://127.0.0.1:8081/#/yield-curve-ois>）。目次ページにも同じ表があり、Coral Book と Crimson Proof の章へリンクしています。
 
+## 設計の要点
+
+詳しい説明は本文の「序論」（<http://127.0.0.1:8081/#/introduction>）にあります。
+
+- **役割分担**：React（TypeScript）は入力を受け付け、R API に非同期でリクエストを送り、返された JSON を本文・表・グラフに表示する。金融の計算はしない。R の API（`server/`）は入力を検査して `RiemannFinMath` を呼び、結果を JSON で返す。計算ロジックは Rust の `RiemannFinMath`（Riemann リポジトリ）に置く。
+- **Rust を使う理由**：所有権と借用の規則をコンパイラが検査するので、市場データを共有しながら銘柄ごとの評価や自動微分を並列に動かしても、データ競合が起きない。Cargo でビルド・テスト（参照値との照合を含む）・ドキュメント生成を共通の手順で扱える。
+- **並列と分散**：一台では `furrr::future_map()` で R のワーカーに仕事を配り、各ワーカーが `RiemannFinMath` を呼ぶ。Rust 側の一括評価もスレッドで並列化でき、結果はスレッド数によらない。複数ノードへは `future.batchtools` の Slurm 連携で広げる構想（未導入）。
+- **画面**：計算は非同期で、最後の入力に対する応答だけを表示に使う。一部の表とグラフは、操作性の参考例としてインタラクティブにしている（例：イールドカーブの年月スライダーと再生）。サーバー側のバックグラウンドジョブ、Excel 風の表入力と出力は構想。
+
 ## 画面
 
 | 画面 | 内容 | URL（開発時） |
 |---|---|---|
-| 目次と対応状況 | 第II部・第III部の全16章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
-| II-1 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/deterministic-cashflow` |
-| II-2 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/yield-curves` |
-| II-2 国債先物・CTD・先物BPV | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/jgb-futures` |
-| II-4 ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/black-model` |
-| II-5 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/credit-cds` |
-| II-6 金利デリバティブのキャリブレーション | Normal・Black ボラの比較、SABR のスマイル（原稿の optim と calibrate_sabr）、Hull–White の債券オプションへの適合と未使用商品の検証、BGM の相関の減衰（II-6.1〜6.6。GaussQuant・原稿の結果に照合） | `#/irs-calibration` |
-| II-7 金利モデル | Hull–White の短期金利の経路と割引の検証、HJM のフォワードの変動係数、キャップレットの公式とモンテカルロ・満期のフォワードの分布、相関ショック、後決め金利の複利（II-7.1〜7.6。原稿のコードと原稿の結果に照合） | `#/rate-models` |
-| II-8 早期償還モデル | Hull–White のコール債（Bullet・Callable・コール権の価値、コール日ごとの判断、ボラティリティと格子の検証）、MBS のプリペイメント（シナリオ別の CPR と加重平均残存年数、金利経路、PSA 別の静的 OAS）（II-8.1〜8.8。原稿の結果に照合） | `#/early-redemption` |
-| II-9 金利為替系デリバティブ（PRDC） | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
-| III-1 計算の進化と並列計算 | 6シナリオの逐次・並列の例、債券の件数とスレッド数を選んで一括評価の時間を測る（結果はスレッド数によらず同じ）（III-1.1〜1.7。原稿の例と照合） | `#/parallel` |
-| 第III部 自動微分・並列・分散による PRDC のリスク計算 | III-7 の PRDC で、12 の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べ、モンテカルロをスレッドで並列に、45シナリオをジョブに分けてブラウザから R API へ送って集約する（III-2〜III-7 をまとめたページ） | `#/prdc-risk` |
-| 第III部 本文（III-1〜III-7） | Coral Book の第III部「エンタープライゼーション」の日本語本文・見出し・数式・定義・注記を移植したもの。各章の冒頭と目次のサブ項目から、その章の計算画面へ進める。追加したい計算 API と図表は `docs/part3_port.md` | `#/enterprise/parallel-computing` 〜 `#/enterprise/prdc` |
-| II-2・II-3 イールドカーブと円OIS | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/yield-curve-ois` |
+| 目次と対応状況 | 序論と全11章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
+| 序論 | Coral Book で手元の R を使って再現した金融モデルを、複数の利用者がブラウザから使える形にする設計の考え方（役割分担、Rust、並列・分散計算、非同期の画面） | `#/introduction` |
+|  1. 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/deterministic-cashflow` |
+|  2. 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/yield-curves` |
+|  2. 金利カーブ：国債先物・CTD | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/jgb-futures` |
+|  3. OISスワップ | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/yield-curve-ois` |
+|  4. ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/black-model` |
+|  5. 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/credit-cds` |
+|  6. キャリブレーション | Normal・Black ボラの比較、SABR のスマイル（原稿の optim と calibrate_sabr）、Hull–White の債券オプションへの適合と未使用商品の検証、BGM の相関の減衰（II-6.1〜6.6。GaussQuant・原稿の結果に照合） | `#/irs-calibration` |
+|  7. 金利モデル | Hull–White の短期金利の経路と割引の検証、HJM のフォワードの変動係数、キャップレットの公式とモンテカルロ・満期のフォワードの分布、相関ショック、後決め金利の複利（II-7.1〜7.6。原稿のコードと原稿の結果に照合） | `#/rate-models` |
+|  8. 早期償還モデル | Hull–White のコール債（Bullet・Callable・コール権の価値、コール日ごとの判断、ボラティリティと格子の検証）、MBS のプリペイメント（シナリオ別の CPR と加重平均残存年数、金利経路、PSA 別の静的 OAS）（II-8.1〜8.8。原稿の結果に照合） | `#/early-redemption` |
+|  9. 並列計算 | Coral Book III-1 の本文に、6シナリオの逐次・並列の例、債券の件数とスレッド数を選んだ一括評価の測定、PRDC のモンテカルロのスレッド比較を組み込んだ章（結果はスレッド数によらず同じ） | `#/enterprise/parallel-computing` |
+| 10. 分散計算 | Coral Book III-2・III-3 の本文に、45シナリオをジョブに分けてブラウザから R API へ送り、集約する画面を組み込んだ章 | `#/enterprise/distributed-jobs` |
+| 11. 自動微分 | Coral Book III-4〜III-7 の本文（III-1.7 を導入に）に、PRDC の12の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べる画面と、パスごとの自動微分のモンテカルロを組み込んだ章。旧ページ（`#/parallel`、`#/prdc-risk`、`#/enterprise/...`）からは、統合先の節へ移る。統合は `scripts/port/merge_part3.py` | `#/enterprise/automatic-differentiation` |
+| 11. 自動微分：PRDC | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
 | 応用：A1 オファーシート作成 POC | Curie の `docs/A1_offer_sheet_POC.qmd` の章立てと表を React にしたもの。各表の下に Curie の旧デモとの照合 | `#/asw/poc` |
 | 応用：OISアセットスワップ・オファーシート | Curie のデモのオファー一覧と、銘柄ごとの ASW・JGBスプレッド・円換算 ASW の計算 | `#/asw` |
 

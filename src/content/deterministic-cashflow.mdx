@@ -1,8 +1,9 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { BondProvider, BondStatus, BondControls, TonarCurves, ShapeCharts, BondCashflows, YieldChain, ZSpreadTable, RiskTable, PriceYieldChart, SolverPanel } from "../components/bond";
 
 <BondProvider>
 
-# 第II部 第1章 確定キャッシュフロー
+# <ChapterNo n={1} />確定キャッシュフロー
 
 この章は、原稿の第II-1章『確定キャッシュフロー』の React 版です。計算は R の HTTP API が **RiemannFinMath** で行います。原稿のコードを GaussQuant で動かした結果と同じ入力で照合し、TONAR カーブ、キャッシュフロー、単利・複利利回りと単価、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティが一致しています。原稿の計算結果とも一致しています（`reconciliation/bond/`）。原稿の解析式と数値解法（II-1.7〜1.8）は、原稿と同じ R の関数を API が実行し、RiemannFinMath の値と並べています。
 

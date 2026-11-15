@@ -1,8 +1,9 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { CalibrationProvider, CalibrationStatus, CalibrationControls, NormalPanel, SabrPanel, HullWhitePanel, BgmPanel } from "../components/calibration";
 
 <CalibrationProvider>
 
-# 第II部 第6章 金利デリバティブのキャリブレーション
+# <ChapterNo n={6} />キャリブレーション
 
 この章は、原稿の第II-6章『金利デリバティブのキャリブレーション』の React 版です。モデルの価格とボラティリティは R の HTTP API が **RiemannFinMath** で計算します。原稿のあてはめの手順（R の `optim`、L-BFGS-B、同じ初期値・範囲・目的関数）を RiemannFinMath の関数の上で動かし、RiemannFinMath 自身のキャリブレーション関数の結果と並べました。原稿のコードを GaussQuant で動かした結果、原稿の計算結果と照合しています（`reconciliation/calibration/`）。
 

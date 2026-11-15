@@ -6,6 +6,7 @@
 #   --static DIR    also serve the built page (npm run build) from DIR, so page and API share one port
 #
 #   GET  /api/health    -> {"status":"ok", ...}
+#   GET  /api/jgb-curves -> month-end JGB yield curves built by RiemannFinMath (the yield-curve slider)
 #   GET  /api/server    -> engine and R versions, address, uptime, routes, one timed RiemannFinMath call (connection page)
 #   POST /api/scenario  {"bumpTenor":"5Y","bumpBp":1} -> curves, 7Y OIS par rate and PVs (see README.md)
 #   POST /api/curves/zero         {"zeroRatesPct":[...], "shiftBp":50} -> zero / discount / shifted curves (II-2)
@@ -47,6 +48,7 @@ source(file.path(script_dir, "R", "prdc_model.R"))
 source(file.path(script_dir, "R", "parallel_model.R"))
 source(file.path(script_dir, "R", "prdc_risk_model.R"))
 source(file.path(script_dir, "R", "server_info.R"))
+source(file.path(script_dir, "R", "jgb_curve_model.R"))
 # the demo data do not change while the server runs
 ASW_LIST <- asw_list()
 ASW_REPORT <- asw_report()
@@ -89,6 +91,13 @@ handle <- function(req) {
   method <- req$REQUEST_METHOD
   path <- req$PATH_INFO
   SERVER_REQUESTS$count <- SERVER_REQUESTS$count + 1L
+  if (identical(path, "/api/jgb-curves")) {
+    if (method != "GET") return(json_response(405, list(error = "Use GET.")))
+    id <- request_id(req)
+    out <- jgb_curves()
+    out$response <- list(request_id = id, computed_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3%z"))
+    return(json_response(200, out, request_id = id))
+  }
   if (identical(path, "/api/server")) {
     if (method != "GET") return(json_response(405, list(error = "Use GET.")))
     id <- request_id(req)

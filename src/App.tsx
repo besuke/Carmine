@@ -8,18 +8,15 @@ import IrsCalibration from "./content/irs-calibration.mdx";
 import RateModels from "./content/rate-models.mdx";
 import EarlyRedemption from "./content/early-redemption.mdx";
 import Prdc from "./content/prdc.mdx";
-import Parallel from "./content/parallel.mdx";
-import PrdcRisk from "./content/prdc-risk.mdx";
-// Part III's text, ported from Coral Book (part3_enterprise_riemann/)
-import ParallelComputingText from "./content/enterprise/parallel-computing.mdx";
-import DistributedJobsText from "./content/enterprise/distributed-jobs.mdx";
-import EnterpriseComputingText from "./content/enterprise/enterprise-computing.mdx";
-import AutomaticDifferentiationText from "./content/enterprise/automatic-differentiation.mdx";
-import OptionGreeksText from "./content/enterprise/option-greeks.mdx";
-import InterestRateRiskText from "./content/enterprise/interest-rate-risk.mdx";
-import PrdcText from "./content/enterprise/prdc.mdx";
+import Introduction from "./content/introduction.mdx";
+// Coral Book's Part III, gathered into chapters 9 to 11 (scripts/port/merge_part3.py)
+import ParallelComputing from "./content/chapters/parallel-computing.mdx";
+import DistributedComputing from "./content/chapters/distributed-computing.mdx";
+import AutomaticDifferentiation from "./content/chapters/automatic-differentiation.mdx";
 import { CurveProvider } from "./components/curves";
-import { TOC } from "./book/toc";
+import { CHAPTERS_LIST, ROUTE_ALIASES } from "./book/chapters";
+import { ChapterNo } from "./book/ChapterNo";
+import { useEffect } from "react";
 import { TocPage } from "./book/TocPage";
 import { href, useRoute } from "./book/router";
 import { ScenarioProvider } from "./state/ScenarioContext";
@@ -30,47 +27,22 @@ import { ServerConnectionProvider, ServerIndicator, ServerPage } from "./server/
 const CHAPTERS: Record<string, () => React.ReactNode> = {
   "/enterprise/parallel-computing": () => (
     <article className="prose ported">
-      <ParallelComputingText />
+      <ParallelComputing />
     </article>
   ),
   "/enterprise/distributed-jobs": () => (
     <article className="prose ported">
-      <DistributedJobsText />
-    </article>
-  ),
-  "/enterprise/enterprise-computing": () => (
-    <article className="prose ported">
-      <EnterpriseComputingText />
+      <DistributedComputing />
     </article>
   ),
   "/enterprise/automatic-differentiation": () => (
     <article className="prose ported">
-      <AutomaticDifferentiationText />
+      <AutomaticDifferentiation />
     </article>
   ),
-  "/enterprise/option-greeks": () => (
-    <article className="prose ported">
-      <OptionGreeksText />
-    </article>
-  ),
-  "/enterprise/interest-rate-risk": () => (
-    <article className="prose ported">
-      <InterestRateRiskText />
-    </article>
-  ),
-  "/enterprise/prdc": () => (
-    <article className="prose ported">
-      <PrdcText />
-    </article>
-  ),
-  "/prdc-risk": () => (
+  "/introduction": () => (
     <article className="prose">
-      <PrdcRisk />
-    </article>
-  ),
-  "/parallel": () => (
-    <article className="prose">
-      <Parallel />
+      <Introduction />
     </article>
   ),
   "/prdc": () => (
@@ -132,49 +104,50 @@ const CHAPTERS: Record<string, () => React.ReactNode> = {
 function Sidebar({ route }: { route: string }) {
   return (
     <nav className="sidebar" aria-label="章の一覧">
-      <a href={href("/")} className={route === "/" ? "active" : undefined}>目次と対応状況</a>
-      <a href={href("/server")} className={route === "/server" ? "active" : undefined}>計算サーバーとの接続</a>
+      <a href={href("/")} className={route === "/" ? "active" : undefined} title="目次と対応状況">目次</a>
+      <a href={href("/server")} className={route === "/server" ? "active" : undefined} title="計算サーバーとの接続">サーバー接続</a>
+      <div className="sidebar-part">章</div>
+      <ul className="chapter-list">
+        <li>
+          <a href={href("/introduction")} className={route === "/introduction" ? "active" : undefined}><span className="chapter-no">{"   "}</span>序論</a>
+        </li>
+        {CHAPTERS_LIST.map((ch) => (
+          <li key={ch.id}>
+            <a href={href(ch.route!)} className={route === ch.route ? "active" : undefined} title={`${ch.title}（Coral Book ${ch.sourceIds.join("・")}）`}>
+              <ChapterNo n={ch.no} />{ch.menu ?? ch.title}
+            </a>
+            {ch.subRoutes?.map((sr) => (
+              <a key={sr.route} href={href(sr.route)} className={route === sr.route ? "sub active" : "sub"} title={sr.title}>{sr.menu ?? sr.title}</a>
+            ))}
+          </li>
+        ))}
+      </ul>
       <div className="sidebar-part">応用サンプル</div>
       <ul>
         <li>
-          <a href={href("/asw/poc")} className={route === "/asw/poc" ? "active" : undefined}>A1 オファーシート作成 POC</a>
+          <a href={href("/asw/poc")} className={route === "/asw/poc" ? "active" : undefined} title="A1 オファーシート作成 POC">オファーシートPOC</a>
         </li>
         <li>
-          <a href={href("/asw")} className={route.startsWith("/asw") && route !== "/asw/poc" ? "active" : undefined}>OISアセットスワップ・オファーシート</a>
+          <a href={href("/asw")} className={route.startsWith("/asw") && route !== "/asw/poc" ? "active" : undefined} title="OISアセットスワップ・オファーシート">ASWオファーシート</a>
         </li>
       </ul>
-      {TOC.map((part) => (
-        <div key={part.id}>
-          <div className="sidebar-part">{part.title}</div>
-          <ul>
-            {part.chapters.map((ch) => (
-              <li key={ch.id}>
-                {ch.route ? (
-                  <>
-                    <a href={href(ch.route)} className={route === ch.route ? "active" : undefined}>
-                      {ch.id} {ch.title}
-                    </a>
-                    {ch.subRoutes?.map((sr) => (
-                      <a key={sr.route} href={href(sr.route)} className={route === sr.route ? "sub active" : "sub"}>{sr.title}</a>
-                    ))}
-                  </>
-                ) : (
-                  <a href={href("/")} className="planned"
-                    onClick={() => setTimeout(() => document.getElementById(`toc-${ch.id}`)?.scrollIntoView(), 0)}>
-                    {ch.id} {ch.title}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
     </nav>
   );
 }
 
+/** Scrolls to a section once the page is drawn (old URLs of pages gathered into a chapter). */
+function ScrollTo({ anchor }: { anchor: string }) {
+  useEffect(() => {
+    const t = window.setTimeout(() => document.getElementById(anchor)?.scrollIntoView(), 50);
+    return () => window.clearTimeout(t);
+  }, [anchor]);
+  return null;
+}
+
 export function App() {
-  const route = useRoute();
+  const raw = useRoute();
+  const alias = ROUTE_ALIASES[raw];
+  const route = alias ? alias.route : raw;
   const chapter = CHAPTERS[route];
   const aswId = /^\/asw\/([A-Za-z0-9_-]+)$/.exec(route)?.[1];
   return (
@@ -189,6 +162,7 @@ export function App() {
       <div className="layout">
         <Sidebar route={route} />
         <main className="page">
+          {alias && <ScrollTo anchor={alias.anchor} />}
           {chapter ? chapter() : route === "/" ? <TocPage /> : route === "/server" ? <ServerPage /> : route === "/asw" ? <AswListPage /> : route === "/asw/poc" ? <AswPocPage /> : aswId ? <AswDetailPage offerId={aswId} /> : (
             <p>ページが見つかりません。<a href={href("/")}>目次へ</a></p>
           )}

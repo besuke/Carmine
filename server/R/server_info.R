@@ -13,6 +13,7 @@ SERVER_ROUTES <- tibble::tribble(
   "GET",  "/api/server",                     "計算サーバーとの接続（このページ）",
   "POST", "/api/scenario",                   "イールドカーブと円OIS",
   "POST", "/api/curves/zero",                "金利カーブ",
+  "GET",  "/api/jgb-curves",                 "金利カーブ（国債利回りの推移）",
   "POST", "/api/futures/basket",             "日本国債先物・CTD",
   "POST", "/api/cds",                        "信用リスクとCDS",
   "POST", "/api/black",                      "ブラックモデル",

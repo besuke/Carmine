@@ -1,4 +1,6 @@
-import { BOOK_TITLE, TOC, type Coverage } from "./toc";
+import { BOOK_TITLE, type Coverage } from "./toc";
+import { CHAPTERS_LIST } from "./chapters";
+import { ChapterNo } from "./ChapterNo";
 import { href } from "./router";
 import { Trilogy, coralChapter } from "./Trilogy";
 
@@ -9,7 +11,7 @@ export function TocPage() {
     <article className="prose toc">
       <h1>Carmine Studio『エンタープライズ金融モデル』</h1>
       <p>
-        Coral Book『{BOOK_TITLE}』第II部・第III部の計算を、React で条件を操作しながら評価する Web アプリです。章の数式と解説を読みながら、計算例を操作できます。計算はすべて R の HTTP API が
+        Coral Book『{BOOK_TITLE}』の無裁定モデルとエンタープライズ化（並列・分散・自動微分）の計算を、React で条件を操作しながら評価する Web アプリです。章の数式と解説を読みながら、計算例を操作できます。計算はすべて R の HTTP API が
         <strong> RiemannFinMath </strong>
         で行い、ページは返ってきた JSON を表とグラフにします。
       </p>
@@ -17,6 +19,7 @@ export function TocPage() {
         各章の「操作できること」は、実装済みの章を除いて計画です。「RiemannFinMath」の列は、インストール済みの RiemannFinMath 0.3.0 にある関数で、
         節ごとの判定は Riemann の <code>docs/lagrangefinance_coverage.md</code>（2026-11-07）によります。原稿は Coral Book（旧 LagrangeFinance）の Quarto 版（コミット b9ddc2a）です。
       </p>
+      <p>設計の考え方（画面・API・計算エンジンの役割分担、Rust、並列・分散計算、非同期の画面）は<a href={href("/introduction")}>序論</a>にまとめています。</p>
       <Trilogy />
       <h2>目次と対応状況</h2>
       <ul className="legend-cov" aria-label="判定の凡例">
@@ -25,13 +28,18 @@ export function TocPage() {
         <li><span className="cov cov-none">未対応</span>RiemannFinMath にない</li>
         <li><span className="cov cov-na">対象外</span>説明の節、または方針で外したもの</li>
       </ul>
-      {TOC.map((part) => (
-        <section key={part.id}>
-          <h2>{part.title}</h2>
-          {part.chapters.map((ch) => (
+      <section className="toc-chapter" id="toc-introduction">
+        <h3>
+          <span className="chapter-no">{"   "}</span>序論
+          <a className="toc-badge done" href={href("/introduction")}>読む</a>
+        </h3>
+        <p className="note">Coral Book で手元の R を使って再現した金融モデルを、複数の利用者がブラウザから使える形にする設計の考え方：画面・API・計算エンジンの役割分担、Rust を使う理由、R による並列計算と Slurm への拡張、非同期の画面と金融業務の GUI。</p>
+      </section>
+      {CHAPTERS_LIST.map((ch) => (
             <section key={ch.id} className="toc-chapter" id={`toc-${ch.id}`}>
               <h3>
-                {ch.id} {ch.title}
+                <ChapterNo n={ch.no} />{ch.menu ?? ch.title}
+                <span className="toc-ref">Coral Book {ch.sourceIds.join("・")}</span>
                 {ch.route ? (
                   <a className="toc-badge done" href={href(ch.route)}>React 版を読む</a>
                 ) : (
@@ -46,7 +54,7 @@ export function TocPage() {
               </ul>
               <div className="table-wrap">
                 <table className="data">
-                  <caption>RiemannFinMath の既存機能で対応できる範囲（原稿：<a href={coralChapter(ch.source)} target="_blank" rel="noreferrer"><code>{ch.source}</code></a>）</caption>
+                  <caption>RiemannFinMath の既存機能で対応できる範囲（原稿：{ch.sources.map((s, i) => <span key={s}>{i > 0 && "、"}<a href={coralChapter(s)} target="_blank" rel="noreferrer"><code>{s}</code></a></span>)}）</caption>
                   <thead>
                     <tr>
                       <th scope="col">節</th>
@@ -72,8 +80,6 @@ export function TocPage() {
                 {ch.additions.map((a) => <li key={a}>{a}</li>)}
               </ul>
             </section>
-          ))}
-        </section>
       ))}
     </article>
   );

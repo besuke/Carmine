@@ -1,8 +1,9 @@
+import { ChapterNo } from "../book/ChapterNo";
 import { CallableProvider, CallableStatus, CallableControls, FlowsTable, PricePanel, DecisionPanel, VolatilityPanel, GridTable, MbsScenarioPanel, MbsPathsPanel, StaticOasPanel } from "../components/callable";
 
 <CallableProvider>
 
-# 第II部 第8章 早期償還モデル
+# <ChapterNo n={8} />早期償還モデル
 
 この章は、原稿の第II-8章『早期償還モデル』の React 版です。発行体がコールできる債券と、借り手が期限前に返済するモーゲージ（MBS）を扱います。計算は R の HTTP API が **RiemannFinMath** で行い、原稿の計算結果と照合しています（`reconciliation/callable/`）。
 
