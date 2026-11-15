@@ -1,4 +1,4 @@
-# Reconcile the calibration chapter (LagrangeFinance II-6): GaussQuant / QuantLib running the manuscript's code
+# Reconcile the calibration chapter (Coral Book II-6): GaussQuant / QuantLib running the manuscript's code
 # against the page's own model (server/R/calibration_model.R, RiemannFinMath), and that model against the manuscript's
 # own results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
 #
@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/calibration/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/calibration_model.R"))

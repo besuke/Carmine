@@ -1,4 +1,4 @@
-# Copy Curie's A1 offer-sheet demo (fictitious data) into LagrangeFinLab, so the API does not read Curie at run time.
+# Copy Curie's A1 offer-sheet demo (fictitious data) into Carmine Studio, so the API does not read Curie at run time.
 #
 #   node scripts/run-r.mjs scripts/asw/snapshot_curie_demo.R
 #
@@ -17,7 +17,7 @@
 suppressPackageStartupMessages({ library(dplyr); library(readxl); library(jsonlite) })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
-root <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+root <- "C:/AnalyticFin/Projects/carmine-studio"
 data_dir <- file.path(root, "server/data/asw_demo")
 dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -90,7 +90,7 @@ read_results <- function(key, book) {
 }
 sheet <- function(key, name) read_excel(path(key), sheet = name) |> mutate(across(where(\(v) inherits(v, c("POSIXct", "Date"))), iso_date))
 reference <- list(
-  description = "Curie A1 offer-sheet demo results (fictitious data): the reference the LagrangeFinLab API is compared with",
+  description = "Curie A1 offer-sheet demo results (fictitious data): the reference the Carmine Studio API is compared with",
   source = c(src$results_jpy, src$results_iso),
   curie_commit = system2("git", c("-C", curie, "rev-parse", "HEAD"), stdout = TRUE),
   generated_by = "scripts/asw/snapshot_curie_demo.R",

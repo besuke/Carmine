@@ -1,4 +1,4 @@
-# Black model (LagrangeFinance II-4). All calculations are RiemannFinMath; reconciled with GaussQuant running the
+# Black model (Coral Book II-4). All calculations are RiemannFinMath; reconciled with GaussQuant running the
 # manuscript's code, and with the manuscript's own results, in reconciliation/black/.
 #
 # POST /api/black

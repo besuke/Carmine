@@ -5,13 +5,13 @@
 # A. Old demo result: Curie output/offer_results_ISO_demo_20261006.xlsx (2026-10-27, GaussQuant 2026.9.12.1, QuantLib 1.42).
 # B. Curie's functions re-run now: compute_asset_swap_basis_JPY() with the basis interpolated by Curie's
 #    spline_by_maturity_Curie() (stats::splinefun natural), installed GaussQuant and QuantLib 1.42.
-# C. LagrangeFinLab's API path: basis interpolation in server/R/asw_model.R and RiemannFinMath compute_yen_asset_swap().
+# C. Carmine Studio's API path: basis interpolation in server/R/asw_model.R and RiemannFinMath compute_yen_asset_swap().
 # Nothing in Curie, GaussQuant or Riemann is modified.
 
 suppressPackageStartupMessages({ library(dplyr); library(readxl) })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/asw/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 isin <- "USTEST000016"

@@ -1,4 +1,4 @@
-# Reconcile the PRDC chapter (LagrangeFinance II-9): the page's own model (server/R/prdc_model.R, RiemannFinMath)
+# Reconcile the PRDC chapter (Coral Book II-9): the page's own model (server/R/prdc_model.R, RiemannFinMath)
 # against QuantLib (schedule, blackFormula), against the manuscript's own code run with GaussQuant (Monte Carlo with
 # QuantLib's random numbers, read from the qmd), and against the manuscript's results (Riemann baseline).
 #
@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/prdc/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/prdc_model.R"))
@@ -24,7 +24,7 @@ api <- prdc_compute(list())
 n <- api$note
 
 # ---- the manuscript's code, read from the qmd and run as it is (tables printed by it are discarded) ----------------
-qmd <- "C:/AnalyticFin/Projects/LagrangeFinance/part2_quantive_riemann/ch09_exotic_derivatives_prdc.qmd"
+qmd <- "C:/AnalyticFin/Projects/coral-book/part2_quantive_riemann/ch09_exotic_derivatives_prdc.qmd"
 lines <- readLines(qmd, encoding = "UTF-8")
 chunk_code <- function(label) {
   start <- grep(sprintf("^```\\{r %s\\}$", label), lines)

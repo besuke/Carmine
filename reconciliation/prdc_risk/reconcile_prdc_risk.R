@@ -1,4 +1,4 @@
-# Reconcile the Part III page (LagrangeFinance III-1 to III-7 on the PRDC of III-7): the page's own model
+# Reconcile the Part III page (Coral Book III-1 to III-7 on the PRDC of III-7): the page's own model
 # (server/R/prdc_risk_model.R, RiemannFinMath) against an independent closed form in R, against bump and revalue,
 # against itself on several threads and in jobs, and against the manuscript's own torch code (read from the qmd).
 #
@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/prdc_risk/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/prdc_risk_model.R"))
@@ -41,7 +41,7 @@ per_year_bump <- function(side) vapply(seq_along(PR_TIMES), \(j) {
 }, 0)
 
 # ---- the manuscript's torch code (III-7.1–7.3), read from the qmd ----------------------------------------------
-qmd <- "C:/AnalyticFin/Projects/LagrangeFinance/part3_enterprise_riemann/ch07_prdc_autodiff.qmd"
+qmd <- "C:/AnalyticFin/Projects/coral-book/part3_enterprise_riemann/ch07_prdc_autodiff.qmd"
 lines <- readLines(qmd, encoding = "UTF-8")
 chunk_code <- function(label) {
   start <- grep(sprintf("^#\\| label: %s$", label), lines)

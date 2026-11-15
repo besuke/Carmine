@@ -1,4 +1,4 @@
-# Reconcile the early redemption chapter (LagrangeFinance II-8): the manuscript's R functions against the page's own
+# Reconcile the early redemption chapter (Coral Book II-8): the manuscript's R functions against the page's own
 # model (server/R/callable_model.R, RiemannFinMath), and that model against the manuscript's own results (Riemann
 # comparison/baseline/lagrange_values.csv).
 #
@@ -14,14 +14,14 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/callable/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/callable_model.R"))
 api <- callable_compute(list())
 
 # ---- the manuscript's R functions, taken from the manuscript itself -------------------------------------------------
-qmd <- "C:/AnalyticFin/Projects/LagrangeFinance/part2_quantive_riemann/ch08_early_redemption_models.qmd"
+qmd <- "C:/AnalyticFin/Projects/coral-book/part2_quantive_riemann/ch08_early_redemption_models.qmd"
 lines <- readLines(qmd, encoding = "UTF-8")
 chunk_code <- function(label) {
   start <- grep(sprintf("^#\\| label: %s$", label), lines)

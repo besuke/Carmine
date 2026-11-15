@@ -1,5 +1,5 @@
-// The common table of contents of LagrangeFinLab: Part II and Part III of LagrangeFinance
-// (_quarto.yml, LagrangeFinance commit b9ddc2a; the chapters are unchanged since 05e1932).
+// The common table of contents of Carmine Studio: Part II and Part III of Coral Book
+// (_quarto.yml, Coral Book commit b9ddc2a; the chapters are unchanged since 05e1932).
 //
 // For each chapter: what the reader will be able to operate (a plan unless the chapter is implemented),
 // what RiemannFinMath 0.3.0 already computes (the function names exist in the installed package; the
@@ -33,7 +33,7 @@ export interface Part {
   chapters: Chapter[];
 }
 
-export const BOOK_TITLE = "エンタープライズ金融モデル構築";
+export const BOOK_TITLE = "金融工学の応用基礎"; // Coral Book
 
 export const TOC: Part[] = [
   {

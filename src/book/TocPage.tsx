@@ -1,21 +1,24 @@
 import { BOOK_TITLE, TOC, type Coverage } from "./toc";
 import { href } from "./router";
+import { Trilogy, coralChapter } from "./Trilogy";
 
 const COVERAGE_CLASS: Record<Coverage, string> = { 対応: "cov-ok", 一部: "cov-part", 未対応: "cov-none", 対象外: "cov-na" };
 
 export function TocPage() {
   return (
     <article className="prose toc">
-      <h1>LagrangeFinLab 目次</h1>
+      <h1>Carmine Studio『エンタープライズ金融モデル』</h1>
       <p>
-        『{BOOK_TITLE}』第II部・第III部の React 版です。章の数式と解説を読みながら、計算例を操作できます。計算はすべて R の HTTP API が
+        Coral Book『{BOOK_TITLE}』第II部・第III部の計算を、React で条件を操作しながら評価する Web アプリです。章の数式と解説を読みながら、計算例を操作できます。計算はすべて R の HTTP API が
         <strong> RiemannFinMath </strong>
         で行い、ページは返ってきた JSON を表とグラフにします。
       </p>
       <p className="note">
         各章の「操作できること」は、実装済みの章を除いて計画です。「RiemannFinMath」の列は、インストール済みの RiemannFinMath 0.3.0 にある関数で、
-        節ごとの判定は Riemann の <code>docs/lagrangefinance_coverage.md</code>（2026-11-07）によります。原稿は LagrangeFinance の Quarto 版（コミット b9ddc2a）です。
+        節ごとの判定は Riemann の <code>docs/lagrangefinance_coverage.md</code>（2026-11-07）によります。原稿は Coral Book（旧 LagrangeFinance）の Quarto 版（コミット b9ddc2a）です。
       </p>
+      <Trilogy />
+      <h2>目次と対応状況</h2>
       <ul className="legend-cov" aria-label="判定の凡例">
         <li><span className="cov cov-ok">対応</span>同じ計算を RiemannFinMath で行える</li>
         <li><span className="cov cov-part">一部</span>計算の中心はあるが、表や条件の一部がない</li>
@@ -43,7 +46,7 @@ export function TocPage() {
               </ul>
               <div className="table-wrap">
                 <table className="data">
-                  <caption>RiemannFinMath の既存機能で対応できる範囲（原稿：<code>{ch.source}</code>）</caption>
+                  <caption>RiemannFinMath の既存機能で対応できる範囲（原稿：<a href={coralChapter(ch.source)} target="_blank" rel="noreferrer"><code>{ch.source}</code></a>）</caption>
                   <thead>
                     <tr>
                       <th scope="col">節</th>

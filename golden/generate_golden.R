@@ -1,7 +1,7 @@
-# Generate the expected values for LagrangeFinLab's API regression test from RiemannFinMath (R, native build).
+# Generate the expected values for Carmine Studio's API regression test from RiemannFinMath (R, native build).
 # This script is independent of server/R/tona_ois_model.R, so the test compares two code paths on the same engine.
 #
-#   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/LagrangeFinLab/golden/generate_golden.R
+#   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/carmine-studio/golden/generate_golden.R
 #
 # Writes tests/golden/tona_ois_golden.json (the expected values of the API regression test, tests/api.regression.test.ts). Numbers are written with 17 significant digits and the script checks
 # that reading the file back gives the same doubles. RiemannFinMath was reconciled with GaussQuant (QuantLib 1.42)
@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
   library(purrr)
 })
 
-root <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+root <- "C:/AnalyticFin/Projects/carmine-studio"
 out_file <- file.path(root, "tests/golden/tona_ois_golden.json")
 dir.create(dirname(out_file), showWarnings = FALSE, recursive = TRUE)
 

@@ -2,7 +2,7 @@ import { CurveStatus, NodeEditor, ZeroCurveTable, ZeroCurveCharts, Interpolation
 
 # 第II部 第2章 金利カーブ
 
-この章は、『エンタープライズ金融モデル構築』第II-2章「金利カーブ」の II-2.2（金利カーブの基礎）、II-2.3.1（補間とフォワード金利）、II-2.5.2（平行シフト）、II-2.5.3（カーブの検証）を React 版にしたものです。計算は R の HTTP API が **RiemannFinMath** で行い、原稿と同じ入力で GaussQuant（QuantLib 1.42）と照合して、割引係数が差 0 で一致しています（`reconciliation/curves/`）。
+この章は、Coral Book『金融工学の応用基礎』第II-2章「金利カーブ」の II-2.2（金利カーブの基礎）、II-2.3.1（補間とフォワード金利）、II-2.5.2（平行シフト）、II-2.5.3（カーブの検証）を React 版にしたものです。計算は R の HTTP API が **RiemannFinMath** で行い、原稿と同じ入力で GaussQuant（QuantLib 1.42）と照合して、割引係数が差 0 で一致しています（`reconciliation/curves/`）。
 
 ゼロ金利ノードと平行シフトの幅を変えると、すべての図表が API の同じ応答で描き直されます。
 

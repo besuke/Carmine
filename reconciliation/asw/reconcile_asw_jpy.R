@@ -7,7 +7,7 @@
 # B. Curie's function re-run now: compute_asset_swap_ISO() and instance_swap_curve() from Curie
 #    (R/z0_utility/lagrange/), with the installed GaussQuant and QuantLib 1.42. Gives the component PVs.
 # C. RiemannFinMath: bootstrap_ois_curve() + create_fixed_rate_bond() + compute_ois_asset_swap(),
-#    the path LagrangeFinLab's API uses.
+#    the path Carmine Studio's API uses.
 # Nothing in Curie, GaussQuant or Riemann is modified. Results go to reconciliation/asw/results/.
 
 suppressPackageStartupMessages({
@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
 })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
-out_dir <- "C:/AnalyticFin/Projects/LagrangeFinLab/reconciliation/asw/results"
+out_dir <- "C:/AnalyticFin/Projects/carmine-studio/reconciliation/asw/results"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 isin <- "JPTEST000022"

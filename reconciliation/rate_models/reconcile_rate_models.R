@@ -1,4 +1,4 @@
-# Reconcile the interest-rate models chapter (LagrangeFinance II-7): the manuscript's code (R, with its seeds) against
+# Reconcile the interest-rate models chapter (Coral Book II-7): the manuscript's code (R, with its seeds) against
 # the page's own model (server/R/rate_models_model.R, RiemannFinMath where it takes the same normals), and that model
 # against the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
 #
@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/rate_models/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/rate_models_model.R"))

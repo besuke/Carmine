@@ -137,8 +137,10 @@ export function App() {
   return (
     <ServerConnectionProvider>
       <header className="site-header">
-        <a className="brand" href={href("/")}>LagrangeFinLab</a>
-        <span className="muted">LagrangeFinance 第II部・第III部を、ブラウザで動かす</span>
+        <div className="brand-block">
+          <a className="brand" href={href("/")}>Carmine Studio</a>
+          <span className="brand-title">エンタープライズ金融モデル</span>
+        </div>
         <ServerIndicator />
       </header>
       <div className="layout">

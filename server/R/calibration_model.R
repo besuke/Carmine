@@ -1,4 +1,4 @@
-# Calibration of interest-rate derivatives (LagrangeFinance II-6). The model prices and volatilities are RiemannFinMath.
+# Calibration of interest-rate derivatives (Coral Book II-6). The model prices and volatilities are RiemannFinMath.
 # The manuscript's own fitting procedure (R's optim, L-BFGS-B, its starts, bounds and objectives) is run on the
 # RiemannFinMath functions, next to RiemannFinMath's own calibrators. Reconciled with GaussQuant running the
 # manuscript's code, and with the manuscript's own results, in reconciliation/calibration/.

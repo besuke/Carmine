@@ -1,7 +1,7 @@
 # Reconcile JPY TONA OIS curve construction and valuation: GaussQuant (QuantLib, reference) vs RiemannFinMath.
 #
 # Run from anywhere:
-#   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/LagrangeFinLab/reconciliation/reconcile_tona_ois.R
+#   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/carmine-studio/reconciliation/reconcile_tona_ois.R
 #
 # Writes raw (unrounded) results to reconciliation/results/*.csv. Nothing in GaussQuant or Riemann is modified.
 
@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
   library(tibble)
 })
 
-out_dir <- "C:/AnalyticFin/Projects/LagrangeFinLab/reconciliation/results"
+out_dir <- "C:/AnalyticFin/Projects/carmine-studio/reconciliation/results"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 # ---------------------------------------------------------------------------

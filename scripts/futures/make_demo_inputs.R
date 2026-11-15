@@ -1,4 +1,4 @@
-# Fictitious inputs for the JGB futures chapter (LagrangeFinance II-2.6–2.7).
+# Fictitious inputs for the JGB futures chapter (Coral Book II-2.6–2.7).
 #
 #   node scripts/run-r.mjs scripts/futures/make_demo_inputs.R
 #
@@ -13,7 +13,7 @@
 # Writes server/data/futures_demo/inputs.json. RiemannFinMath computes the prices, as the API does.
 
 suppressPackageStartupMessages({ library(RiemannFinMath); library(jsonlite) })
-out_dir <- "C:/AnalyticFin/Projects/LagrangeFinLab/server/data/futures_demo"
+out_dir <- "C:/AnalyticFin/Projects/carmine-studio/server/data/futures_demo"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 valuation <- as.Date("2026-09-10")
@@ -47,7 +47,7 @@ probe <- RiemannFinMath::compute_future_basket(bonds, basket$fictitious_price, 1
 futures_price <- round(min((basket$fictitious_price - probe$carry) / basket$conversion_factor) - 0.10, 2)
 
 inputs <- list(
-  note = paste("教材用の架空の入力。受渡適格銘柄・CF・日付・Funding Rate は LagrangeFinance II-2.6 と同じ。",
+  note = paste("教材用の架空の入力。受渡適格銘柄・CF・日付・Funding Rate は Coral Book II-2.6 と同じ。",
                "現物価格と先物価格は架空（原稿の BB 価格は使わない）。"),
   valuation_date = format(valuation), delivery_date = format(delivery), funding_rate = funding,
   futures_price = futures_price, current_curve = curve,

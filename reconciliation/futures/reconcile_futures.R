@@ -1,4 +1,4 @@
-# Reconcile the JGB futures chapter (LagrangeFinance II-2.6–2.7) and the futures BPV:
+# Reconcile the JGB futures chapter (Coral Book II-2.6–2.7) and the futures BPV:
 # GaussQuant / QuantLib 1.42 (the manuscript's code) against RiemannFinMath, on the same fictitious inputs
 # (server/data/futures_demo/inputs.json), plus the values that do not depend on the market prices and the stress
 # scenario against the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
@@ -9,7 +9,7 @@
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite); library(dplyr); library(purrr) })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/futures/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 inp <- fromJSON(file.path(lab, "server/data/futures_demo/inputs.json"))

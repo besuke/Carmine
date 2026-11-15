@@ -1,4 +1,4 @@
-# Reconcile the Black model chapter (LagrangeFinance II-4): GaussQuant / QuantLib 1.42 running the manuscript's code
+# Reconcile the Black model chapter (Coral Book II-4): GaussQuant / QuantLib 1.42 running the manuscript's code
 # against the page's own model (server/R/black_model.R, RiemannFinMath), and that model against the manuscript's own
 # results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
 #
@@ -8,7 +8,7 @@
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite) })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/black/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/black_model.R"))

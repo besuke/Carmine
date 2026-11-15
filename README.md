@@ -1,6 +1,31 @@
-# LagrangeFinLab
+# Carmine Studio『エンタープライズ金融モデル』
 
-『LagrangeFinance（エンタープライズ金融モデル構築）』第II部・第III部の React 版です。数式と解説を読みながら、ブラウザで金融モデルを動かせます。
+金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する** Web アプリです（旧名 LagrangeFinLab）。Coral Book『金融工学の応用基礎』第II部・第III部の数式と解説を読みながら、ブラウザで金融モデルを動かせます。計算は R の HTTP API（開発時は 127.0.0.1:8787）が RiemannFinMath で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
+
+## 三部作
+
+| | Coral Book『金融工学の応用基礎』 | Carmine Studio『エンタープライズ金融モデル』 | Crimson Proof『Leanから見た金融数学』 |
+|---|---|---|---|
+| 学び方 | **手元で計算する**：理論を読み、手元の R で計算を再現する Quarto の本 | **サーバーで動かす**：React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する Web アプリ | **証明する**：金融モデルの仮定を Lean で定義し、どの仮定のもとで何が成り立つかを証明する本 |
+| リポジトリ | <https://github.com/besuke/coral-book> | <https://github.com/besuke/carmine-studio> | <https://github.com/besuke/crimson-proof> |
+| 始め方 | `quarto render`（または RStudio で各章を実行） | R API（`npm run api`、127.0.0.1:8787）と画面（`npm run dev`）を起動し、<http://127.0.0.1:8081/> を開く | `lean/` で `lake build`、本は `quarto render` |
+
+## 同じテーマを三つの入口で
+
+| テーマ | Coral Book（手元で計算する） | Carmine Studio（サーバーで動かす） | Crimson Proof（証明する） |
+|---|---|---|---|
+| 割引と無裁定 | 第II部 第1章 確定キャッシュフロー、第3章 OISスワップとマルチカーブ評価で、割引係数と複製を手で計算する | 「イールドカーブと円OIS」（`#/yield-curve-ois`）で OIS の気配を動かしてスワップの時価を確かめる。「OISアセットスワップ」（`#/asw`） | 第10章 有限市場における無裁定と価格の一意性、第11章 ニューメレール、第12章 資産価格の基本定理で、無裁定に必要な市場の仮定を定義して定理を証明する |
+| 金利カーブ | 第II部 第2章 金利カーブ | 「金利カーブ」（`#/yield-curves`）、「国債先物・CTD」（`#/jgb-futures`） | 第11章 ニューメレール（割引による価格の正規化） |
+| オプション | 第II部 第4章 ブラックモデル | 「ブラックモデル」（`#/black-model`） | — |
+| 信用リスク | 第II部 第5章 信用リスクとCDS | 「信用リスクとCDS」（`#/credit-cds`） | — |
+| 金利モデルと早期償還 | 第II部 第6〜8章 | `#/irs-calibration`、`#/rate-models`、`#/early-redemption` | — |
+| PRDC | 第II部 第9章（第III部 第7章の本文は Carmine Studio へ移した） | 「PRDC」（`#/prdc`）、「PRDC のリスク計算」（`#/prdc-risk`） | PRDC のクーポンの分解（`lean/LagrangeAcademy/PrdcCoupon.lean`） |
+| 並列・分散・自動微分 | 第III部の本文は Carmine Studio へ移した（原稿は `part3_enterprise_riemann/` に残す） | 「並列計算」（`#/parallel`）、「PRDC のリスク計算」（`#/prdc-risk`） | — |
+| 計算の保証 | 各章の計算例 | 照合の記録（`reconciliation/`） | 第1章 計算と証明、第7章 実数と数値計算 |
+
+画面のパスは <http://127.0.0.1:8081/> に続けて開きます（例：<http://127.0.0.1:8081/#/yield-curve-ois>）。目次ページにも同じ表があり、Coral Book と Crimson Proof の章へリンクしています。
+
+## 画面
 
 | 画面 | 内容 | URL（開発時） |
 |---|---|---|
@@ -44,7 +69,7 @@ TypeScript は金融計算をしません。APIへの送信と、返ってきた
 前提：R 4.6.0（`C:/Program Files/R/R-4.6.0`）に RiemannFinMath 0.3.0、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。Node.js 26（npm 11）で確認しています。
 
 ```powershell
-cd C:\AnalyticFin\Projects\LagrangeFinLab
+cd C:\AnalyticFin\Projects\carmine-studio
 npm install          # 初回のみ
 
 # ターミナル1：R API（127.0.0.1:8787）
@@ -80,7 +105,7 @@ npm run dev
 このPCをサーバーにして、同じ社内LANの他のPCやスマートフォンのブラウザから使います。ログインはありません。LANに届く人なら誰でも使えます。
 
 ```powershell
-cd C:\AnalyticFin\Projects\LagrangeFinLab
+cd C:\AnalyticFin\Projects\carmine-studio
 npm run lan
 ```
 
@@ -93,13 +118,13 @@ npm run lan
 社内LANでは、Windows はふつう「ドメイン」ネットワークとして扱います。その場合、8081番への受信を許可する規則が必要です。
 
 ```powershell
-New-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8081)" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow -Profile Domain,Private
+New-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow -Profile Domain,Private
 ```
 
 - 規則を作らないと、他のPCからは接続できません（このPCからは開けます）。
 - 社内のセキュリティポリシーで規則が無効になる場合や、作れない場合は、情報システム部門に相談してください。
 - 公衆Wi-Fiなど「パブリック」のネットワークでは `npm run lan` を使わないでください。このPCには以前から R に対する「パブリック」の受信許可（`R for Windows front-end`）があり、`npm run lan` 中はそのネットワークからも接続できてしまいます。不要なら「Windows Defender ファイアウォール」の受信の規則から無効にできます。
-- 規則を消すとき：`Remove-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8081)"`
+- 規則を消すとき：`Remove-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)"`
 
 ### 確認したこと（2026-11-14）
 
@@ -154,7 +179,7 @@ New-NetFirewallRule -DisplayName "LagrangeFinLab (TCP 8081)" -Direction Inbound 
 
 ## OISアセットスワップ・オファーシート
 
-LagrangeFinance の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW を、Curie の A1 オファーシートのデモデータ（**架空**、評価日 2026-10-06、12件）で計算します。
+Coral Book の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW を、Curie の A1 オファーシートのデモデータ（**架空**、評価日 2026-10-06、12件）で計算します。
 
 - **ASW**：$s^* = (B - L - R - U,D(t,S)) / A$。債券CFを支払い、翌日物（日次複利）＋スプレッドと満期の元本を受け取り、受渡日に $U = N(P_d/100 - 1)$ を授受します。計算は RiemannFinMath の `compute_ois_asset_swap`。詳細画面のキャッシュフローは `get_bond_cashflows` と `create_ois_swap`・`compute_ois_swap_cashflows` から組み立て、エンジンの値と一致することを確かめています。
 - **規約**（Curie の旧デモと同じ）：OIS カーブは MonotonicLogCubic・年1回払い・支払ラグ0・外挿なし（JPY は TONA、USD は SOFR、EUR は €STR、受渡2営業日）。ASW の翌日物レグは年2回・支払ラグ0（Curie のデモの仮定）。銘柄属性は ISIN とオファー日で結合（exact）。

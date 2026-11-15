@@ -1,4 +1,4 @@
-# Reconcile the parallel computing chapter (LagrangeFinance III-1): the manuscript's sequential and parallel examples
+# Reconcile the parallel computing chapter (Coral Book III-1): the manuscript's sequential and parallel examples
 # (purrr and furrr, read from the qmd) against the page's own model (server/R/parallel_model.R), and the batch of bonds
 # on several threads against itself and against one bond at a time.
 #
@@ -15,14 +15,14 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/LagrangeFinLab"
+lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "reconciliation/parallel/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/parallel_model.R"))
 api <- parallel_compute(list(batch = list(count = 2000, maxThreads = 8)))
 
 # ---- the manuscript's code, read from the qmd ----------------------------------------------------------------------
-qmd <- "C:/AnalyticFin/Projects/LagrangeFinance/part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd"
+qmd <- "C:/AnalyticFin/Projects/coral-book/part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd"
 lines <- readLines(qmd, encoding = "UTF-8")
 chunk_code <- function(label) {
   start <- grep(sprintf("^#\\| label: %s$", label), lines)
