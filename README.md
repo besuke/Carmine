@@ -1,6 +1,6 @@
 # Carmine Studio『エンタープライズ金融モデル』
 
-金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する** Web アプリです（旧名 LagrangeFinLab）。Coral Book『金融工学の応用基礎』の無裁定モデルとエンタープライズ化（並列・分散・自動微分）の数式と解説を読みながら、ブラウザで金融モデルを動かせます。メニューと目次は部に分けず、一つの章の並びにしています（各章には Coral Book の章番号を添えています）。計算は R の HTTP API（開発時は 127.0.0.1:8787）が RiemannFinMath で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
+金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する** Web アプリです（旧名 LagrangeFinLab）。Coral Book『金融工学の応用基礎』の無裁定モデルの数式と解説を読みながら、ブラウザで金融モデルを動かせます。「 9. 並列計算」「10. 分散計算」「11. 自動微分」では、同じモデルを多数のシナリオや感応度へ広げる計算を扱います。メニューと目次は部に分けず、一つの章の並びにしています（各章には Coral Book の章番号を添えています）。計算は R の HTTP API（開発時は 127.0.0.1:8787）が RiemannFinMath で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
 
 ## 三部作
 
@@ -19,8 +19,8 @@
 | オプション | 第II部 第4章 ブラックモデル | 「ブラックモデル」（`#/black-model`） | — |
 | 信用リスク | 第II部 第5章 信用リスクとCDS | 「信用リスクとCDS」（`#/credit-cds`） | — |
 | 金利モデルと早期償還 | 第II部 第6〜8章 | `#/irs-calibration`、`#/rate-models`、`#/early-redemption` | — |
-| PRDC | 第II部 第9章（第III部 第7章の本文は Carmine Studio へ移した） | 「PRDC」（`#/prdc`）、「PRDC のリスク計算」（`#/prdc-risk`） | PRDC のクーポンの分解（`lean/LagrangeAcademy/PrdcCoupon.lean`） |
-| 並列・分散・自動微分 | 第III部の本文は Carmine Studio へ移した（原稿は `part3_enterprise_riemann/` に残す） | 「並列計算」（`#/parallel`）、「PRDC のリスク計算」（`#/prdc-risk`） | — |
+| PRDC | 第II部 第9章 | 「PRDC」（`#/prdc`）、「11. 自動微分」の PRDC の節 | PRDC のクーポンの分解（`lean/LagrangeAcademy/PrdcCoupon.lean`） |
+| 並列・分散・自動微分 | — | 「 9. 並列計算」（`#/enterprise/parallel-computing`）、「10. 分散計算」（`#/enterprise/distributed-jobs`）、「11. 自動微分」（`#/enterprise/automatic-differentiation`） | — |
 | 計算の保証 | 各章の計算例 | 照合の記録（`reconciliation/`） | 第1章 計算と証明、第7章 実数と数値計算 |
 
 画面のパスは <http://127.0.0.1:8081/> に続けて開きます（例：<http://127.0.0.1:8081/#/yield-curve-ois>）。目次ページにも同じ表があり、Coral Book と Crimson Proof の章へリンクしています。
@@ -41,7 +41,7 @@
 | 目次と対応状況 | 序論と全11章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
 | 序論 | Coral Book で手元の R を使って再現した金融モデルを、複数の利用者がブラウザから使える形にする設計の考え方（役割分担、Rust、並列・分散計算、非同期の画面） | `#/introduction` |
 |  1. 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合） | `#/deterministic-cashflow` |
-|  2. 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0） | `#/yield-curves` |
+|  2. 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0）。財務省の国債金利（月末、1990年1月〜）から作ったカーブを、年月スライダーと再生で切り替える | `#/yield-curves` |
 |  2. 金利カーブ：国債先物・CTD | 受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV（CTD の DV01 ÷ CF）。全銘柄の利回り水準と Funding Rate を動かして CTD の入れ替わりを見る（II-2.6〜2.7。現物価格は架空。GaussQuant・原稿のストレス結果と差 0） | `#/jgb-futures` |
 |  3. OISスワップ | 数式の説明から、5年クォート＋1 bp で7年OISの時価が動くところまで | `#/yield-curve-ois` |
 |  4. ブラックモデル | Black 76 の価格と Greeks（公式と Black process）、モンテカルロの収束・パス・満期分布、European／American put の解析解・CRR・近似式、Sobol パスと Longstaff–Schwartz。入力・乱数・パス数を動かす（II-4.1〜4.6。GaussQuant・原稿の結果に照合。疑似乱数の MC は乱数が別） | `#/black-model` |
