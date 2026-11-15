@@ -135,7 +135,10 @@ def main():
     b2 = insert_before(b2, "### III-2.5", server_block(4, "jobs", "R サーバーで確かめる：ジョブを送って集約する", pr["分散計算：ジョブを送って集約する（III-2〜III-3）"]))
     ch11 = ["import { PrdcRiskProvider, PrdcRiskStatus, DistributedPanel } from \"../../components/prdcRisk\";",
             "import { ChapterNo } from \"../../book/ChapterNo\";", "", "<PrdcRiskProvider>", "",
-            "# <ChapterNo n={10} />分散計算", ""] + note([("III-2", t2), ("III-3", t3)], "ジョブに分けて送る計算は「R サーバーで確かめる」で動かせます。複数のノードへの分配と Slurm への拡張は構想です（序論）。") \
+            "# <ChapterNo n={10} />分散計算", "",
+            "本章では、金融計算をジョブに分け、結果を集約する構成を扱う。実演では、ブラウザから単一のR APIに計算を送る。複数ノードへの分配と Slurm での実行は今後の拡張である（序論）。", "",
+            "> 出典：Coral Book『金融工学の応用基礎』" + "、".join(f"[第{cid}章「{t}」]({REPO}/{FILES[cid]})" for cid, t in (("III-2", t2), ("III-3", t3)))
+            + "。R のコードは原稿のものを静的に載せ、この画面では実行しない。", ""] \
         + ["<PrdcRiskStatus />", ""] + section_head("distributed-jobs", t2, "III-2") + b2 + [""] \
         + section_head("enterprise-computing", t3, "III-3") + demote(b3) + ["", "</PrdcRiskProvider>"]
     write("distributed-computing.mdx", "\n".join(ch11))

@@ -5,7 +5,9 @@ import { ChapterNo } from "../../book/ChapterNo";
 
 # <ChapterNo n={10} />分散計算
 
-> この章の本文は、Coral Book『金融工学の応用基礎』第III部の [第III-2章「分散コンピューティング」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch02_distributed_computing_jobtask.qmd)、[第III-3章「金融計算アーキテクチャ」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch03_enterprise_financial_computing.qmd) の原稿を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。ジョブに分けて送る計算は「R サーバーで確かめる」で動かせます。複数のノードへの分配と Slurm への拡張は構想です（序論）。
+本章では、金融計算をジョブに分け、結果を集約する構成を扱う。実演では、ブラウザから単一のR APIに計算を送る。複数ノードへの分配と Slurm での実行は今後の拡張である（序論）。
+
+> 出典：Coral Book『金融工学の応用基礎』[第III-2章「分散コンピューティング」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch02_distributed_computing_jobtask.qmd)、[第III-3章「金融計算アーキテクチャ」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch03_enterprise_financial_computing.qmd)。R のコードは原稿のものを静的に載せ、この画面では実行しない。
 
 <PrdcRiskStatus />
 
@@ -246,7 +248,7 @@ show_table_LFL(tbl_distributed_paths)
 
 <h4 id="jobs">R サーバーで確かめる：ジョブを送って集約する</h4>
 
-FX スポット9通り × ボラティリティ5通りの45シナリオを、ジョブに分けて計算します。ここではブラウザがスケジューラーになり、ジョブをキューから取り出して R の API（ワーカー）へ送り、返ってきた結果を集約します。計算の関数そのものは変えず、「どこで計算するか」を実行の仕組みの側に分けるのが分散計算の考え方です。
+FX スポット9通り × ボラティリティ5通りの45シナリオを、ジョブに分けて計算する。ここではブラウザがスケジューラーになり、ジョブをキューから取り出して単一の R API（ワーカー）へリクエストとして送り、返ってきた応答を集約する。計算の関数そのものは変えず、「どこで計算するか」を実行の仕組みの側に分けるのが分散計算の考え方である。
 
 ```text
 Scenario Grid -> Task Generation -> Job Queue -> Scheduler (browser) -> Worker (R API) -> Result Aggregation
@@ -254,7 +256,7 @@ Scenario Grid -> Task Generation -> Job Queue -> Scheduler (browser) -> Worker (
 
 <DistributedPanel />
 
-ワーカーが1台（このサーバー1つ）なので、同時に送るジョブを増やしても、サーバーは届いた順に計算し、全体の時間はあまり縮みません。1ジョブあたりのシナリオを減らすと、通信の往復が増えて、そのぶん時間がかかります。ワーカーを社内 LAN の別のサーバーやクラウドのワーカーに置き換えれば、同じ仕組みのまま計算を分担できます。
+ワーカーが1台（このサーバー1つ）なので、同時に送るジョブを増やしても、サーバーは届いた順に計算し、全体の時間はあまり縮まない。1ジョブあたりのシナリオを減らすと、通信の往復が増えて、そのぶん時間がかかる。ワーカーを社内 LAN の別のサーバーやクラウドのワーカーに置き換えれば、同じ仕組みのまま計算を分担できる（今後の拡張）。
 
 ### III-2.5 計算資源の統合
 
