@@ -3,7 +3,6 @@
 export interface ScenarioRequest {
   bumpTenor: string;
   bumpBp: number;
-  interpolation?: "log_linear" | "monotonic_log_cubic";
 }
 
 export interface Conventions {

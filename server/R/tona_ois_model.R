@@ -2,7 +2,7 @@
 # Inputs (13 quotes, evaluation date, conventions, 7Y OIS terms) are held here, on the R side.
 #
 # The conditions are those reconciled against GaussQuant (QuantLib 1.42) in reconciliation/RECONCILIATION.md:
-# set `without_7y`, interpolation `log_linear`.
+# set `without_7y`, interpolation `monotonic_log_cubic`.
 
 suppressPackageStartupMessages({
   library(RiemannFinMath)
@@ -26,7 +26,7 @@ TONA_MODEL <- local({
     quote_source = "GaussQuant::bluegamma_tonar_quotes_GQL() without TONAR-7Y (sample data, BlueGamma TONAR OIS as of 2026-09-10)",
     conventions = list(
       index = "tonar", calendar = "japan", curve_day_count = "actual_365_fixed", settlement_days = 2L,
-      payment_frequency = 1L, payment_lag = 0L, interpolation = "log_linear", accuracy = 1e-12,
+      payment_frequency = 1L, payment_lag = 0L, interpolation = "monotonic_log_cubic", accuracy = 1e-12,
       schedule_rule = "backward", schedule_convention = "modified_following",
       fixed_leg_day_count = "actual_365_fixed", pillar = "last_relevant_date",
       forward_definition = "1-day simple forward, Actual/365 Fixed: (P(d)/P(d+1) - 1) / (1/365)"
@@ -36,14 +36,14 @@ TONA_MODEL <- local({
   )
 })
 
-tona_build_curve <- function(rates, interpolation = "log_linear") {
+tona_build_curve <- function(rates) {
   cv <- TONA_MODEL$conventions
   instruments <- RiemannFinMath::create_ois_instruments(
     TONA_MODEL$quotes$tenor, rates, cv$settlement_days, cv$payment_frequency, cv$payment_lag
   )
   RiemannFinMath::bootstrap_ois_curve(
     TONA_MODEL$evaluation_date, TONA_MODEL$evaluation_date, cv$index, cv$curve_day_count, instruments,
-    interpolation = interpolation, accuracy = cv$accuracy
+    interpolation = cv$interpolation, accuracy = cv$accuracy
   )
 }
 
@@ -62,6 +62,10 @@ tona_make_swap <- function(fixed_rate) {
   )
 }
 
+TONA_BASE_CURVE <- tona_build_curve(TONA_MODEL$quotes$rate)
+# Fixed rate: the unrounded 7Y par rate of the base curve, used for both cases.
+TONA_FIXED_RATE <- RiemannFinMath::compute_ois_swap_value(tona_make_swap(0), TONA_BASE_CURVE, TONA_MODEL$evaluation_date)$fair_rate
+
 # Dates for the curve: weekly to 30Y for the charts, plus the dates of the regression values
 # (monthly grid, key anniversaries, pillars and their neighbours, swap dates).
 tona_curve_dates <- function(pillars) {
@@ -75,9 +79,9 @@ tona_curve_dates <- function(pillars) {
 
 iso <- function(d) format(as.Date(d), "%Y-%m-%d")
 
-tona_case <- function(rates, interpolation = "log_linear", fixed_rate = NULL) {
+tona_case <- function(rates) {
   ev <- TONA_MODEL$evaluation_date
-  curve <- tona_build_curve(rates, interpolation)
+  curve <- if (identical(rates, TONA_MODEL$quotes$rate)) TONA_BASE_CURVE else tona_build_curve(rates)
   rep <- RiemannFinMath::get_quote_repricing(curve)
   nodes <- RiemannFinMath::get_discount_nodes(curve)
   dates <- tona_curve_dates(rep$pillar_date)
@@ -91,8 +95,7 @@ tona_case <- function(rates, interpolation = "log_linear", fixed_rate = NULL) {
     z
   }
   seg_fwd <- log(nodes$discount[-nrow(nodes)] / nodes$discount[-1L]) / diff(node_t)
-  swap_rate <- if (is.null(fixed_rate)) RiemannFinMath::compute_ois_swap_value(tona_make_swap(0), curve, ev)$fair_rate else fixed_rate
-  swap <- tona_make_swap(swap_rate)
+  swap <- tona_make_swap(TONA_FIXED_RATE)
   value <- RiemannFinMath::compute_ois_swap_value(swap, curve, ev)
   flows <- RiemannFinMath::compute_ois_swap_cashflows(swap, curve, ev)
   if (any(!is.na(flows$error))) stop("A cash flow could not be computed.")
@@ -118,8 +121,10 @@ tona_case <- function(rates, interpolation = "log_linear", fixed_rate = NULL) {
   )
 }
 
+TONA_BASE_CASE <- tona_case(TONA_MODEL$quotes$rate)
+
 # The whole response for one request. Errors from validation carry class "tona_bad_request".
-tona_compute_scenario <- function(bump_tenor, bump_bp, interpolation = "log_linear") {
+tona_compute_scenario <- function(bump_tenor, bump_bp) {
   bad <- function(msg) stop(structure(class = c("tona_bad_request", "error", "condition"), list(message = msg, call = NULL)))
   if (!is.character(bump_tenor) || length(bump_tenor) != 1L || !(bump_tenor %in% TONA_MODEL$quotes$tenor)) {
     bad(paste0("bumpTenor must be one of: ", paste(TONA_MODEL$quotes$tenor, collapse = ", ")))
@@ -127,34 +132,23 @@ tona_compute_scenario <- function(bump_tenor, bump_bp, interpolation = "log_line
   if (!is.numeric(bump_bp) || length(bump_bp) != 1L || !is.finite(bump_bp) || abs(bump_bp) > TONA_MODEL$max_abs_bump_bp) {
     bad(paste0("bumpBp must be a finite number with |bumpBp| <= ", TONA_MODEL$max_abs_bump_bp))
   }
-  if (!is.character(interpolation) || length(interpolation) != 1L || !(interpolation %in% c("log_linear", "monotonic_log_cubic"))) {
-    bad("interpolation must be 'log_linear' or 'monotonic_log_cubic'")
-  }
   q <- TONA_MODEL$quotes
   scenario_rates <- q$rate
   scenario_rates[q$tenor == bump_tenor] <- scenario_rates[q$tenor == bump_tenor] + bump_bp * 1e-4
-
-  base_curve <- tona_build_curve(q$rate, interpolation)
-  fixed_rate <- RiemannFinMath::compute_ois_swap_value(tona_make_swap(0), base_curve, TONA_MODEL$evaluation_date)$fair_rate
-
-  base <- tona_case(q$rate, interpolation, fixed_rate)
-  scenario <- if (identical(scenario_rates, q$rate)) base else tona_case(scenario_rates, interpolation, fixed_rate)
-
-  conv <- TONA_MODEL$conventions
-  conv$interpolation <- interpolation
-
+  base <- TONA_BASE_CASE
+  scenario <- if (identical(scenario_rates, q$rate)) TONA_BASE_CASE else tona_case(scenario_rates)
   list(
     api_version = 1L,
     engine = list(name = "RiemannFinMath", version = as.character(utils::packageVersion("RiemannFinMath")),
                   built = utils::packageDescription("RiemannFinMath")$Built),
-    request = list(bumpTenor = bump_tenor, bumpBp = bump_bp, interpolation = interpolation),
+    request = list(bumpTenor = bump_tenor, bumpBp = bump_bp),
     evaluation_date = iso(TONA_MODEL$evaluation_date),
     quote_unit = "decimal rate (0.0224 = 2.24%)",
     quote_source = TONA_MODEL$quote_source,
-    conventions = conv,
+    conventions = TONA_MODEL$conventions,
     quotes = data.frame(quote_id = q$quote_id, tenor = q$tenor, rate_base = q$rate, rate_scenario = scenario_rates),
     swap_terms = list(
-      tenor = TONA_MODEL$swap$tenor, side = TONA_MODEL$swap$side, notional = TONA_MODEL$swap$notional, fixed_rate = fixed_rate,
+      tenor = TONA_MODEL$swap$tenor, side = TONA_MODEL$swap$side, notional = TONA_MODEL$swap$notional, fixed_rate = TONA_FIXED_RATE,
       effective_date = iso(TONA_SWAP_DATES$effective), termination_date = iso(TONA_SWAP_DATES$termination),
       fixed_rate_source = "unrounded 7Y par rate of the base curve"
     ),

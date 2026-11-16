@@ -30,7 +30,7 @@ bump_size <- 1e-4
 swap_years <- 7L
 conventions <- list(
   index = "tonar", calendar = "japan", curve_day_count = "actual_365_fixed", settlement_days = 2L,
-  payment_frequency = 1L, payment_lag = 0L, interpolation = "log_linear", accuracy = 1e-12,
+  payment_frequency = 1L, payment_lag = 0L, interpolation = "monotonic_log_cubic", accuracy = 1e-12,
   schedule_rule = "backward", schedule_convention = "modified_following",
   fixed_leg_day_count = "actual_365_fixed", side = "payer"
 )
@@ -123,7 +123,7 @@ case_values <- purrr::imap(cases, function(q, case) {
 
 golden <- list(
   meta = list(
-    description = "Expected values for the JPY TONA OIS demo (13 quotes without 7Y, log-linear discount, payment lag 0)",
+    description = "Expected values for the JPY TONA OIS demo (13 quotes without 7Y, monotonic log-cubic discount, payment lag 0)",
     generated_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
     generator = "golden/generate_golden.R",
     engine = paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")), "built", packageDescription("RiemannFinMath")$Built),

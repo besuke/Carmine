@@ -158,12 +158,12 @@ describe("R API regression against the reconciled JSON", () => {
     expect(Math.abs(bumped.cases.base.swap.npv)).toBeLessThanOrEqual(TOL.pvAbsYen);
   });
 
-  it("reproduces the reported PV change of about +1,512,213 yen on 10 billion yen", () => {
+  it("reproduces the reported PV change of about +2,821,127 yen on 10 billion yen", () => {
     const d = bumped.pv_change - golden.pv_change;
     record("PV change (JPY)", d, `abs ${TOL.pvChangeAbsYen} yen`);
     expect(Math.abs(d)).toBeLessThanOrEqual(TOL.pvChangeAbsYen);
     expect(Math.abs(bumped.pv_change - (bumped.cases.scenario.swap.npv - bumped.cases.base.swap.npv))).toBe(0);
-    expect(Math.round(bumped.pv_change)).toBe(1_512_213);
+    expect(Math.round(bumped.pv_change)).toBe(2_821_127);
     expect(bumped.par_change_bp).toBeGreaterThan(0);
   });
 

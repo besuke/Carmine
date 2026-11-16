@@ -116,11 +116,10 @@ handle <- function(req) {
     if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body.")))
     body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
     if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object such as {\"bumpTenor\":\"5Y\",\"bumpBp\":1}.")))
-    unknown <- setdiff(names(body), c("bumpTenor", "bumpBp", "interpolation"))
+    unknown <- setdiff(names(body), c("bumpTenor", "bumpBp"))
     if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
-    interpolation <- if (is.character(body$interpolation) && length(body$interpolation) == 1L) body$interpolation else "log_linear"
     result <- tryCatch(
-      tona_compute_scenario(body$bumpTenor, body$bumpBp, interpolation),
+      tona_compute_scenario(body$bumpTenor, body$bumpBp),
       tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
       error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed")
     )

@@ -80,17 +80,17 @@ export const TOC: Part[] = [
         title: "OISスワップとマルチカーブ評価",
         source: "part2_quantive_riemann/ch03_ois_swaps_multicurve.qmd",
         operations: [
-          "円TONA OISカーブを構築し、5年クォート＋1 bp や補間方式の切り替えで、割引係数・ゼロ金利・フォワードの3グラフと7年OISの時価の変化を見る",
+          "円TONA OISカーブを構築し、5年クォート＋1 bp とリセットで、割引係数・ゼロ金利・フォワードの3グラフと7年OISの時価の変化を見る",
           "OISアセットスワップ（通貨別OISカーブ、円ベーシス込みASW）を評価する",
         ],
         rows: [
-          { sections: "3.1〜3.3", topic: "TONA OIS カーブ構築、フェアレート、日次複利、キャッシュフロー", coverage: "対応", riemann: "OISカーブのブートストラップ、対数線形・単調対数3次補間、スワップ時価・明細算出" },
+          { sections: "3.1〜3.3", topic: "TONA OIS カーブ構築、フェアレート、日次複利、キャッシュフロー", coverage: "対応", riemann: "OISカーブのブートストラップ（単調対数3次スプライン補間）、スワップ時価・明細算出" },
           { sections: "3.4", topic: "SOFR OIS カーブ、マルチカーブ評価", coverage: "対応", riemann: "予測カーブと割引カーブを分離したOIS評価" },
           { sections: "3.7", topic: "4通貨 OIS カーブ、OIS アセットスワップ、円ベーシス込み ASW", coverage: "対応", riemann: "通貨別OISカーブ構築とアセットスワップスプレッド算出" },
         ],
         additions: [],
         route: "/yield-curve-ois",
-        routeNote: "円TONA OISカーブの構築と、市場レート変動・補間方式による割引係数・ゼロ金利・フォワードおよび7年OISスワップの評価損益の変化を操作できます",
+        routeNote: "円TONA OISカーブの構築（単調対数3次スプライン補間）と、市場レート変動による割引係数・ゼロ金利・1暦日フォワードおよび7年OISスワップの評価損益の変化を操作できます",
       },
       {
         id: "II-4",

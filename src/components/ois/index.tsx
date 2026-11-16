@@ -59,7 +59,7 @@ export function ConditionsTable() {
           ["日程", "後ろ向き（Backward）、修正後続（Modified Following）"],
           ["固定レグの日数計算", "Actual/365 Fixed"],
           ["ピラー", "各OISの最終関連日（満期日）"],
-          ["補間", c.interpolation === "monotonic_log_cubic" ? "単調対数3次補間（Monotonic Log-Cubic）" : "割引係数の対数線形（log D を時間について線形補間）"],
+          ["補間", "割引係数の対数の単調3次スプライン補間（Monotonic Log-Cubic）"],
           ["ブートストラップの精度", `割引係数で ${c.accuracy}`],
         ];
         return (
@@ -161,37 +161,6 @@ const pickDf = (p: CurvePoint) => p.discount;
 const pickZeroPct = (p: CurvePoint) => (p.zero_continuous === null ? null : p.zero_continuous * 100);
 const pickFwdPct = (p: CurvePoint) => p.forward_1d_simple * 100;
 
-export function InterpolationToggle() {
-  const { interpolation, setInterpolation, loading } = useScenario();
-  return (
-    <div role="group" aria-label="補間方式の選択" style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: "0.65rem" }}>
-      <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-secondary)" }}>補間方式:</span>
-      <label style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem", cursor: "pointer" }}>
-        <input
-          type="radio"
-          name="ois-interpolation"
-          value="log_linear"
-          checked={interpolation === "log_linear"}
-          onChange={() => setInterpolation("log_linear")}
-          disabled={loading}
-        />
-        対数線形（段階状フォワード）
-      </label>
-      <label style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem", cursor: "pointer" }}>
-        <input
-          type="radio"
-          name="ois-interpolation"
-          value="monotonic_log_cubic"
-          checked={interpolation === "monotonic_log_cubic"}
-          onChange={() => setInterpolation("monotonic_log_cubic")}
-          disabled={loading}
-        />
-        単調対数3次（滑らかなフォワード）
-      </label>
-    </div>
-  );
-}
-
 function overlay(d: ScenarioResponse, pick: (p: CurvePoint) => number | null, baseDots?: SeriesPoint[], scenDots?: SeriesPoint[]): Series[] {
   const s: Series[] = [{ key: "base", label: BASE_LABEL, color: BASE_COLOR, points: toPoints(d.cases.base.curve_points, pick), dots: baseDots }];
   if (hasScenario(d)) {
@@ -254,12 +223,12 @@ export function SwapLegTable() {
 
 /**
  * OISスワップ画面のメインダッシュボード：
- * - 上段：入力（5年クォート＋1bp、リセット、補間方式、横軸範囲）と主要な評価結果（7年OISの初期PV・変更後PV・PV差）
+ * - 上段：入力（5年クォート＋1bp、リセット、横軸範囲）と主要な評価結果（7年OISの初期PV・変更後PV・PV差）
  * - 中段：割引係数・ゼロ金利・フォワード金利の3グラフ横並び（同じ横軸範囲・高さで比較）
  */
 export function OisDashboard() {
   const [range, setRange] = useState(30);
-  const { bumpBp, setBumpBp, interpolation, loading, data } = useScenario();
+  const { bumpBp, setBumpBp, loading, data } = useScenario();
   const active = bumpBp !== 0;
 
   const series = useMemo(() => {
@@ -304,11 +273,13 @@ export function OisDashboard() {
                       リセット
                     </button>
                   </div>
-                  <InterpolationToggle />
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}>
                     <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-secondary)" }}>横軸の範囲（3グラフ共通）:</span>
                     <RangeToggle value={range} onChange={setRange} />
                   </div>
+                  <p className="note" style={{ margin: 0 }}>
+                    割引係数の対数を単調3次スプラインで補間し、1暦日フォワードを算出する。
+                  </p>
                 </div>
               </div>
 
@@ -426,12 +397,6 @@ export function OisDashboard() {
                   footer={footer}
                 />
               </div>
-            )}
-
-            {interpolation === "log_linear" && (
-              <p className="note" style={{ marginTop: "0.2rem" }}>
-                割引係数の対数線形補間ではピラー間の瞬間フォワード金利が一定（階段状）になります。単調対数3次補間に切り替えると、ピラー間のフォワード金利が滑らかに接続されます。
-              </p>
             )}
           </section>
         );
