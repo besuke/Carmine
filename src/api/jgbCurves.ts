@@ -1,8 +1,9 @@
 import { ApiError, newRequestId } from "./client";
 import type { ResponseStamp } from "./asw";
 
-// The yield-curve slider's API (server/R/jgb_curve_model.R): every month-end JGB curve, built by RiemannFinMath on the
-// server. The page fetches them once and reuses them while the reader moves the slider or plays the months.
+// The yield-curve explorer's API (server/R/jgb_curve_model.R): every month-end JGB and US Treasury curve,
+// built by RiemannFinMath on the server. The page fetches them once and reuses them while the reader moves
+// the slider or plays the months.
 
 export interface JgbMonth {
   month: string; // YYYYMM
@@ -12,11 +13,21 @@ export interface JgbMonth {
   curve_yield_pct: number[]; // at curve_step, 2 curve_step, ...
 }
 
-export interface JgbCurvesResponse {
+export interface MarketCurveDataset {
   months: JgbMonth[];
   curve_step: number;
   axis: { x_max: number; y_min: number; y_max: number };
-  conventions: { source: string; curve: string; engine: string };
+  conventions: {
+    source: string;
+    source_url?: string;
+    data_url?: string;
+    curve: string;
+    engine: string;
+  };
+}
+
+export interface JgbCurvesResponse extends MarketCurveDataset {
+  ust?: MarketCurveDataset;
   response: ResponseStamp;
 }
 
