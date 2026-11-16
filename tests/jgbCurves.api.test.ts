@@ -22,5 +22,9 @@ describe("month-end JGB yield curves", () => {
         expect(y).toBeLessThanOrEqual(d.axis.y_max);
       }
     }
+    expect(d.ust).toBeDefined();
+    expect(d.ust!.months.length).toBe(d.months.length);
+    expect(d.ust!.months[0].month).toBe("199001");
+    expect(d.ust!.conventions.source_url).toContain("fred.stlouisfed.org");
   });
 });

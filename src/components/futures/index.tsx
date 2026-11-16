@@ -49,6 +49,7 @@ function Need({ children }: { children: (d: FuturesResponse) => ReactNode }) {
 }
 const Tag = ({ d }: { d: FuturesResponse }) => <span className="response-tag" data-request-id={d.response.request_id}>API応答 <code>{d.response.request_id}</code></span>;
 const f = (x: number, n: number) => x.toFixed(n);
+const t3 = (x: number) => (Math.trunc(x * 1000) / 1000).toFixed(3);
 
 export function FuturesStatus() {
   const { error, loading, data } = useF();
@@ -95,7 +96,7 @@ export function BasketTable() {
             <tbody>{d.rows.map((r) => (
               <tr key={r.issue} className={r.ctd ? "changed" : undefined}>
                 <th scope="row">{r.issue}</th><td className="num">{f(r.coupon_pct, 1)}</td><td>{r.maturity_date}</td><td className="num">{f(r.price, 3)}</td>
-                <td className="num">{f(r.yield * 100, 4)}</td><td className="num">{f(r.duration, 4)}</td><td className="num">{f(r.conversion_factor, 6)}</td>
+                <td className="num">{t3(r.yield * 100)}</td><td className="num">{t3(r.duration)}</td><td className="num">{f(r.conversion_factor, 6)}</td>
                 <td className="num">{f(r.gross_basis, 4)}</td><td className="num" data-testid={`net-basis-${r.issue}`}>{f(r.net_basis, 4)}</td><td className="num">{f(r.implied_repo * 100, 4)}</td>
                 <td>{r.ctd ? "◀ CTD" : ""}</td></tr>
             ))}</tbody>
@@ -139,7 +140,7 @@ export function FuturesBpvPanel() {
                 <div className="tile-note">= CTD の DV01 {f(d.ctd_dv01, 6)} ÷ CF {f(d.ctd_conversion_factor, 6)}</div></div>
               <div className="tile"><div className="tile-label">先物1枚（額面1億円）の BPV</div><div className="tile-value">{Math.round(d.futures_bpv * 1e6).toLocaleString("ja-JP")} 円</div>
                 <div className="tile-note">先物BPV × 1億円 / 100</div></div>
-              <div className="tile"><div className="tile-label">CTD（{d.ctd_issue}回債）</div><div className="tile-value tile-small">修正デュレーション {f(ctd.duration, 4)}</div>
+              <div className="tile"><div className="tile-label">CTD（{d.ctd_issue}回債）</div><div className="tile-value tile-small">修正デュレーション {t3(ctd.duration)}</div>
                 <div className="tile-note">参考：解析的 BPV {f(ctd.bpv_analytic, 6)}（ダーティ価格の変化、符号つき）</div></div>
             </div>
             <div className="table-wrap">
@@ -192,7 +193,7 @@ export function CtdSwitchChart() {
               yLabel="CTD の修正デュレーション" xLabel="複利利回り（%）" xTicks={pctTicks(1, 10, 1)}
               series={[{ key: "ctd", label: "CTD", color: "var(--series-1)", points: pts, dots: pts }]}
               markers={[{ x: 6, label: "標準物 6%" }, ...switches.map((s) => ({ x: s.yield_pct, label: `→${s.ctd_issue}回債` }))]}
-              formatY={(y) => y.toFixed(4)} formatTick={(y) => y.toFixed(1)} footer={<Tag d={d} />} />
+              formatY={(y) => t3(y)} formatTick={(y) => y.toFixed(1)} footer={<Tag d={d} />} />
             <p className="note">
               {switches.length ? <>利回り {switches.map((s) => `${s.yield_pct}%`).join("・")} で CTD が入れ替わります（0.25% 刻み）。</> : "この Funding Rate では、1〜10% の範囲で CTD は入れ替わりません。"}
               Funding Rate を変えると、入れ替わる水準も動きます。

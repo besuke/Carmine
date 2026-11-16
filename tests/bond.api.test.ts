@@ -42,18 +42,19 @@ describe("Deterministic cash-flow chapter (II-1) against GaussQuant", () => {
   });
 
   it("reproduces the 40-year bond: cash flows, Japanese yields, flat yield, zero spread and risk", async () => {
+    const trunc3 = (x: number) => Math.trunc(x * 1000) / 1000;
     const b = (await fetchBond({}, { baseUrl })).bond;
     expect(b.settlement_date).toBe(golden.settlement);
     expect(b.cashflows.map((c) => c.payment_date)).toEqual(golden.cashflows.map((c) => c.date));
     b.cashflows.forEach((c, i) => record("キャッシュフローの金額", c.amount - golden.cashflows[i].amount, TOL.price));
     // Japanese rules truncate, so these are equal, not close
     expect([b.remaining_years, b.clean_price, b.simple_from_price, b.compound_yield_pct, b.compound_price])
-      .toEqual([golden.remaining_years, golden.clean_price, golden.simple_from_price, golden.compound_yield_pct, golden.compound_price]);
+      .toEqual([golden.remaining_years, golden.clean_price, golden.simple_from_price, trunc3(golden.compound_yield_pct), golden.compound_price]);
     record("フラットイールドのダーティ価格", b.flat_dirty_price - golden.flat_dirty_price, TOL.price);
     record("Zスプレッド 50bp の NPV", b.z_spread_npv - golden.z_spread_npv, TOL.price);
     record("BPV（円）", b.risk.bpv_yen - golden.risk.bpv_yen, TOL.risk);
-    record("修正デュレーション", b.risk.modified_duration - golden.risk.modified_duration, TOL.risk);
-    record("コンベクシティ", b.risk.convexity - golden.risk.convexity, TOL.risk);
+    record("修正デュレーション", b.risk.modified_duration - trunc3(golden.risk.modified_duration), TOL.risk);
+    record("コンベクシティ", b.risk.convexity - trunc3(golden.risk.convexity), TOL.risk);
     record("QuantLib 方式の利回り", b.solvers[5].yield_pct - golden.yield_quantlib_pct, TOL.price);
     // the root finders agree, and the manuscript's formulas agree with RiemannFinMath
     for (const s of b.solvers.slice(1, 4)) expect(Math.abs(s.yield_pct - b.solvers[0].yield_pct)).toBeLessThan(1e-9);

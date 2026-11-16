@@ -119,15 +119,17 @@ bond_value <- function(p) {
     coupon_rate = p$couponPct / 100, day_count = BOND_DC, payment_convention = "unadjusted", redemption = 100, issue_date = d$issue)
   settlement <- RiemannFinMath::compute_settlement_date(bond, d$trade)
   cf <- RiemannFinMath::get_bond_cashflows(bond)
-  # II-1.4: Japanese simple yield -> price (truncated to 3 decimals) -> compound yield (truncated to 7 decimals)
+  # II-1.4: Japanese simple yield -> price (truncated to 3 decimals) -> compound yield (truncated to 3 decimals)
+  trunc3 <- function(x) trunc(x * 1000) / 1000
   t <- RiemannFinMath::compute_remaining_years(settlement, d$maturity)
   C <- p$couponPct
   price <- RiemannFinMath::compute_price_from_simple_rate(t, C, p$simpleYieldPct, 100)
   simple_back <- RiemannFinMath::compute_simple_rate_from_price(t, C, price, 100)
-  Y <- RiemannFinMath::compute_compound_yield_from_price(t, C, price, 100)
-  compound_price <- RiemannFinMath::compute_price_from_compound_yield(t, C, Y, 100)
+  Y_raw <- RiemannFinMath::compute_compound_yield_from_price(t, C, price, 100)
+  Y <- trunc3(Y_raw)
+  compound_price <- RiemannFinMath::compute_price_from_compound_yield(t, C, Y_raw, 100)
   accrued <- RiemannFinMath::compute_accrued_amount(bond, settlement)
-  y <- Y / 100
+  y <- Y_raw / 100
   # II-1.5.3–1.5.4 and II-1.6.2: flat curve at the compound yield (30/360, semiannual), its continuous equivalent,
   # and the value with a zero spread on that curve
   flat <- RiemannFinMath::create_flat_curve(settlement, y, BOND_DC, "compounded", 2L)
@@ -136,19 +138,21 @@ bond_value <- function(p) {
   z <- p$zSpreadBp / 1e4
   z_value <- RiemannFinMath::compute_bond_value_with_zero_spread(bond, flat, z, "compounded", 2L, d$trade)
   z_back <- RiemannFinMath::compute_z_spread_from_price(bond, flat, z_value$npv, "dirty", "compounded", 2L, settlement)
-  # II-1.7: risk by the manuscript's formulas and by RiemannFinMath
-  risk <- as.list(RiemannFinMath::compute_risk_from_compound_yield(t, C, Y, 100, accrued))
-  Pf <- bond_price_formula(Y, C, t); dP <- bond_dprice_formula(Y, C, t); d2P <- bond_d2price_formula(Y, C, t)
+  # II-1.7: risk by the manuscript's formulas and by RiemannFinMath (duration and convexity truncated to 3 decimals)
+  risk <- as.list(RiemannFinMath::compute_risk_from_compound_yield(t, C, Y_raw, 100, accrued))
+  risk$modified_duration <- trunc3(risk$modified_duration)
+  risk$convexity <- trunc3(risk$convexity)
+  Pf <- bond_price_formula(Y_raw, C, t); dP <- bond_dprice_formula(Y_raw, C, t); d2P <- bond_d2price_formula(Y_raw, C, t)
   formula <- list(price = Pf, dp_dy_pct = dP, d2p_dy2_pct = d2P, bpv_sen = -dP, bpv_yen = -dP / 100,
-                  modified_duration = -100 * dP / (Pf + accrued), convexity = 1e4 * d2P / (Pf + accrued))
+                  modified_duration = trunc3(-100 * dP / (Pf + accrued)), convexity = trunc3(1e4 * d2P / (Pf + accrued)))
   zero <- list(price = bond_price_formula(0, C, t), dp_dy_pct = bond_dprice_formula(0, C, t), d2p_dy2_pct = bond_d2price_formula(0, C, t))
-  zero$modified_duration <- -100 * zero$dp_dy_pct / zero$price
-  zero$convexity <- 1e4 * zero$d2p_dy2_pct / zero$price
+  zero$modified_duration <- trunc3(-100 * zero$dp_dy_pct / zero$price)
+  zero$convexity <- trunc3(1e4 * zero$d2p_dy2_pct / zero$price)
   # price-yield curve with the first- and second-order approximations around Y
   grid <- seq(0, 15, by = 0.25)
   price_yield <- data.frame(
     yield_pct = grid, price = vapply(grid, bond_price_formula, 0, C = C, T = t),
-    duration_approx = Pf + dP * (grid - Y), convexity_approx = Pf + dP * (grid - Y) + 0.5 * d2P * (grid - Y)^2)
+    duration_approx = Pf + dP * (grid - Y_raw), convexity_approx = Pf + dP * (grid - Y_raw) + 0.5 * d2P * (grid - Y_raw)^2)
   # II-1.8: the same compound yield by the root finders
   f <- function(yy) bond_price_formula(yy, C, t) - price
   dfn <- function(yy) bond_dprice_formula(yy, C, t)
@@ -160,7 +164,7 @@ bond_value <- function(p) {
   ql_style <- 100 * RiemannFinMath::compute_yield_from_price(bond, price, "clean", BOND_DC, "compounded", 2L, settlement, accuracy = 1e-8)
   solvers <- data.frame(
     method = c("ニュートン・ラフソン法", "二分法", "Brent法（uniroot）", "多項式求根法（polyroot）",
-               "RiemannFinMath：compute_compound_yield_from_price", "RiemannFinMath：compute_yield_from_price（精度 1e-8）"),
+               "RiemannFinMath：compute_compound_yield_from_price（3桁切り捨て）", "RiemannFinMath：compute_yield_from_price（精度 1e-8）"),
     yield_pct = c(newton$root, bisection$root, brent$root, poly$root, Y, ql_style),
     iterations = c(nrow(newton$steps), nrow(bisection$steps), brent$iter, NA, NA, NA)
   )
@@ -169,7 +173,7 @@ bond_value <- function(p) {
   solvers$average_us <- BOND_TIMING[[timing_key <- paste(format(c(C, price, t), digits = 17), collapse = "|")]] %||% (BOND_TIMING[[timing_key]] <- c(
     bond_time_us(function() bond_newton(f, dfn, p$simpleYieldPct, keep = FALSE)), bond_time_us(function() bond_bisection(f, keep = FALSE)),
     bond_time_us(function() stats::uniroot(f, c(-1, 20), tol = 1e-12)), bond_time_us(function() bond_polyroot(price, C / 2, periods, f), 50L),
-    bond_time_us(function() RiemannFinMath::compute_compound_yield_from_price(t, C, price, 100)),
+    bond_time_us(function() RiemannFinMath::compute_compound_yield_from_price(t, C, price, 100, digits = 3L)),
     bond_time_us(function() RiemannFinMath::compute_yield_from_price(bond, price, "clean", BOND_DC, "compounded", 2L, settlement, accuracy = 1e-8))))
   list(
     trade_date = d$trade, settlement_date = format(settlement), issue_date = d$issue, maturity_date = d$maturity,
@@ -178,7 +182,7 @@ bond_value <- function(p) {
                            accrual_start = format(cf$accrual_start), accrual_end = format(cf$accrual_end)),
     remaining_years = t, clean_price = price, simple_from_price = simple_back, compound_yield_pct = Y, compound_price = compound_price,
     accrued = accrued, dirty_price = price + accrued,
-    flat_dirty_price = flat_value$npv, continuous_yield = 2 * log1p(y / 2),
+    flat_dirty_price = flat_value$npv, continuous_yield = trunc3(2 * log1p(y / 2) * 100) / 100,
     z_spread_npv = z_value$npv, z_spread_back_bp = 1e4 * z_back,
     risk = risk, formula = formula, zero_yield = zero, price_yield = price_yield,
     solvers = solvers, newton_steps = newton$steps, bisection_steps = head(bisection$steps, 60),
@@ -210,7 +214,7 @@ bond_compute <- function(body = list()) {
     conventions = list(
       tonar = sprintf("TONAR OIS：%s 時点の GaussQuant のサンプル気配（BlueGamma、14本）。スポット開始2日、年1回払い、Japan、MonotonicLogCubic。フォワードは QuantLib の forwardRate(d, d) と同じ瞬間フォワード", BOND_TONAR$date),
       bond = "固定利付債：額面100、半年払い、30/360（Bond Basis）、日付は調整なし、Backward、受渡は取引日の2営業日後（Japan）",
-      yen = "単利→単価は日本の計算規則（残存年数は年＋日/365 を小数7桁で切り捨て、単価は小数3桁で切り捨て）、複利利回りは小数7桁で切り捨て",
+      yen = "単利→単価は日本の計算規則（残存年数は年＋日/365 を小数7桁で切り捨て、単価は小数3桁で切り捨て）、複利利回り・修正デュレーション・コンベクシティは小数3桁（4桁目切り捨て）",
       engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
     tonar = bond_tonar(), shapes = bond_shapes(shapes), bond = bond_value(b)
   )

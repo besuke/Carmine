@@ -46,8 +46,10 @@ function Need({ children }: { children: (d: ParallelResponse) => ReactNode }) {
   if (error) return <p className="muted">（直前の入力では計算できません。値を戻してください）</p>;
   return <p className="muted">計算中…</p>;
 }
-const Tag = ({ d }: { d: ParallelResponse }) => <span className="response-tag" data-request-id={d.response.request_id}>API応答 <code>{d.response.request_id}</code></span>;
+const Tag = ({ d }: { d: ParallelResponse }) => <span className="response-tag" data-request-id={data_id(d)}>API応答 <code>{data_id(d)}</code></span>;
+const data_id = (d: ParallelResponse) => d.response.request_id;
 const f = (x: number, n: number) => x.toFixed(n);
+const t3 = (x: number) => (Math.trunc(x * 1000) / 1000).toFixed(3);
 
 export function ParallelStatus() {
   const { error, loading, data } = useP();
@@ -160,7 +162,7 @@ export function BatchResultChart() {
                 <caption>評価結果の一部</caption>
                 <thead><tr><th scope="col" className="num">複利利回り</th><th scope="col" className="num">単価</th><th scope="col" className="num">修正デュレーション</th><th scope="col" className="num">BPV</th></tr></thead>
                 <tbody>{d.batch.sample.map((r) => (
-                  <tr key={r.yield}><th scope="row" className="num">{f(100 * r.yield, 4)}%</th><td className="num">{f(r.clean_price, 6)}</td><td className="num">{f(r.duration_modified, 6)}</td>
+                  <tr key={r.yield}><th scope="row" className="num">{t3(100 * r.yield)}%</th><td className="num">{f(r.clean_price, 6)}</td><td className="num">{t3(r.duration_modified)}</td>
                     <td className="num">{r.basis_point_value.toExponential(4)}</td></tr>
                 ))}</tbody>
               </table>

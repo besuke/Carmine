@@ -61,6 +61,7 @@ function Need({ children }: { children: (d: BondResponse) => ReactNode }) {
 }
 const Tag = ({ d }: { d: BondResponse }) => <span className="response-tag" data-request-id={d.response.request_id}>API応答 <code>{d.response.request_id}</code></span>;
 const f = (x: number, n: number) => x.toFixed(n);
+const t3 = (x: number) => (Math.trunc(x * 1000) / 1000).toFixed(3);
 const pct = (x: number, n = 4) => `${f(x * 100, n)}%`;
 const sci = (x: number) => (x === 0 ? "0" : x.toExponential(2));
 const yearsFrom = (origin: string, date: string) => (Date.parse(date) - Date.parse(origin)) / 86_400_000 / 365;
@@ -221,16 +222,16 @@ export function YieldChain() {
             <div className="tiles">
               <div className="tile emphasis"><div className="tile-label">単価（単利 {f(b.simple_yield_pct, 3)}% から）</div><div className="tile-value" data-testid="clean-price">{f(b.clean_price, 3)}</div>
                 <div className="tile-note">残存 {f(b.remaining_years, 7)} 年、小数3桁で切り捨て</div></div>
-              <div className="tile"><div className="tile-label">複利利回り（半年複利）</div><div className="tile-value" data-testid="compound-yield">{f(b.compound_yield_pct, 7)}%</div>
-                <div className="tile-note">単価から逆算、小数7桁で切り捨て</div></div>
-              <div className="tile"><div className="tile-label">連続複利に換算</div><div className="tile-value">{f(b.continuous_yield * 100, 7)}%</div>
-                <div className="tile-note">r = 2 log(1 + y/2)</div></div>
+              <div className="tile"><div className="tile-label">複利利回り（半年複利）</div><div className="tile-value" data-testid="compound-yield">{t3(b.compound_yield_pct)}%</div>
+                <div className="tile-note">単価から逆算、小数3桁（4桁目切り捨て）</div></div>
+              <div className="tile"><div className="tile-label">連続複利に換算</div><div className="tile-value">{t3(b.continuous_yield * 100)}%</div>
+                <div className="tile-note">r = 2 log(1 + y/2)（小数3桁、4桁目切り捨て）</div></div>
             </div>
             <KeyValue d={d} caption="単利利回り → クリーンプライス → 複利利回り → フラットイールド" rows={[
               ["remaining_years", f(b.remaining_years, 7)], ["simple_rate_pct（入力）", f(b.simple_yield_pct, 6)], ["clean_price_from_simple_rate", f(b.clean_price, 6)],
-              ["simple_rate_from_price_pct", f(b.simple_from_price, 7)], ["compound_yield_pct", f(b.compound_yield_pct, 8)], ["price_from_compound_yield", f(b.compound_price, 6)],
-              ["accrued_interest（受渡日は利払日）", f(b.accrued, 6)], ["flat_yield_pct", f(b.compound_yield_pct, 8)],
-              ["dirty_price（フラットイールドのカーブで評価）", f(b.flat_dirty_price, 10), "flat-dirty"], ["continuous_yield_pct", f(b.continuous_yield * 100, 8)],
+              ["simple_rate_from_price_pct", f(b.simple_from_price, 7)], ["compound_yield_pct", t3(b.compound_yield_pct)], ["price_from_compound_yield", f(b.compound_price, 6)],
+              ["accrued_interest（受渡日は利払日）", f(b.accrued, 6)], ["flat_yield_pct", t3(b.compound_yield_pct)],
+              ["dirty_price（フラットイールドのカーブで評価）", f(b.flat_dirty_price, 10), "flat-dirty"], ["continuous_yield_pct", t3(b.continuous_yield * 100)],
             ]} />
           </>
         );
@@ -262,25 +263,25 @@ export function RiskTable() {
         const rows: [string, number, number, number][] = [
           ["price", fm.price, r.price, 8], ["dP/dY（円／1%）", fm.dp_dy_pct, r.dp_dy_pct, 8], ["d²P/dY²（円／1%²）", fm.d2p_dy2_pct, r.d2p_dy2_pct, 8],
           ["BPV（銭／bp）", fm.bpv_sen, r.bpv_sen, 6], ["BPV（円／bp）", fm.bpv_yen, r.bpv_yen, 8],
-          ["modified_duration", fm.modified_duration, r.modified_duration, 8], ["convexity", fm.convexity, r.convexity, 6],
+          ["modified_duration", fm.modified_duration, r.modified_duration, 3], ["convexity", fm.convexity, r.convexity, 3],
         ];
         return (
           <>
             <div className="tiles">
               <div className="tile emphasis"><div className="tile-label">BPV</div><div className="tile-value" data-testid="bpv-sen">{f(r.bpv_sen, 4)} 銭／bp</div><div className="tile-note">= {f(r.bpv_yen, 6)} 円／bp（額面100）</div></div>
-              <div className="tile"><div className="tile-label">修正デュレーション</div><div className="tile-value" data-testid="mod-duration">{f(r.modified_duration, 6)}</div><div className="tile-note">−100/P · dP/dY</div></div>
-              <div className="tile"><div className="tile-label">コンベクシティ</div><div className="tile-value">{f(r.convexity, 4)}</div><div className="tile-note">10000/P · d²P/dY²</div></div>
+              <div className="tile"><div className="tile-label">修正デュレーション</div><div className="tile-value" data-testid="mod-duration">{t3(r.modified_duration)}</div><div className="tile-note">−100/P · dP/dY（小数3桁、4桁目切り捨て）</div></div>
+              <div className="tile"><div className="tile-label">コンベクシティ</div><div className="tile-value" data-testid="convexity">{t3(r.convexity)}</div><div className="tile-note">10000/P · d²P/dY²（小数3桁、4桁目切り捨て）</div></div>
             </div>
             <div className="table-wrap">
               <table className="data">
-                <caption>債券価格と金利リスク指標（解析式と計算エンジン、Y = {f(d.bond.compound_yield_pct, 7)}%）　<Tag d={d} /></caption>
+                <caption>債券価格と金利リスク指標（解析式と計算エンジン、Y = {t3(d.bond.compound_yield_pct)}%）　<Tag d={d} /></caption>
                 <thead><tr><th scope="col">指標</th><th scope="col" className="num">解析式</th><th scope="col" className="num">計算エンジン</th><th scope="col" className="num">差</th></tr></thead>
-                <tbody>{rows.map(([k, a, b, n]) => <tr key={k}><th scope="row">{k}</th><td className="num">{f(a, n)}</td><td className="num">{f(b, n)}</td><td className="num">{sci(a - b)}</td></tr>)}</tbody>
+                <tbody>{rows.map(([k, a, b, n]) => <tr key={k}><th scope="row">{k}</th><td className="num">{n === 3 ? t3(a) : f(a, n)}</td><td className="num">{n === 3 ? t3(b) : f(b, n)}</td><td className="num">{sci(a - b)}</td></tr>)}</tbody>
               </table>
             </div>
             <KeyValue d={d} caption="Y = 0 の場合（別の式で扱う）" rows={[
               ["price = 100 + CT", f(z.price, 6)], ["dP/dY = −{CT(2T+1)/400 + T}", f(z.dp_dy_pct, 6)], ["BPV（銭／bp）", f(-z.dp_dy_pct, 6)],
-              ["d²P/dY²", f(z.d2p_dy2_pct, 8)], ["modified_duration", f(z.modified_duration, 6)], ["convexity", f(z.convexity, 4)],
+              ["d²P/dY²", f(z.d2p_dy2_pct, 8)], ["modified_duration", t3(z.modified_duration)], ["convexity", t3(z.convexity)],
             ]} />
           </>
         );
@@ -296,7 +297,7 @@ export function PriceYieldChart() {
       {(d) => {
         const rows = d.bond.price_yield;
         const pt = (k: "price" | "duration_approx" | "convexity_approx") => rows.map((r) => ({ x: r.yield_pct, y: r[k], date: `複利利回り ${f(r.yield_pct, 2)}%` }));
-        const now = { x: d.bond.compound_yield_pct, y: d.bond.formula.price, date: `いまの利回り ${f(d.bond.compound_yield_pct, 4)}%` };
+        const now = { x: d.bond.compound_yield_pct, y: d.bond.formula.price, date: `いまの利回り ${t3(d.bond.compound_yield_pct)}%` };
         return (
           <LineChart title={`価格と複利利回り：デュレーション（一次）とコンベクシティ（二次）の近似（${f(d.bond.coupon_pct, 2)}%・40年債）`} origin="2022-04-01"
             xMin={0} xMax={15} xLabel="複利利回り（%）" yLabel="単価" xTicks={[0, 3, 6, 9, 12, 15].map((x) => ({ x, label: `${x}%` }))}
@@ -327,13 +328,13 @@ export function SolverPanel() {
                 <thead><tr><th scope="col">method</th><th scope="col" className="num">compound_yield_pct</th><th scope="col" className="num">反復回数</th>
                   <th scope="col" className="num">P(Y) − P_market</th><th scope="col" className="num">1回の計算時間（μs）</th></tr></thead>
                 <tbody>{b.solvers.map((s, i) => (
-                  <tr key={s.method}><th scope="row">{s.method}</th><td className="num" data-testid={`solver-${i}`}>{f(s.yield_pct, 10)}</td><td className="num">{s.iterations ?? "—"}</td>
+                  <tr key={s.method}><th scope="row">{s.method}</th><td className="num" data-testid={`solver-${i}`}>{i === 4 ? t3(s.yield_pct) : f(s.yield_pct, 10)}</td><td className="num">{s.iterations ?? "—"}</td>
                     <td className="num">{sci(s.price_error)}</td><td className="num">{f(s.average_us, 1)}</td></tr>
                 ))}</tbody>
               </table>
             </div>
             <p className="note">
-              日本の国債実務の規則どおり小数7桁で切り捨てる場合と、高精度求根アルゴリズムによる違いを確認できます。
+              日本の国債実務の規則どおり小数3桁（4桁目切り捨て）にする場合と、高精度求根アルゴリズムによる違いを確認できます。
               多項式 {b.polyroot.degree} 次の根 {b.polyroot.roots} 個のうち、正の実根は {b.polyroot.real_positive} 個でした。
             </p>
             <div className="two-col">
