@@ -4,10 +4,6 @@ import { bp, df, full, pct, tenorJa, yen } from "../../format";
 import { BUMP_BP, BUMP_TENOR, hasScenario, useScenario } from "../../state/ScenarioContext";
 import { LineChart, type Series, type SeriesPoint } from "../LineChart";
 
-// Components of the chapter "II-2・II-3 イールドカーブと円OIS". They only display the R API's response.
-// Figures follow the Quarto chapter's ggplot2 figures: date on the x-axis, rates in percent, the discount
-// factor as a plain number, a legend when more than one series is drawn.
-
 const BASE_COLOR = "var(--series-1)";
 const SCENARIO_COLOR = "var(--series-2)";
 const BASE_LABEL = "初期";
@@ -33,7 +29,7 @@ export function ResponseTag({ data }: { data: ScenarioResponse }) {
 }
 
 export function ApiStatus() {
-  const { error, loading, retry, data } = useScenario();
+  const { error, loading, retry } = useScenario();
   if (error) {
     return (
       <div className="banner error" role="alert">
@@ -43,11 +39,10 @@ export function ApiStatus() {
       </div>
     );
   }
-  return (
-    <p className="status" aria-live="polite">
-      {loading ? "R APIで計算中…" : data ? `計算エンジン：${data.engine.name} ${data.engine.version}（R、ローカルHTTP API）` : ""}
-    </p>
-  );
+  if (loading) {
+    return <p className="status" aria-live="polite">R APIで計算中…</p>;
+  }
+  return null;
 }
 
 export function ConditionsTable() {
@@ -57,25 +52,27 @@ export function ConditionsTable() {
         const c = d.conventions;
         const rows: [string, string][] = [
           ["評価日（カーブの参照日）", d.evaluation_date],
-          ["指標・カレンダー", "TONA・日本の営業日（QuantLib 互換）"],
+          ["指標・カレンダー", "TONA・日本の営業日"],
           ["カーブの時間軸", "Actual/365 Fixed"],
           ["OISの受渡日数", `${c.settlement_days}営業日（スポット日 ${d.swap_terms.effective_date}）`],
-          ["支払頻度・支払ラグ", `年${c.payment_frequency}回・${c.payment_lag}営業日（QuantLib の既定。市場慣行とされる2営業日とは異なる）`],
+          ["支払頻度・支払ラグ", `年${c.payment_frequency}回・${c.payment_lag}営業日`],
           ["日程", "後ろ向き（Backward）、修正後続（Modified Following）"],
           ["固定レグの日数計算", "Actual/365 Fixed"],
           ["ピラー", "各OISの最終関連日（満期日）"],
-          ["補間", "割引係数の対数線形（log D を時間について線形補間）"],
+          ["補間", c.interpolation === "monotonic_log_cubic" ? "単調対数3次補間（Monotonic Log-Cubic）" : "割引係数の対数線形（log D を時間について線形補間）"],
           ["ブートストラップの精度", `割引係数で ${c.accuracy}`],
-          ["計算エンジン", `${d.engine.name} ${d.engine.version}（R、HTTP API）`],
         ];
         return (
-          <table className="kv">
-            <tbody>
-              {rows.map(([k, v]) => (
-                <tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="table-wrap">
+            <table className="kv">
+              <caption>カーブ構築・スワップ評価の計算条件</caption>
+              <tbody>
+                {rows.map(([k, v]) => (
+                  <tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
       }}
     </Need>
@@ -101,7 +98,7 @@ export function QuoteTable() {
                   {show && <th scope="col" className="num">変更後</th>}
                   <th scope="col">開始日</th>
                   <th scope="col">満期日（ピラー）</th>
-                  <th scope="col" className="num">カーブが再現したレート</th>
+                  <th scope="col" className="num">再現レート</th>
                   <th scope="col" className="num">再現誤差</th>
                 </tr>
               </thead>
@@ -124,8 +121,7 @@ export function QuoteTable() {
               </tbody>
             </table>
             <p className="note">
-              出典：GaussQuant の <code>bluegamma_tonar_quotes_GQL()</code>（14本）から7年を除いた13本。教材用のサンプルで、取引に使う市場データではありません。
-              「再現誤差」は |カーブが再現したレート − クォート|（小数の金利）で、初期カーブのものです。
+              14本のサンプル気配値から7年を除いた13本を使用。「再現誤差」は |再現レート − クォート|（小数の金利）。
             </p>
           </div>
         );
@@ -136,7 +132,7 @@ export function QuoteTable() {
 
 function RangeToggle({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
-    <div className="range" role="group" aria-label="表示する期間">
+    <div className="range" role="group" aria-label="表示する期間" style={{ margin: 0 }}>
       {[10, 30].map((y) => (
         <button key={y} type="button" aria-pressed={value === y} onClick={() => onChange(y)}>
           {y}年先まで
@@ -165,101 +161,299 @@ const pickDf = (p: CurvePoint) => p.discount;
 const pickZeroPct = (p: CurvePoint) => (p.zero_continuous === null ? null : p.zero_continuous * 100);
 const pickFwdPct = (p: CurvePoint) => p.forward_1d_simple * 100;
 
-/** II-2.2.3 「カーブの表現」に対応する3つの図。初期カーブだけを描く。 */
-export function BaseCurveCharts() {
-  const [range, setRange] = useState(30);
+export function InterpolationToggle() {
+  const { interpolation, setInterpolation, loading } = useScenario();
   return (
-    <Need>
-      {(d) => {
-        const b = d.cases.base;
-        const one = (key: string, pick: (p: CurvePoint) => number | null, dots?: SeriesPoint[]): Series[] => [
-          { key, label: BASE_LABEL, color: BASE_COLOR, points: toPoints(b.curve_points, pick), dots },
-        ];
-        const nodeDots = b.nodes.flatMap((n) => (n.zero_continuous === null ? [] : [{ x: n.time, y: n.zero_continuous * 100, date: n.date }]));
-        return (
-          <>
-            <RangeToggle value={range} onChange={setRange} />
-            <LineChart title="割引係数カーブ" series={one("df", pickDf)} origin={d.evaluation_date} xMax={range}
-              yLabel="割引係数" formatY={(y) => df(y, 10)} formatTick={(y) => y.toFixed(2)} />
-            <LineChart title="連続複利ゼロ金利カーブ（点はピラー）" series={one("zero", pickZeroPct, nodeDots)} origin={d.evaluation_date}
-              xMax={range} yLabel="ゼロ金利（%）" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(1)} />
-            <LineChart title="フォワード金利カーブ（1暦日の単利）" series={one("fwd", pickFwdPct)} origin={d.evaluation_date}
-              xMax={range} yLabel="フォワード金利（%）" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(1)} />
-          </>
-        );
-      }}
-    </Need>
-  );
-}
-
-export function ScenarioControls() {
-  const { bumpBp, setBumpBp, loading, data } = useScenario();
-  const active = bumpBp !== 0;
-  return (
-    <div className="controls" role="group" aria-label="クォートの操作">
-      <button type="button" className="primary" onClick={() => setBumpBp(BUMP_BP)} disabled={loading || active}>
-        {tenorJa(BUMP_TENOR)}クォート＋{BUMP_BP} bp
-      </button>
-      <button type="button" onClick={() => setBumpBp(0)} disabled={loading || !active}>
-        リセット
-      </button>
-      <span className="controls-state" aria-live="polite">
-        {loading ? "R APIで再計算中…" : data ? <ResponseTag data={data} /> : null}
-      </span>
+    <div role="group" aria-label="補間方式の選択" style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: "0.65rem" }}>
+      <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-secondary)" }}>補間方式:</span>
+      <label style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem", cursor: "pointer" }}>
+        <input
+          type="radio"
+          name="ois-interpolation"
+          value="log_linear"
+          checked={interpolation === "log_linear"}
+          onChange={() => setInterpolation("log_linear")}
+          disabled={loading}
+        />
+        対数線形（段階状フォワード）
+      </label>
+      <label style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem", cursor: "pointer" }}>
+        <input
+          type="radio"
+          name="ois-interpolation"
+          value="monotonic_log_cubic"
+          checked={interpolation === "monotonic_log_cubic"}
+          onChange={() => setInterpolation("monotonic_log_cubic")}
+          disabled={loading}
+        />
+        単調対数3次（滑らかなフォワード）
+      </label>
     </div>
   );
 }
 
-function overlay(d: ScenarioResponse, pick: (p: CurvePoint) => number | null): Series[] {
-  const s: Series[] = [{ key: "base", label: BASE_LABEL, color: BASE_COLOR, points: toPoints(d.cases.base.curve_points, pick) }];
+function overlay(d: ScenarioResponse, pick: (p: CurvePoint) => number | null, baseDots?: SeriesPoint[], scenDots?: SeriesPoint[]): Series[] {
+  const s: Series[] = [{ key: "base", label: BASE_LABEL, color: BASE_COLOR, points: toPoints(d.cases.base.curve_points, pick), dots: baseDots }];
   if (hasScenario(d)) {
-    s.push({ key: "scenario", label: SCENARIO_LABEL, color: SCENARIO_COLOR, points: toPoints(d.cases.scenario.curve_points, pick), dashed: true });
+    s.push({ key: "scenario", label: SCENARIO_LABEL, color: SCENARIO_COLOR, points: toPoints(d.cases.scenario.curve_points, pick), dashed: true, dots: scenDots });
   }
   return s;
 }
 
 /** Display transform only: the difference of the two curves in the same response. */
-function difference(d: ScenarioResponse, pick: (p: CurvePoint) => number, scale: number): Series[] {
+function difference(d: ScenarioResponse, pick: (p: CurvePoint) => number | null, scale: number): Series[] {
   const b = d.cases.base.curve_points;
-  return [{
-    key: "diff", label: "変更後 − 初期", color: SCENARIO_COLOR,
-    points: d.cases.scenario.curve_points.map((p, i) => ({ x: p.time, y: (pick(p) - pick(b[i])) * scale, date: p.date })),
-  }];
+  const pts: SeriesPoint[] = [];
+  d.cases.scenario.curve_points.forEach((p, i) => {
+    const yb = pick(b[i]);
+    const ys = pick(p);
+    if (yb !== null && ys !== null) {
+      pts.push({ x: p.time, y: (ys - yb) * scale, date: p.date });
+    }
+  });
+  return [{ key: "diff", label: "変更後 − 初期", color: SCENARIO_COLOR, points: pts }];
 }
 
-/** 初期と変更後の割引係数・フォワードを重ねた図と、その差。 */
-export function ScenarioCharts() {
-  const [range, setRange] = useState(10);
-  const { data } = useScenario();
-  const series = useMemo(() => (data ? { df: overlay(data, pickDf), fwd: overlay(data, pickFwdPct) } : null), [data]);
+export function SwapLegTable() {
   return (
     <Need>
       {(d) => {
         const show = hasScenario(d);
-        const footer = <ResponseTag data={d} />;
-        const markers = pillarMarkers(d);
+        const b = d.cases.base.swap;
+        const s = d.cases.scenario.swap;
+        const legs = [["TONAレグ（受け）", "overnight_leg_npv"], ["固定レグ（払い）", "fixed_leg_npv"], ["合計（PV）", "npv"]] as const;
         return (
-          <>
-            <RangeToggle value={range} onChange={setRange} />
-            <LineChart title="割引係数カーブ：初期と変更後" series={series!.df} origin={d.evaluation_date} xMax={range}
-              yLabel="割引係数" formatY={(y) => df(y, 10)} formatTick={(y) => y.toFixed(2)} markers={markers} footer={footer} />
-            {show && (
-              <LineChart title="割引係数の差（変更後 − 初期、×10⁻⁴）" series={difference(d, pickDf, 1e4)} origin={d.evaluation_date}
-                xMax={range} yLabel="割引係数の差（×10⁻⁴）" height={190} formatY={(y) => y.toFixed(4)} formatTick={(y) => y.toFixed(1)}
-                markers={markers} zeroLine footer={footer} />
-            )}
-            <LineChart title="フォワード金利カーブ：初期と変更後（1暦日の単利）" series={series!.fwd} origin={d.evaluation_date} xMax={range}
-              yLabel="フォワード金利（%）" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(1)} markers={markers} footer={footer} />
-            {show && (
-              <LineChart title="フォワード金利の差（変更後 − 初期）" series={difference(d, pickFwdPct, 100)} origin={d.evaluation_date}
-                xMax={range} yLabel="フォワード金利の差（bp）" height={190} formatY={(y) => `${y.toFixed(3)} bp`} formatTick={(y) => y.toFixed(0)}
-                markers={markers} zeroLine footer={footer} />
-            )}
-          </>
+          <div className="table-wrap">
+            <table className="data">
+              <caption>7年OIS レグ別の現在価値（円。固定レグは支払なので負）　<ResponseTag data={d} /></caption>
+              <thead>
+                <tr>
+                  <th scope="col">レグ</th>
+                  <th scope="col" className="num">初期</th>
+                  {show && <th scope="col" className="num">変更後</th>}
+                  {show && <th scope="col" className="num">差</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {legs.map(([label, k]) => (
+                  <tr key={k}>
+                    <th scope="row">{label}</th>
+                    <td className="num">{yen(b[k])}</td>
+                    {show && <td className="num">{yen(s[k])}</td>}
+                    {show && <td className="num">{yen(s[k] - b[k], true)}</td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
       }}
     </Need>
   );
+}
+
+/**
+ * OISスワップ画面のメインダッシュボード：
+ * - 上段：入力（5年クォート＋1bp、リセット、補間方式、横軸範囲）と主要な評価結果（7年OISの初期PV・変更後PV・PV差）
+ * - 中段：割引係数・ゼロ金利・フォワード金利の3グラフ横並び（同じ横軸範囲・高さで比較）
+ */
+export function OisDashboard() {
+  const [range, setRange] = useState(30);
+  const { bumpBp, setBumpBp, interpolation, loading, data } = useScenario();
+  const active = bumpBp !== 0;
+
+  const series = useMemo(() => {
+    if (!data) return null;
+    const baseDots = data.cases.base.nodes.flatMap((n) => (n.zero_continuous === null ? [] : [{ x: n.time, y: n.zero_continuous * 100, date: n.date }]));
+    const scenDots = data.cases.scenario.nodes.flatMap((n) => (n.zero_continuous === null ? [] : [{ x: n.time, y: n.zero_continuous * 100, date: n.date }]));
+    return {
+      df: overlay(data, pickDf),
+      zero: overlay(data, pickZeroPct, baseDots, hasScenario(data) ? scenDots : undefined),
+      fwd: overlay(data, pickFwdPct),
+    };
+  }, [data]);
+
+  return (
+    <Need>
+      {(d) => {
+        const show = hasScenario(d);
+        const t = d.swap_terms;
+        const b = d.cases.base.swap;
+        const s = d.cases.scenario.swap;
+        const markers = pillarMarkers(d);
+        const footer = <ResponseTag data={d} />;
+
+        return (
+          <section className="ois-dashboard" aria-label="OISスワップ評価ダッシュボード">
+            {/* 上段：入力と主要な評価結果 */}
+            <div className="dashboard-top">
+              <div className="dashboard-card">
+                <div className="dashboard-card-title">
+                  <span>入力・表示設定（基準日 {d.evaluation_date}）</span>
+                  <span className="controls-state" aria-live="polite">
+                    {loading ? "再計算中…" : <ResponseTag data={d} />}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+                  <div role="group" aria-label="クォートの操作" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-secondary)" }}>シナリオ:</span>
+                    <button type="button" className="primary" onClick={() => setBumpBp(BUMP_BP)} disabled={loading || active}>
+                      {tenorJa(BUMP_TENOR)}クォート＋{BUMP_BP} bp
+                    </button>
+                    <button type="button" onClick={() => setBumpBp(0)} disabled={loading || !active}>
+                      リセット
+                    </button>
+                  </div>
+                  <InterpolationToggle />
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-secondary)" }}>横軸の範囲（3グラフ共通）:</span>
+                    <RangeToggle value={range} onChange={setRange} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="dashboard-card">
+                <div className="dashboard-card-title">
+                  <span>7年OIS（固定払い・TONA受け）主要評価結果</span>
+                  <span className="muted" style={{ fontWeight: 400, fontSize: "0.8rem" }}>
+                    想定元本 {yen(t.notional)}（100億円）｜期間 {t.effective_date} 〜 {t.termination_date}｜固定レート {pct(t.fixed_rate, 6)}（<code>{full(t.fixed_rate)}</code>）
+                  </span>
+                </div>
+                <div className="tiles" style={{ margin: 0 }}>
+                  <div className="tile">
+                    <div className="tile-label">初期PV</div>
+                    <div className="tile-value" data-testid="pv-base">{yen(b.npv)}</div>
+                    <div className="tile-note">初期7年パーレート適用のため数値誤差内でゼロ</div>
+                  </div>
+                  <div className="tile">
+                    <div className="tile-label">変更後PV</div>
+                    <div className="tile-value" data-testid="pv-scenario">{show ? yen(s.npv) : "—"}</div>
+                    <div className="tile-note">{show ? `変更後7年パーレート ${pct(s.par_rate, 6)}` : "「5年クォート＋1 bp」で計算"}</div>
+                  </div>
+                  <div className="tile emphasis">
+                    <div className="tile-label">PV差（変更後 − 初期）</div>
+                    <div className="tile-value" data-testid="pv-change">{show ? yen(d.pv_change, true) : "—"}</div>
+                    <div className="tile-note">
+                      {show ? <>丸め前 <code data-testid="pv-change-full">{d.pv_change.toFixed(4)}</code> 円（パー変化 {bp(d.par_change_bp)}）</> : "固定レート据え置きでの時価変動"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 中段：割引係数・ゼロ金利・フォワード金利の3グラフ横並び */}
+            <div className="chart-grid-3">
+              <LineChart
+                title="割引係数カーブ"
+                series={series!.df}
+                origin={d.evaluation_date}
+                xMax={range}
+                height={245}
+                legend
+                markers={markers}
+                yLabel="割引係数"
+                formatY={(y) => df(y, 10)}
+                formatTick={(y) => y.toFixed(2)}
+                footer={footer}
+              />
+              <LineChart
+                title="連続複利ゼロ金利カーブ（点はピラー）"
+                series={series!.zero}
+                origin={d.evaluation_date}
+                xMax={range}
+                height={245}
+                legend
+                markers={markers}
+                yLabel="ゼロ金利（%）"
+                formatY={(y) => `${y.toFixed(4)}%`}
+                formatTick={(y) => y.toFixed(1)}
+                footer={footer}
+              />
+              <LineChart
+                title="フォワード金利カーブ（1暦日の単利）"
+                series={series!.fwd}
+                origin={d.evaluation_date}
+                xMax={range}
+                height={245}
+                legend
+                markers={markers}
+                yLabel="フォワード金利（%）"
+                formatY={(y) => `${y.toFixed(4)}%`}
+                formatTick={(y) => y.toFixed(1)}
+                footer={footer}
+              />
+            </div>
+
+            {show && (
+              <div className="chart-grid-3">
+                <LineChart
+                  title="割引係数の差（変更後 − 初期、×10⁻⁴）"
+                  series={difference(d, pickDf, 1e4)}
+                  origin={d.evaluation_date}
+                  xMax={range}
+                  height={175}
+                  markers={markers}
+                  zeroLine
+                  yLabel="差（×10⁻⁴）"
+                  formatY={(y) => y.toFixed(4)}
+                  formatTick={(y) => y.toFixed(1)}
+                  footer={footer}
+                />
+                <LineChart
+                  title="ゼロ金利の差（変更後 − 初期、bp）"
+                  series={difference(d, pickZeroPct, 100)}
+                  origin={d.evaluation_date}
+                  xMax={range}
+                  height={175}
+                  markers={markers}
+                  zeroLine
+                  yLabel="差（bp）"
+                  formatY={(y) => `${y.toFixed(3)} bp`}
+                  formatTick={(y) => y.toFixed(1)}
+                  footer={footer}
+                />
+                <LineChart
+                  title="フォワード金利の差（変更後 − 初期、bp）"
+                  series={difference(d, pickFwdPct, 100)}
+                  origin={d.evaluation_date}
+                  xMax={range}
+                  height={175}
+                  markers={markers}
+                  zeroLine
+                  yLabel="差（bp）"
+                  formatY={(y) => `${y.toFixed(3)} bp`}
+                  formatTick={(y) => y.toFixed(0)}
+                  footer={footer}
+                />
+              </div>
+            )}
+
+            {interpolation === "log_linear" && (
+              <p className="note" style={{ marginTop: "0.2rem" }}>
+                割引係数の対数線形補間ではピラー間の瞬間フォワード金利が一定（階段状）になります。単調対数3次補間に切り替えると、ピラー間のフォワード金利が滑らかに接続されます。
+              </p>
+            )}
+          </section>
+        );
+      }}
+    </Need>
+  );
+}
+
+export function BaseCurveCharts() {
+  return <OisDashboard />;
+}
+
+export function ScenarioControls() {
+  return null;
+}
+
+export function ScenarioCharts() {
+  return null;
+}
+
+export function SwapPanel() {
+  return <SwapLegTable />;
 }
 
 export function SegmentTable() {
@@ -272,7 +466,7 @@ export function SegmentTable() {
         return (
           <div className="table-wrap">
             <table className="data">
-              <caption>ピラー間のフォワード金利（連続複利、Actual/365 Fixed、区間内で一定）　<ResponseTag data={d} /></caption>
+              <caption>ピラー間のフォワード金利（連続複利、Actual/365 Fixed）　<ResponseTag data={d} /></caption>
               <thead>
                 <tr>
                   <th scope="col">区間</th>
@@ -341,74 +535,6 @@ export function SevenYearMechanism() {
                 })}
               </tbody>
             </table>
-          </div>
-        );
-      }}
-    </Need>
-  );
-}
-
-export function SwapPanel() {
-  return (
-    <Need>
-      {(d) => {
-        const show = hasScenario(d);
-        const t = d.swap_terms;
-        const b = d.cases.base.swap;
-        const s = d.cases.scenario.swap;
-        const legs = [["TONAレグ（受け）", "overnight_leg_npv"], ["固定レグ（払い）", "fixed_leg_npv"], ["合計（PV）", "npv"]] as const;
-        return (
-          <div className="swap">
-            <table className="kv">
-              <tbody>
-                <tr><th scope="row">取引</th><td>固定払い・TONA受けの7年OIS（{t.effective_date} 開始、{t.termination_date} 満期）</td></tr>
-                <tr><th scope="row">想定元本</th><td>{yen(t.notional)}（100億円）</td></tr>
-                <tr><th scope="row">固定レート</th><td>{pct(t.fixed_rate, 6)}（丸め前 <code>{full(t.fixed_rate)}</code>。初期カーブの7年パーレート。変更後も据え置き）</td></tr>
-              </tbody>
-            </table>
-            <div className="tiles">
-              <div className="tile">
-                <div className="tile-label">初期PV</div>
-                <div className="tile-value" data-testid="pv-base">{yen(b.npv)}</div>
-                <div className="tile-note">丸め前のパーレートを使うので、数値誤差の範囲でゼロ</div>
-              </div>
-              <div className="tile">
-                <div className="tile-label">変更後PV</div>
-                <div className="tile-value" data-testid="pv-scenario">{show ? yen(s.npv) : "—"}</div>
-                <div className="tile-note">{show ? `7年パーレート ${pct(s.par_rate, 6)}` : "「5年クォート＋1 bp」で計算"}</div>
-              </div>
-              <div className="tile emphasis">
-                <div className="tile-label">PV差（変更後 − 初期）</div>
-                <div className="tile-value" data-testid="pv-change">{show ? yen(d.pv_change, true) : "—"}</div>
-                <div className="tile-note">
-                  {show ? <>丸め前 <code data-testid="pv-change-full">{d.pv_change.toFixed(4)}</code> 円、7年パーレートの変化 {bp(d.par_change_bp)}</> : ""}
-                </div>
-              </div>
-            </div>
-            <p className="note"><ResponseTag data={d} /></p>
-            <div className="table-wrap">
-              <table className="data">
-                <caption>レグ別の現在価値（円。固定レグは支払なので負）</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">レグ</th>
-                    <th scope="col" className="num">初期</th>
-                    {show && <th scope="col" className="num">変更後</th>}
-                    {show && <th scope="col" className="num">差</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {legs.map(([label, k]) => (
-                    <tr key={k}>
-                      <th scope="row">{label}</th>
-                      <td className="num">{yen(b[k])}</td>
-                      {show && <td className="num">{yen(s[k])}</td>}
-                      {show && <td className="num">{yen(s[k] - b[k], true)}</td>}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         );
       }}

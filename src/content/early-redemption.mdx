@@ -1,93 +1,44 @@
-import { ChapterNo } from "../book/ChapterNo";
 import { CallableProvider, CallableStatus, CallableControls, FlowsTable, PricePanel, DecisionPanel, VolatilityPanel, GridTable, MbsScenarioPanel, MbsPathsPanel, StaticOasPanel } from "../components/callable";
 
 <CallableProvider>
 
-# <ChapterNo n={8} />早期償還モデル
+# 早期償還モデル
 
-この章は、原稿の第II-8章『早期償還モデル』の React 版です。発行体がコールできる債券と、借り手が期限前に返済するモーゲージ（MBS）を扱います。計算は R の HTTP API が **RiemannFinMath** で行い、原稿の計算結果と照合しています（`reconciliation/callable/`）。
+発行体が繰上償還できるコール条項付債券（Callable Bond）と、借り手の期限前返済リスクを伴うモーゲージ担保証券（MBS）の評価手法を扱います。Hull–White モデルに基づくバックワード・インダクションによる行使判断や、プリペイメント（PSAモデル）とOAS（Option-Adjusted Spread）の計算を操作・確認できます。
 
 <CallableStatus />
 
-> 入力値はすべて原稿の説明用の値です。
+> 入力値はすべて説明用の例示値です。
 
-## II-8.1 発行体条件と債券評価
+## 発行体コール条項付債券の評価とバックワード・インダクション
 
-| 項目 | この章での設定 |
-|---|---|
-| 評価時点と金利期間 | $t = 0$、半年ごとの等間隔の年数 |
-| クーポン | 各 $t = 0.5, 1.0, \ldots, 5.0$ に 1.5（年率 3%） |
-| コール可能日 | $t = 1.0, 1.5, \ldots, 4.5$ |
-| コール価格 | クーポン支払後の元本に対し 100 |
-| 金利曲線 | 連続複利 2% のフラットな初期割引曲線 |
-| 信用と費用 | デフォルト、スプレッド、税、取引費用は含めない |
-
-下の欄で、初期曲線の金利、Hull–White の $a$ と $\sigma$、クーポン、最初のコール日、コール価格を変えられます。II-8.6 までの表とグラフがすべて再計算されます。
-
-<CallableControls which="bond" />
-
-<FlowsTable />
-
-## II-8.2 満期債と発行体コール
-
-コールのない Bullet Bond の価格は $V_0^{\mathrm{bullet}} = \sum_i C_i P(0,t_i) + N P(0,t_n)$ です。発行体のコール権は投資家から見て売り持ちなので、
-
-$$
-V_0^{\mathrm{issuer\ call}} = V_0^{\mathrm{bullet}} - V_0^{\mathrm{callable}} \ge 0
-$$
-
-です。
-
-## II-8.3 発行体の行使判断とバックワード・インダクション
-
-発行体は、各コール日にクーポンを払ったあと、元本をコール価格 $K_i$ で償還するか、債券を続けるかを選びます。投資家にとっての価値は
+コールのない Bullet Bond の価格は $V_0^{\mathrm{bullet}} = \sum_i C_i P(0,t_i) + N P(0,t_n)$ であり、発行体のコール権の価値は $V_0^{\mathrm{issuer\ call}} = V_0^{\mathrm{bullet}} - V_0^{\mathrm{callable}} \ge 0$ です。各コール日にクーポン支払後、継続価値 $H_i(x)$ がコール価格 $K_i$ を上回るなら発行体はコールします。
 
 $$
 V_i(x) = C_i + \min\{K_i, H_i(x)\}, \qquad
 H_i(x) = \mathbb{E}^{\mathbb{Q}}\!\left[\exp\left(-\int_{t_i}^{t_{i+1}} r_s\,ds\right) V_{i+1}(x_{t_{i+1}}) \,\middle|\, x_{t_i} = x\right]
 $$
 
-で、継続価値 $H_i$ がコール価格を上回るなら、発行体はコールします。満期から順に後ろへ計算していきます。
-
-## II-8.4 Hull–White モデル
-
-第7章と同じく $r_t = \phi(t) + x_t$、$dx_t = -a x_t\,dt + \sigma\,dW_t$ を使い、フラットな初期曲線では $\phi(t) = \bar r + \frac{\sigma^2}{2a^2}(1 - e^{-at})^2$ です。$h = t_{i+1} - t_i$、$b = e^{-ah}$、$B = (1 - b)/a$ とすると、次の状態 $X = bx + \varepsilon_X$ と期間内の積分 $I = \int x_s\,ds = Bx + \varepsilon_I$ は二変量正規分布に従い、
-
-$$
-v_X = \frac{\sigma^2(1 - b^2)}{2a}, \qquad
-v_I = \frac{\sigma^2}{a^2}\left[h - \frac{2(1 - b)}{a} + \frac{1 - b^2}{2a}\right], \qquad
-c_{XI} = \frac{\sigma^2(1 - b)^2}{2a^2}
-$$
-
-です。割引の積分を $h r_{t_i}$ で近似せず、$X$ に条件づけた $I$ の分布を使って、状態の格子（321 点）と Gauss–Hermite 求積（24 点）で継続価値を求めます。
+<CallableControls which="bond" />
 
 <PricePanel />
 
-### II-8.4.3 発行体コール判定
-
-金利が低いほど債券を続ける価値（継続価値）は高くなり、発行体はコールして借り換えた方が有利になります。
+### 発行体コール判定とボラティリティ感応度
 
 <DecisionPanel />
 
-## II-8.5 金利変動とコールオプション価値
-
-同じ初期曲線でも、短期金利のボラティリティが大きいほど、コール権の価値は高くなります。
-
 <VolatilityPanel />
 
-## II-8.6 数値計算検証
+### クーポン・コール日程と格子・求積点の収束確認
 
-格子の点と求積点を増やして、価格の変化が小さくなることを確かめます。
+<div className="two-col">
+  <FlowsTable />
+  <GridTable />
+</div>
 
-<GridTable />
+## MBS のプリペイメント（PSAモデル）とOAS
 
-## II-8.7 Bermudan Swaption への拡張
-
-複数の行使日を持つ Bermudan Swaption も、同じバックワード・インダクションで評価できます。実取引への拡張では、OIS 割引と予測カーブの分離、約定上の通知日と利払日のずれ、クリーン価格と経過利息の扱いをそろえます。
-
-## II-8.8 MBS のプリペイメント
-
-借り手の期限前返済は、借入からの月数 $m$ と借換えの誘因で決まる行動のルールとして置きます。
+借り手の期限前返済は、借入からの月数 $m$ と借換えの誘因で決まるルールとしてモデル化します（$c$ はモーゲージ金利 5%、$f_m$ は借換え金利、$k$ は借換えコスト）。
 
 $$
 \mathrm{CPR}^{\mathrm{PSA}}_m = \min(0.002m, 0.06), \qquad
@@ -95,30 +46,21 @@ $$
 \mathrm{SMM}_m = 1 - (1 - \mathrm{CPR}_m)^{1/12}
 $$
 
-$c$ はモーゲージ金利 5%、$f_m$ は月 $m$ の借換え金利、$k$ は借換えコストです。プールは元本 100、パススルー金利 4.5%、360 か月です。下の欄で PSA（$\alpha$）、借換えの感応度 $\beta$、借換えコスト $k$ を変えられます。
-
 <CallableControls which="mbs" />
 
 <MbsScenarioPanel />
 
-借換え金利が下がると期限前返済が増え、元本が早く戻るので、加重平均残存年数は短くなります。
+### Hull–White 金利経路による評価と PSA 別静的 OAS
 
-### Hull–White の金利経路
+短期金利を Hull–White で動かし、借換え金利を「短期金利 + 3%」として経路ごとにキャッシュフローを割り引きます。OAS $z$ に対応する価格は $P(z) = \mathbb{E}^{\mathbb{Q}}\!\left[\sum_{m=1}^{360} CF_m \exp\!\left(-\int_0^{m/12} (r_s + z)\,ds\right)\right]$ です。
 
-短期金利を Hull–White で動かし、借換え金利を「短期金利 + 3%」として、経路ごとにキャッシュフローを作って割り引きます。OAS $z$ に対応する価格は
-
-$$
-P(z) = \mathbb{E}^{\mathbb{Q}}\!\left[\sum_{m=1}^{360} CF_m \exp\!\left(-\int_0^{m/12} (r_s + z)\,ds\right)\right]
-$$
-
-です。
-
-<MbsPathsPanel />
-
-### II-8.8.1 PSA 別の OAS と価格の関係
-
-キャッシュフローをあらかじめ確定させ（借換え金利 5%、誘因なし）、PSA 0・50・100% のそれぞれで、架空の価格 95 と 105 に合うスプレッドを求めます。前節の金利経路を使う OAS と区別して、静的な OAS 感応度と呼びます。ディスカウント債では期限前返済が速いほど価値が上がるので、同じ価格に合わせるスプレッドは大きくなり、プレミアム債では逆になります。
-
-<StaticOasPanel />
+<div className="two-col">
+  <div>
+    <MbsPathsPanel />
+  </div>
+  <div>
+    <StaticOasPanel />
+  </div>
+</div>
 
 </CallableProvider>

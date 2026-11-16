@@ -72,7 +72,7 @@ export function FuturesControls() {
         <input type="number" step="0.01" value={req.fundingPct} className="rate-input" aria-label="Funding Rate（%）"
           onChange={(e) => { const v = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(v)) set({ fundingPct: v }); }} />
       </label>
-      {req.mode === "flat" && <button type="button" onClick={() => set({ yieldPct: 8, fundingPct: 9 })}>原稿のストレス（8%・9%）</button>}
+      {req.mode === "flat" && <button type="button" onClick={() => set({ yieldPct: 8, fundingPct: 9 })}>ストレスシナリオ（8%・9%）</button>}
       <span className="controls-state">{loading ? "R APIで再計算中…" : data ? <>CTD：<strong data-testid="ctd-issue">{data.ctd_issue}回債</strong>　<Tag d={data} /></> : null}</span>
     </div>
   );
@@ -140,12 +140,12 @@ export function FuturesBpvPanel() {
               <div className="tile"><div className="tile-label">先物1枚（額面1億円）の BPV</div><div className="tile-value">{Math.round(d.futures_bpv * 1e6).toLocaleString("ja-JP")} 円</div>
                 <div className="tile-note">先物BPV × 1億円 / 100</div></div>
               <div className="tile"><div className="tile-label">CTD（{d.ctd_issue}回債）</div><div className="tile-value tile-small">修正デュレーション {f(ctd.duration, 4)}</div>
-                <div className="tile-note">参考：QuantLib の解析的 BPV {f(ctd.bpv_analytic, 6)}（ダーティ価格の変化、符号つき）</div></div>
+                <div className="tile-note">参考：解析的 BPV {f(ctd.bpv_analytic, 6)}（ダーティ価格の変化、符号つき）</div></div>
             </div>
             <div className="table-wrap">
               <table className="data">
                 <caption>各銘柄の DV01 と、その銘柄が CTD なら先物BPV になる値　<Tag d={d} /></caption>
-                <thead><tr><th scope="col">回号</th><th scope="col" className="num">DV01（±1bp）</th><th scope="col" className="num">CF</th><th scope="col" className="num">DV01 ÷ CF</th><th scope="col" className="num">解析的 BPV（QuantLib）</th></tr></thead>
+                <thead><tr><th scope="col">回号</th><th scope="col" className="num">DV01（±1bp）</th><th scope="col" className="num">CF</th><th scope="col" className="num">DV01 ÷ CF</th><th scope="col" className="num">解析的 BPV</th></tr></thead>
                 <tbody>{d.rows.map((r) => (
                   <tr key={r.issue} className={r.ctd ? "changed" : undefined}><th scope="row">{r.issue}</th><td className="num">{f(r.dv01, 6)}</td><td className="num">{f(r.conversion_factor, 6)}</td>
                     <td className="num">{f(r.dv01 / r.conversion_factor, 6)}</td><td className="num">{f(r.bpv_analytic, 6)}</td></tr>
@@ -169,7 +169,7 @@ export function RegimeChart() {
         <LineChart title="Yield-curve regime change and CTD switching（点線の目盛り 6% が標準物のクーポン）" origin={d.valuation_date} xMax={10} yLabel="Yield (%)" xLabel="Maturity (years)"
           xTicks={[0, 2, 4, 6, 8, 10].map((x) => ({ x, label: String(x) }))}
           series={[
-            { key: "c", label: "Current market（原稿の例示値）", color: "var(--series-1)", points: d.current_curve.map((p) => ({ x: p.tenor_years, y: p.yield_pct, date: `${p.tenor_years}年` })), dots: d.current_curve.map((p) => ({ x: p.tenor_years, y: p.yield_pct, date: `${p.tenor_years}年` })) },
+            { key: "c", label: "Current market（基準例）", color: "var(--series-1)", points: d.current_curve.map((p) => ({ x: p.tenor_years, y: p.yield_pct, date: `${p.tenor_years}年` })), dots: d.current_curve.map((p) => ({ x: p.tenor_years, y: p.yield_pct, date: `${p.tenor_years}年` })) },
             { key: "s", label: "Stress: inverted", color: "var(--series-2)", dashed: true, points: d.stress_curve.map((p) => ({ x: p.tenor_years, y: p.yield_pct, date: `${p.tenor_years}年` })), dots: d.stress_curve.map((p) => ({ x: p.tenor_years, y: p.yield_pct, date: `${p.tenor_years}年` })) },
             { key: "std", label: "Standard bond coupon = 6%", color: "var(--text-muted)", dashed: true, points: [{ x: 0, y: 6, date: "6%" }, { x: 10, y: 6, date: "6%" }] },
           ]}

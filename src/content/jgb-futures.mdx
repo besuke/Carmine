@@ -1,33 +1,31 @@
-import { ChapterNo } from "../book/ChapterNo";
 import { FuturesProvider, FuturesStatus, FuturesControls, BasketTable, CarryTable, FuturesBpvPanel, RegimeChart, CtdSwitchChart } from "../components/futures";
 
 <FuturesProvider>
 
-# <ChapterNo n={2} sub={1} />国債先物・CTD
+# 国債先物・CTD
 
-この章は、第II-2章の II-2.6（日本国債先物とCTD）と II-2.7（イールドカーブ変動と最割安銘柄）を React 版にし、先物BPV を加えたものです。計算は R の HTTP API が **RiemannFinMath** で行います。GaussQuant（原稿のコード）と同じ入力で照合し、経過利子・クーポン・利回り・デュレーション・Basis・Implied Repo・CTD・先物BPV がすべて差 0 で一致しています。ストレスシナリオは、原稿の計算結果とも差 0 です（`reconciliation/futures/`）。
+[金利カーブ・CTD](#/yield-curves) に関連する日本国債先物の受渡適格銘柄、Gross/Net Basis、Carry、Implied Repo Rate、最割安銘柄（CTD）の決定要因、先物BPV、および金利シナリオによるCTDの入れ替わりを操作・確認できます。
 
 <FuturesStatus />
 
-> **現物価格と先物価格は教材用の架空の値です。** 原稿の現物価格は計算確認用に置いた BB 価格（最終稿で日本相互証券の確認値に差し替える予定の値）なので、公開リポジトリには入れていません。受渡適格銘柄、Conversion Factor、評価日・受渡日、Funding Rate 1.23% は原稿と同じです。架空の価格は、原稿 II-2.7.2 の例示的な「Current market」の利回り曲線から作りました。
-
-## II-2.6 日本国債先物とCTD
-
-長期国債先物は、クーポン6%、償還期限10年の標準物を取引対象とします。満期には、受渡適格銘柄の中から売方が受け渡す銘柄を選び、標準物との価値の差を Conversion Factor（CF）で調整します。受渡価格の基本部分は
-
-$$
-\text{Invoice Price} = F \times CF
-$$
-
-で、$F$ は先物価格です。評価日は 2026-09-10、受渡日は 2026-12-20、長期国債先物 2026年12月限の受渡適格銘柄（373〜383回債）を比べます。
+> **現物価格と先物価格は教材用の架空の値です。** 評価日 2026-09-10、受渡日 2026-12-20、長期国債先物 2026年12月限の受渡適格銘柄（373〜383回債）、Funding Rate 1.23% を基準としています。
 
 <FuturesControls />
 
-### II-2.6.2 複利利回りと Duration
+## イールドカーブ変動とCTDの入れ替わり
 
-各銘柄の価格から半年複利利回りを逆算し、その利回りで修正デュレーションを求めます。クーポンが高いほど同一償還ならデュレーションは短く、償還が遠いほど長くなります。
+標準物のクーポンは 6% です。市場金利が 6% を下回りイールドカーブが右上がりのときは、Duration の短い銘柄が相対的に受け渡しやすくなる傾向があり、6% を上回る高金利・逆イールドのストレスシナリオ（長期金利 8%、Funding Rate 9%）では相対価値が反対方向に動きます。
 
-### II-2.6.3 Gross Basis、Carry、Net Basis
+<div className="two-col">
+  <RegimeChart />
+  <div>
+    <CtdSwitchChart />
+  </div>
+</div>
+
+## 受渡適格銘柄のBasis・Carry・CTD一覧
+
+長期国債先物は、クーポン6%、償還期限10年の標準物を取引対象とします。満期には受渡適格銘柄の中から売方が受け渡す銘柄を選び、標準物との価値の差を Conversion Factor（CF）で調整します（$\text{Invoice Price} = F \times CF$）。
 
 $$
 \text{Gross Basis}_i = P_i - F \times CF_i, \qquad
@@ -35,43 +33,24 @@ $$
 \text{Net Basis} = \text{Gross Basis} - \text{Carry}
 $$
 
+Net Basis が最小（Implied Repo Rate が最大）の銘柄が、同じ前提で売方が最も安く受け渡せる銘柄（CTD）です。
+
 <BasketTable />
 
-<CarryTable />
+<div className="two-col">
+  <CarryTable />
+  <div>
+    <FuturesBpvPanel />
+  </div>
+</div>
 
-Net Basis が最小の銘柄が、同じ前提で売方が最も安く受け渡せる銘柄（CTD）です。Implied Repo Rate が最大の銘柄も同じ CTD になります。CTD は「価格が低い銘柄」や「Duration が短い銘柄」と定義されているわけではありません。
+### 先物BPV
 
-## 先物BPV
-
-先物の金利感応度は、実務では CTD の BPV を CF で割って近似します（GaussQuant の `futures_bpv_GQL()`）。
+先物の金利感応度は、実務では CTD の BPV（DV01）を CF で割って近似します。CTD が入れ替わると、先物BPV も入れ替わった銘柄のものに変わります。
 
 $$
 \text{先物BPV} = \frac{\text{CTD の DV01}}{CF_{\text{CTD}}}, \qquad
 \text{DV01} = \frac{P(y - 1\text{bp}) - P(y + 1\text{bp})}{2}
 $$
-
-DV01 は、複利利回りを上下に 1 bp 動かしたときのクリーン価格の変化の平均（額面100あたり）です。CTD が入れ替わると、先物BPV も入れ替わった銘柄のものに変わります。
-
-<FuturesBpvPanel />
-
-## II-2.7 イールドカーブ変動と最割安銘柄
-
-標準物のクーポンは 6% です。市場金利が 6% を下回り、イールドカーブが右上がりのときは、Duration の短い銘柄が相対的に受け渡しやすくなる傾向があります。6% を上回る高金利で逆イールドになると、相対価値は反対方向に動き得ます。原稿のストレスシナリオは、長期金利 8%、短期の Funding Rate 9% です。
-
-$$
-9\%_{\text{short}} > 8\%_{\text{long}} > 6\%_{\text{standard coupon}}
-$$
-
-<RegimeChart />
-
-上の「全銘柄を同じ複利利回りで評価」を選ぶと、原稿 II-2.7.3〜2.7.4 と同じく、受渡適格銘柄を一律の複利利回りで評価し、6% クーポン・10年の標準物を同じ利回りで評価した価格を先物価格とします（CF は変えません）。8%・9% で原稿のストレスシナリオになります。
-
-### CTD Switching
-
-全銘柄を同じ利回りで評価したときの CTD を、利回り 1〜10% で調べると、標準物の 6% を越えたあたりで CTD が Duration の短い銘柄から長い銘柄へ入れ替わります。
-
-<CtdSwitchChart />
-
-CTD を「Duration が最小の銘柄」「最大の銘柄」と機械的に決めるのではなく、最終判定は Net Basis 最小、または Implied Repo Rate 最大で行います。Duration は、金利水準と CF の関係から相対価値がどちらに偏りやすいかを理解する手掛かりです。
 
 </FuturesProvider>

@@ -96,21 +96,21 @@ export function RiskControls({ which }: { which: "market" | "mc" | "threads" }) 
           </select>
         </label>
       )}
-      <button type="button" onClick={reset}>原稿の値に戻す</button>
+      <button type="button" onClick={reset}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : error ? <span className="error-text">{error}</span> : data ? <Tag d={data} /> : null}</span>
     </div>
   );
 }
 
-/** III-7.1: the note, the curves and the coupon. */
+/** The note, the curves and the coupon. */
 export function NotePanel() {
   return (
     <Need>
       {(d) => {
         const n = d.note;
         return (
-          <>
-            <div className="chart-pair">
+          <div className="two-col">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               <div className="table-wrap">
                 <table className="data">
                   <caption>PRDC の条件（想定元本 {yen(n.notional)} 円、5年、年1回）　<Tag d={d} /></caption>
@@ -133,14 +133,14 @@ export function NotePanel() {
               xTicks={[100, 125, 150, 175, 200, 220].map((x) => ({ x, label: String(x) }))} xLabel="FX（円）" yLabel="クーポン（%）"
               series={[{ key: "c", label: "クーポン", color: "var(--series-1)", points: d.payoff.map((r) => ({ x: r.fx, y: 100 * r.coupon, date: `FX ${r.fx} 円` })) }]}
               markers={[{ x: d.inputs.market.spot, label: "スポット" }]} formatY={(y) => `${y.toFixed(2)}%`} formatTick={(y) => `${y.toFixed(0)}%`} footer={<Tag d={d} />} />
-          </>
+          </div>
         );
       }}
     </Need>
   );
 }
 
-/** III-4 to III-7: every sensitivity at once by automatic differentiation, against bump and revalue. */
+/** Every sensitivity at once by automatic differentiation, against bump and revalue. */
 export function AdPanel() {
   return (
     <Need>
@@ -159,28 +159,32 @@ export function AdPanel() {
               <div className="tile"><div className="tile-label">二つの方法の差</div><div className="tile-value" data-testid="ad-gap">{Math.max(...a.table.map((r) => Math.abs(r.difference) / Math.max(1, Math.abs(r.bump_and_revalue)))).toExponential(1)}</div>
                 <div className="tile-note">相対誤差の最大（中心差分の打ち切り誤差）</div></div>
             </div>
-            <div className="table-wrap">
-              <table className="data">
-                <caption>PRDC の感応度：自動微分と Bump & Revalue（円）　<Tag d={d} /></caption>
-                <thead><tr><th scope="col">リスクファクター</th><th scope="col" className="num">自動微分</th><th scope="col" className="num">Bump & Revalue</th><th scope="col" className="num">差</th></tr></thead>
-                <tbody>{a.table.map((r) => (
-                  <tr key={r.factor}><th scope="row">{r.factor}</th><td className="num">{f(r.automatic_differentiation, 2)}</td><td className="num">{f(r.bump_and_revalue, 2)}</td>
-                    <td className="num">{r.difference.toExponential(2)}</td></tr>
-                ))}</tbody>
-              </table>
-            </div>
-            <FlowChart title="カーブの節点ごとの感応度（その年の節点のゼロ金利 +1bp あたり、円）" origin="2026-01-01" xMin={0.5} xMax={5.5} barWidth={0.32} yLabel="円／1bp" legend
-              xTicks={years.map((y) => ({ x: y, label: `${y}年` }))}
-              series={[{ key: "jpy", label: "円カーブ", color: "var(--series-1)" }, { key: "fx", label: "外貨カーブ", color: "var(--series-2)" }]}
-              bars={nodeBars} formatY={(y) => yen(y)} footer={<Tag d={d} />} />
-            <div className="table-wrap">
-              <table className="data">
-                <caption>年ごとの金利に対する感応度（原稿 III-7 の定義：その年の金利 +1bp、円）</caption>
-                <thead><tr><th scope="col" className="num">年</th><th scope="col" className="num">円金利</th><th scope="col" className="num">外貨金利</th></tr></thead>
-                <tbody>{a.per_year.map((r) => (
-                  <tr key={r.year}><th scope="row" className="num">{r.year}</th><td className="num">{f(r.jpy_rate_per_bp, 2)}</td><td className="num">{f(r.foreign_rate_per_bp, 2)}</td></tr>
-                ))}</tbody>
-              </table>
+            <div className="two-col">
+              <div className="table-wrap">
+                <table className="data">
+                  <caption>PRDC の感応度：自動微分と Bump & Revalue（円）　<Tag d={d} /></caption>
+                  <thead><tr><th scope="col">リスクファクター</th><th scope="col" className="num">自動微分</th><th scope="col" className="num">Bump & Revalue</th><th scope="col" className="num">差</th></tr></thead>
+                  <tbody>{a.table.map((r) => (
+                    <tr key={r.factor}><th scope="row">{r.factor}</th><td className="num">{f(r.automatic_differentiation, 2)}</td><td className="num">{f(r.bump_and_revalue, 2)}</td>
+                      <td className="num">{r.difference.toExponential(2)}</td></tr>
+                  ))}</tbody>
+                </table>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <FlowChart title="カーブの節点ごとの感応度（その年の節点のゼロ金利 +1bp あたり、円）" origin="2026-01-01" xMin={0.5} xMax={5.5} barWidth={0.32} yLabel="円／1bp" legend
+                  xTicks={years.map((y) => ({ x: y, label: `${y}年` }))}
+                  series={[{ key: "jpy", label: "円カーブ", color: "var(--series-1)" }, { key: "fx", label: "外貨カーブ", color: "var(--series-2)" }]}
+                  bars={nodeBars} formatY={(y) => yen(y)} footer={<Tag d={d} />} />
+                <div className="table-wrap">
+                  <table className="data">
+                    <caption>年ごとの金利に対する感応度（各年の金利 +1bp、円）</caption>
+                    <thead><tr><th scope="col" className="num">年</th><th scope="col" className="num">円金利</th><th scope="col" className="num">外貨金利</th></tr></thead>
+                    <tbody>{a.per_year.map((r) => (
+                      <tr key={r.year}><th scope="row" className="num">{r.year}</th><td className="num">{f(r.jpy_rate_per_bp, 2)}</td><td className="num">{f(r.foreign_rate_per_bp, 2)}</td></tr>
+                    ))}</tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </>
         );
@@ -189,7 +193,7 @@ export function AdPanel() {
   );
 }
 
-/** III-5 and III-7.2: the Monte Carlo with pathwise derivatives. */
+/** The Monte Carlo with pathwise derivatives. */
 export function McPanel() {
   return (
     <Need>
@@ -213,7 +217,7 @@ export function McPanel() {
   );
 }
 
-/** III-1: the Monte Carlo on 1, 2, 4 and 8 threads. */
+/** The Monte Carlo on 1, 2, 4 and 8 threads. */
 export function ThreadsPanel() {
   return (
     <Need>
@@ -221,10 +225,10 @@ export function ThreadsPanel() {
         const t = d.threads.table;
         const sp = t.map((r) => ({ x: r.threads, y: r.speedup, date: `${r.threads} スレッド` }));
         return (
-          <>
+          <div className="two-col">
             <div className="table-wrap">
               <table className="data">
-                <caption>スレッド数とモンテカルロの時間（{d.threads.paths.toLocaleString("ja-JP")} 本、このサーバーの論理プロセッサ {d.machine.logical_processors}）　<Tag d={d} /></caption>
+                <caption>スレッド数とモンテカルロの時間（{d.threads.paths.toLocaleString("ja-JP")} 本、論理プロセッサ {d.machine.logical_processors}）　<Tag d={d} /></caption>
                 <thead><tr><th scope="col" className="num">スレッド数</th><th scope="col" className="num">時間（秒）</th><th scope="col" className="num">速さの比</th>
                   <th scope="col" className="num">現在価値（円）</th><th scope="col" className="num">1スレッドとの差</th></tr></thead>
                 <tbody>{t.map((r) => (
@@ -237,7 +241,7 @@ export function ThreadsPanel() {
               xLabel="スレッド数" yLabel="速さ（倍）"
               series={[{ key: "s", label: "実測", color: "var(--series-1)", points: sp, dots: sp }, { key: "i", label: "理想", color: "var(--text-muted)", dashed: true, points: t.map((r) => ({ x: r.threads, y: r.threads, date: `${r.threads} スレッド` })) }]}
               formatY={(y) => `${y.toFixed(2)} 倍`} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
-          </>
+          </div>
         );
       }}
     </Need>
@@ -337,29 +341,31 @@ export function DistributedPanel() {
             xTicks={[0, 0.25, 0.5, 0.75, 1].map((r) => ({ x: r * tMax, label: `${f((r * tMax) / 1000, 2)} 秒` }))} xLabel="経過時間" yLabel="レーン" tooltipRows={1} legend={false}
             series={bars.length ? bars : [{ key: "none", label: "—", color: "var(--text-muted)", points: [] }]}
             formatY={(y) => `レーン ${y.toFixed(0)}`} formatTick={(y) => (Number.isInteger(y) ? `L${y}` : "")} />
-          <div className="table-wrap">
-            <table className="data">
-              <caption>ジョブの状態（queued → running → completed）</caption>
-              <thead><tr><th scope="col" className="num">ジョブ</th><th scope="col" className="num">シナリオ</th><th scope="col">状態</th><th scope="col" className="num">レーン</th>
-                <th scope="col" className="num">開始〜終了（秒）</th><th scope="col" className="num">サーバーの計算（秒）</th><th scope="col">ワーカー</th><th scope="col">API応答</th></tr></thead>
-              <tbody>{jobs.map((j) => (
-                <tr key={j.id}><th scope="row" className="num">JOB-{String(j.id).padStart(3, "0")}</th><td className="num">{j.scenarios[0].id}〜{j.scenarios[j.scenarios.length - 1].id}</td>
-                  <td data-testid={`job-status-${j.id}`}>{j.status}{j.error ? `（${j.error}）` : ""}</td><td className="num">{j.lane == null ? "—" : `L${j.lane + 1}`}</td>
-                  <td className="num">{j.start == null ? "—" : `${f(j.start / 1000, 2)}〜${j.end == null ? "" : f(j.end / 1000, 2)}`}</td>
-                  <td className="num">{j.serverSeconds == null ? "—" : f(j.serverSeconds, 3)}</td><td>{j.worker ?? "—"}</td><td>{j.requestId ? <code>{j.requestId}</code> : "—"}</td></tr>
-              ))}</tbody>
-            </table>
-          </div>
-          <div className="table-wrap">
-            <table className="data">
-              <caption>集約した結果：シナリオごとの現在価値（百万円）。届いたものから埋まる</caption>
-              <thead><tr><th scope="col" className="num">スポット＼ボラ</th>{VOLS.map((v) => <th key={v} scope="col" className="num">{v}%</th>)}<th scope="col" className="num">平均</th></tr></thead>
-              <tbody>{SPOTS.map((s, i) => (
-                <tr key={s}><th scope="row" className="num">{s}</th>
-                  {VOLS.map((v, j) => { const r = results.get(i * VOLS.length + j + 1); return <td key={v} className="num">{r ? f(r.npv / 1e6, 2) : "…"}</td>; })}
-                  <td className="num" data-testid={`spot-mean-${s}`}>{bySpot[i].mean == null ? "…" : f(bySpot[i].mean / 1e6, 2)}</td></tr>
-              ))}</tbody>
-            </table>
+          <div className="two-col">
+            <div className="table-wrap">
+              <table className="data">
+                <caption>ジョブの状態（queued → running → completed）</caption>
+                <thead><tr><th scope="col" className="num">ジョブ</th><th scope="col" className="num">シナリオ</th><th scope="col">状態</th><th scope="col" className="num">レーン</th>
+                  <th scope="col" className="num">開始〜終了（秒）</th><th scope="col" className="num">サーバーの計算（秒）</th><th scope="col">ワーカー</th><th scope="col">API応答</th></tr></thead>
+                <tbody>{jobs.map((j) => (
+                  <tr key={j.id}><th scope="row" className="num">JOB-{String(j.id).padStart(3, "0")}</th><td className="num">{j.scenarios[0].id}〜{j.scenarios[j.scenarios.length - 1].id}</td>
+                    <td data-testid={`job-status-${j.id}`}>{j.status}{j.error ? `（${j.error}）` : ""}</td><td className="num">{j.lane == null ? "—" : `L${j.lane + 1}`}</td>
+                    <td className="num">{j.start == null ? "—" : `${f(j.start / 1000, 2)}〜${j.end == null ? "" : f(j.end / 1000, 2)}`}</td>
+                    <td className="num">{j.serverSeconds == null ? "—" : f(j.serverSeconds, 3)}</td><td>{j.worker ?? "—"}</td><td>{j.requestId ? <code>{j.requestId}</code> : "—"}</td></tr>
+                ))}</tbody>
+              </table>
+            </div>
+            <div className="table-wrap">
+              <table className="data">
+                <caption>集約した結果：シナリオごとの現在価値（百万円）。届いたものから埋まる</caption>
+                <thead><tr><th scope="col" className="num">スポット＼ボラ</th>{VOLS.map((v) => <th key={v} scope="col" className="num">{v}%</th>)}<th scope="col" className="num">平均</th></tr></thead>
+                <tbody>{SPOTS.map((s, i) => (
+                  <tr key={s}><th scope="row" className="num">{s}</th>
+                    {VOLS.map((v, j) => { const r = results.get(i * VOLS.length + j + 1); return <td key={v} className="num">{r ? f(r.npv / 1e6, 2) : "…"}</td>; })}
+                    <td className="num" data-testid={`spot-mean-${s}`}>{bySpot[i].mean == null ? "…" : f(bySpot[i].mean / 1e6, 2)}</td></tr>
+                ))}</tbody>
+              </table>
+            </div>
           </div>
         </>
       )}

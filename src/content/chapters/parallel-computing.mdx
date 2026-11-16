@@ -1,28 +1,40 @@
 import { ParallelProvider, ParallelStatus, ExampleTable, BatchControls, TimingPanel, BatchResultChart } from "../../components/parallel";
 import { PrdcRiskProvider, RiskControls, ThreadsPanel } from "../../components/prdcRisk";
-import { ChapterNo } from "../../book/ChapterNo";
 
 <ParallelProvider>
 <PrdcRiskProvider>
 
-# <ChapterNo n={9} />並列計算
+# 並列計算
 
-> この章の本文は、Coral Book『金融工学の応用基礎』第III部の [第III-1章「金融計算技術の発展」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd) の原稿を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。銘柄ごとの評価やシナリオ計算を分けて同時に動かす計算は、各節の「R サーバーで確かめる」で条件を変えて確かめられます。
+銘柄ごとの一括評価やモンテカルロ・シミュレーションを、スレッド数やバッチサイズを変えて並列実行し、処理速度とスケーリングを操作・確認できます。
 
 <ParallelStatus />
 
-```r
+<h2 id="measure">債券の一括評価の並列スケーリング</h2>
 
-source(file.path("R", "utility_LFL.R"))
-```
+残存約10年の固定利付債を指定した件数の利回りで一括評価し、スレッド数を 1・2・4・… と変えて実行時間とスピードアップを測定します。各債券の評価は互いに独立しているため、スレッド数を変えても評価結果は完全に一致します。
+
+<BatchControls />
+
+<TimingPanel />
+
+<BatchResultChart />
+
+<h2 id="threads">PRDC モンテカルロのスレッド並列評価</h2>
+
+同じモンテカルロ評価を 1・2・4・8 スレッドで計算します。乱数はパスごとに決定論的に決まるため、結果はスレッド数によらず一致します。
+
+<RiskControls which="threads" />
+
+<ThreadsPanel />
+
+## 金融における情報工学の歩み
 
 金融工学は、数学理論だけで発展してきたのではない。1960年代以降、金融理論の発展とコンピュータの発展は互いに影響しながら進んできた。理論上は表現できても計算できなかった問題が、計算機能力の向上によって実務へ取り込まれ、逆に金融商品の複雑化が新しい計算技術を必要としてきた。
 
-本章では、まずこの約60年の流れを大きく振り返る。次に、2020年代にCloud、HPC、GPU、Open Source Software、Tensor計算Libraryがそろったことで、金融計算がどこまで変わったのかを整理する。そのうえで、第III部前半の出発点として、一台のPCの複数Coreを利用する並列計算をRの`future` / `furrr`で実装する。
+本章では、まずこの約60年の流れを大きく振り返る。次に、2020年代にCloud、HPC、GPU、Open Source Software、Tensor計算Libraryがそろったことで、金融計算がどこまで変わったのかを整理する。そのうえで、一台のPCの複数Coreを利用する並列計算をRの`future` / `furrr`で実装する。
 
-第III部全体の中心にあるのは、金融計算を高速化する二つの方向である。一つは、CPU、GPU、Grid、Cloudなどの計算資源を拡張する**Hardware / Infrastructure Acceleration**であり、もう一つは、Automatic Differentiationによって計算方法そのものを変える**Algorithmic Acceleration**である。
-
-## III-1.1 金融における情報工学の歩み
+エンタープライズ金融計算の中心にあるのは、金融計算を高速化する二つの方向である。一つは、CPU、GPU、Grid、Cloudなどの計算資源を拡張する**Hardware / Infrastructure Acceleration**であり、もう一つは、Automatic Differentiationによって計算方法そのものを変える**Algorithmic Acceleration**である。
 
 1960年代から1970年代にかけて、Portfolio Theory、CAPM、Black-Scholes / Mertonモデルなど、現代金融工学の基礎となる理論が整備された。当時の計算資源は現在と比べて極めて限られており、実務へ取り込みやすいモデルは解析解を持つものが中心であった。
 
@@ -80,7 +92,7 @@ GPU / Cloud / Open Source / Tensor Computing
 Flexible HPC / Massive Monte Carlo / Automatic Differentiation
 ```
 
-## III-1.2 リーマンショックを経たテクノロジーの潮流
+## リーマンショックを経たテクノロジーの潮流
 
 2020年代の変化は、単にコンピュータが高速になったことではない。大きいのは、計算資源を「所有する」ことから、必要なときに必要な規模だけ「利用する」方向へ移ったことである。
 
@@ -104,7 +116,7 @@ CPU / GPU Tensor Computing
 Massive Monte Carlo
 ```
 
-## III-1.3 金融計算におけるハードウェアの限界
+## 金融計算におけるハードウェアの限界
 
 計算資源を増やすことで、一回のPricingは速くできる。しかしRisk SensitivityをBump & Revalueで求める場合、Risk FactorごとにPricingを繰り返す構造は残る。
 
@@ -168,11 +180,11 @@ $$
 
 へ進む。
 
-第III部では、この二つの方向をRで実装する。
+ここでは、この二つの方向をRで実装する。
 
-前半の第III-2章から第III-4章では、`future` / `furrr`を出発点として、PC内の並列処理、非同期実行、Job / Task Control、分散計算、そしてエンタープライズ金融計算システムの構造を扱う。計算を**どのように分割し、どこで実行するか**が中心となる。
+まず、`future` / `furrr`を出発点として、PC内の並列処理、非同期実行、Job / Task Control、分散計算、そしてエンタープライズ金融計算システムの構造を扱う。計算を**どのように分割し、どこで実行するか**が中心となる。
 
-後半の第III-5章から第III-7章では、Rの`torch`を用いてAutomatic DifferentiationによるRisk Sensitivityを実装する。対象はOptionからYield Curve、さらにPRDCの多因子Riskへ段階的に拡張する。
+続いて、Rの`torch`を用いてAutomatic DifferentiationによるRisk Sensitivityを実装する。対象はOptionからYield Curve、さらにPRDCの多因子Riskへ段階的に拡張する。
 
 $$
 \text{Option Greeks}
@@ -196,7 +208,7 @@ $$
 
 まず本章では、その第一歩として一台のPCの中で計算を分割し、複数Workerへ配布する並列計算を実装する。
 
-## III-1.4 並列コンピューティング
+## 並列コンピューティング
 
 Rでは`purrr`による逐次処理と、`future` / `furrr`による並列処理をよく似た形で記述できる。
 金融計算では、入力データをtibbleとして保持し、Pricing Functionを各行へ適用する構造にすると、
@@ -351,7 +363,7 @@ future::plan(future::sequential)
 
 <ExampleTable />
 
-## III-1.5 Rによる並列計算
+## Rによる並列計算
 
 小さすぎるTaskではWorker生成やデータ転送のOverheadが支配的になり、
 並列化が必ずしも高速になるとは限らない。
@@ -417,19 +429,7 @@ show_table_LFL(tbl_benchmark)
 重要なのは、同じPricing Functionを多数の独立Taskへ適用する場合、
 Taskを複数Workerへ配分することで実行時間を短縮できるという構造である。
 
-<h3 id="measure">R サーバーで確かめる：債券の一括評価</h3>
-
-小さすぎるタスクでは、ワーカーの起動やデータの受け渡しのオーバーヘッドが勝って、並列化しても速くなるとは限りません。ここでは、ある程度の計算量を持つ独立したタスクとして、残存約10年の固定利付債を、指定した件数の利回りで評価します。同じ評価をスレッド数を 1、2、4、… と変えて実行し、このサーバーでの時間を測ります。
-
-<BatchControls />
-
-<TimingPanel />
-
-スレッドを増やしても、評価結果はまったく同じです。各債券の評価は互いに独立なので、どのスレッドがどの行を受け持っても答えは変わりません。速さはスレッド数どおりには伸びず、ある数で頭打ちになります。物理的なコアの数、メモリへのアクセス、スレッドの起動や結果の集約にかかる時間が効くためです。
-
-<BatchResultChart />
-
-## III-1.6 並列化の効果と限界
+## 並列化の効果と限界
 
 Multi-coreによる並列化には明確な限界がある。
 一台のコンピュータで利用できるCPU Core、Memory、GPUなどの計算資源には上限があるためである。
@@ -457,16 +457,7 @@ $$
 
 また、計算資源を増やしてPricingを高速化しても、SensitivityをBump & Revalueで求める場合には、
 リスクファクターごとにPricingを繰り返す構造そのものは残る。
-この問題は、本部後半の自動微分で改めて扱う。
-
-
-<h3 id="threads">R サーバーで確かめる：PRDC のモンテカルロをスレッドで分ける</h3>
-
-同じモンテカルロを、1、2、4、8 スレッドで計算します。乱数はパスごとに決まるので、結果はスレッド数によらず同じです。
-
-<RiskControls which="threads" />
-
-<ThreadsPanel />
+この問題は、自動微分で改めて扱う。
 
 </PrdcRiskProvider>
 </ParallelProvider>

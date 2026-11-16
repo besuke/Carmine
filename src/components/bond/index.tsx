@@ -98,7 +98,7 @@ export function BondControls({ which }: { which: Section }) {
             onChange={(e) => { const v = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(v)) set(which, { [fd.key]: v } as never); }} />
         </label>
       ))}
-      <button type="button" onClick={() => reset(which)}>原稿の値に戻す</button>
+      <button type="button" onClick={() => reset(which)}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : data ? <Tag d={data} /> : null}</span>
     </div>
   );
@@ -106,7 +106,7 @@ export function BondControls({ which }: { which: Section }) {
 
 const CURVE_COLORS = { par: "var(--series-1)", spot: "var(--series-2)", fwd: "var(--series-3)" };
 
-/** II-1.2.4: par, spot and forward rates of the TONAR curve at the pillars. */
+/** Par, spot and forward rates of the TONAR curve at the pillars. */
 export function TonarCurves() {
   return (
     <Need>
@@ -115,13 +115,13 @@ export function TonarCurves() {
         const pt = (k: "par_rate" | "zero_rate" | "inst_fwd_rate") => d.tonar.map((r) => ({ x: yearsFrom(origin, r.pillar_date), y: r[k] * 100, date: `${r.pillar_date}（${r.tenor}）` }));
         const s = (key: string, label: string, color: string, k: "par_rate" | "zero_rate" | "inst_fwd_rate", dashed = false) => ({ key, label, color, dashed, points: pt(k), dots: pt(k) });
         return (
-          <>
-            <LineChart title="TONARイールドカーブ：パーレート・スポットレート・フォワードレートの比較" origin={origin} xMax={30.1} yLabel="金利（%）"
+          <div className="two-col">
+            <LineChart title="TONARイールドカーブ：パーレート・スポットレート・フォワードレートの比較" origin={origin} xMax={30.1} height={290} yLabel="金利（%）"
               series={[s("par", "パーレート", CURVE_COLORS.par, "par_rate"), s("spot", "スポットレート", CURVE_COLORS.spot, "zero_rate", true), s("fwd", "フォワードレート", CURVE_COLORS.fwd, "inst_fwd_rate")]}
               formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => `${y.toFixed(1)}%`} footer={<Tag d={d} />} />
             <div className="table-wrap">
               <table className="data">
-                <caption>TONAR の各ピラー（{origin} 時点の GaussQuant のサンプル気配）　<Tag d={d} /></caption>
+                <caption>TONAR の各ピラー（{origin} 時点）　<Tag d={d} /></caption>
                 <thead><tr><th scope="col">年限</th><th scope="col">ピラー日</th><th scope="col" className="num">パーレート</th><th scope="col" className="num">割引係数</th>
                   <th scope="col" className="num">スポット（連続複利）</th><th scope="col" className="num">瞬間フォワード</th><th scope="col" className="num">気配の再現誤差</th></tr></thead>
                 <tbody>{d.tonar.map((r) => (
@@ -130,7 +130,7 @@ export function TonarCurves() {
                 ))}</tbody>
               </table>
             </div>
-          </>
+          </div>
         );
       }}
     </Need>
@@ -273,8 +273,8 @@ export function RiskTable() {
             </div>
             <div className="table-wrap">
               <table className="data">
-                <caption>解析式（原稿の R 関数）と RiemannFinMath（compute_risk_from_compound_yield）、Y = {f(d.bond.compound_yield_pct, 7)}%　<Tag d={d} /></caption>
-                <thead><tr><th scope="col">item</th><th scope="col" className="num">analytical_formula</th><th scope="col" className="num">RiemannFinMath</th><th scope="col" className="num">差</th></tr></thead>
+                <caption>債券価格と金利リスク指標（解析式と計算エンジン、Y = {f(d.bond.compound_yield_pct, 7)}%）　<Tag d={d} /></caption>
+                <thead><tr><th scope="col">指標</th><th scope="col" className="num">解析式</th><th scope="col" className="num">計算エンジン</th><th scope="col" className="num">差</th></tr></thead>
                 <tbody>{rows.map(([k, a, b, n]) => <tr key={k}><th scope="row">{k}</th><td className="num">{f(a, n)}</td><td className="num">{f(b, n)}</td><td className="num">{sci(a - b)}</td></tr>)}</tbody>
               </table>
             </div>
@@ -333,24 +333,25 @@ export function SolverPanel() {
               </table>
             </div>
             <p className="note">
-              RiemannFinMath の <code>compute_compound_yield_from_price</code> は日本の規則どおり小数7桁で切り捨てるので、価格の差が残ります。
-              <code>compute_yield_from_price</code> は QuantLib と同じ方式（30/360、精度 1e-8。原稿の GaussQuant と同じ）です。
+              日本の国債実務の規則どおり小数7桁で切り捨てる場合と、高精度求根アルゴリズムによる違いを確認できます。
               多項式 {b.polyroot.degree} 次の根 {b.polyroot.roots} 個のうち、正の実根は {b.polyroot.real_positive} 個でした。
             </p>
-            <div className="table-wrap">
-              <table className="data">
-                <caption>ニュートン・ラフソン法の反復（初期値は単利利回り {f(b.simple_yield_pct, 3)}%、解析微分 dP/dY を傾きに使う）</caption>
-                <thead><tr><th scope="col" className="num">k</th><th scope="col" className="num">Y_k（%）</th><th scope="col" className="num">f(Y_k) = P − P_market</th><th scope="col" className="num">dP/dY</th></tr></thead>
-                <tbody>{b.newton_steps.map((s) => (
-                  <tr key={s.iteration}><th scope="row" className="num">{s.iteration}</th><td className="num">{f(s.yield_pct, 12)}</td><td className="num">{sci(s.objective)}</td><td className="num">{f(s.derivative, 8)}</td></tr>
-                ))}</tbody>
-              </table>
+            <div className="two-col">
+              <div className="table-wrap">
+                <table className="data">
+                  <caption>ニュートン・ラフソン法の反復（初期値は単利利回り {f(b.simple_yield_pct, 3)}%、解析微分 dP/dY を傾きに使う）</caption>
+                  <thead><tr><th scope="col" className="num">k</th><th scope="col" className="num">Y_k（%）</th><th scope="col" className="num">f(Y_k) = P − P_market</th><th scope="col" className="num">dP/dY</th></tr></thead>
+                  <tbody>{b.newton_steps.map((s) => (
+                    <tr key={s.iteration}><th scope="row" className="num">{s.iteration}</th><td className="num">{f(s.yield_pct, 12)}</td><td className="num">{sci(s.objective)}</td><td className="num">{f(s.derivative, 8)}</td></tr>
+                  ))}</tbody>
+                </table>
+              </div>
+              <LineChart title={`二分法の区間の縮み方（${b.bisection_iterations} 回で |区間| < 1e-12。縦軸は区間の幅、対数）`} origin="2022-04-01"
+                xMin={1} xMax={Math.max(2, b.bisection_steps.length)} xLabel="反復" yLabel="log₁₀ 区間の幅"
+                xTicks={[1, 10, 20, 30, 40, 50].filter((x) => x <= b.bisection_steps.length).map((x) => ({ x, label: String(x) }))}
+                series={[{ key: "w", label: "区間の幅", color: "var(--series-1)", points: b.bisection_steps.map((s) => ({ x: s.iteration, y: Math.log10(s.upper - s.lower), date: `${s.iteration} 回目：[${f(s.lower, 6)}, ${f(s.upper, 6)}]` })) }]}
+                formatY={(y) => `10^${y.toFixed(2)}`} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
             </div>
-            <LineChart title={`二分法の区間の縮み方（${b.bisection_iterations} 回で |区間| < 1e-12。縦軸は区間の幅、対数）`} origin="2022-04-01"
-              xMin={1} xMax={Math.max(2, b.bisection_steps.length)} xLabel="反復" yLabel="log₁₀ 区間の幅"
-              xTicks={[1, 10, 20, 30, 40, 50].filter((x) => x <= b.bisection_steps.length).map((x) => ({ x, label: String(x) }))}
-              series={[{ key: "w", label: "区間の幅", color: "var(--series-1)", points: b.bisection_steps.map((s) => ({ x: s.iteration, y: Math.log10(s.upper - s.lower), date: `${s.iteration} 回目：[${f(s.lower, 6)}, ${f(s.upper, 6)}]` })) }]}
-              formatY={(y) => `10^${y.toFixed(2)}`} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
           </>
         );
       }}

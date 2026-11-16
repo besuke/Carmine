@@ -122,7 +122,7 @@ export function LineChart({ title, series, origin, xMax, formatY, formatTick, yL
   const sy = (y: number) => MARGIN.top + (1 - (y - yMin) / (yMax - yMin)) * innerH;
 
   const yTicks = niceTicks(yMin, yMax);
-  const yearStep = xMax > 12 ? 5 : width < 520 ? 2 : 1;
+  const yearStep = xMax > 12 ? 5 : width < 600 ? 2 : 1;
   const xTicks = customTicks ?? yearTicks(origin, xMax, yearStep);
   const base = visible[0]?.points ?? [];
 

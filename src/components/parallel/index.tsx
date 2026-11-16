@@ -126,15 +126,17 @@ export function TimingPanel() {
                 ))}</tbody>
               </table>
             </div>
-            <LineChart title="スレッド数と速さの比（点線は、スレッド数どおりに速くなる理想）" origin="2026-01-01" xMin={1} xMax={xs[xs.length - 1]}
-              xTicks={xs.map((x) => ({ x, label: String(x) }))} xLabel="スレッド数" yLabel="1スレッドに対する速さ（倍）"
-              series={[{ key: "s", label: "実測", color: "var(--series-1)", points: sp, dots: sp }, { key: "i", label: "理想", color: "var(--text-muted)", dashed: true, points: ideal }]}
-              formatY={(y) => `${y.toFixed(2)} 倍`} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
-            <FlowChart title="スレッド数ごとの評価時間" origin="2026-01-01" xMin={0.5} xMax={xs.length + 0.5} barWidth={0.6} yLabel="秒" legend={false}
-              xTicks={xs.map((x, i) => ({ x: i + 1, label: `${x} スレッド` }))}
-              series={[{ key: "t", label: "時間", color: "var(--series-1)" }]}
-              bars={t.map((r, i) => ({ x: i + 1, value: r.seconds, series: "t", date: `${r.threads} スレッド`, label: "時間（秒）" }))}
-              formatY={(y) => y.toFixed(2)} footer={<Tag d={d} />} />
+            <div className="chart-pair">
+              <LineChart title="スレッド数と速さの比（点線は、スレッド数どおりに速くなる理想）" origin="2026-01-01" xMin={1} xMax={xs[xs.length - 1]}
+                xTicks={xs.map((x) => ({ x, label: String(x) }))} xLabel="スレッド数" yLabel="1スレッドに対する速さ（倍）"
+                series={[{ key: "s", label: "実測", color: "var(--series-1)", points: sp, dots: sp }, { key: "i", label: "理想", color: "var(--text-muted)", dashed: true, points: ideal }]}
+                formatY={(y) => `${y.toFixed(2)} 倍`} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
+              <FlowChart title="スレッド数ごとの評価時間" origin="2026-01-01" xMin={0.5} xMax={xs.length + 0.5} barWidth={0.6} yLabel="秒" legend={false}
+                xTicks={xs.map((x, i) => ({ x: i + 1, label: `${x} スレッド` }))}
+                series={[{ key: "t", label: "時間", color: "var(--series-1)" }]}
+                bars={t.map((r, i) => ({ x: i + 1, value: r.seconds, series: "t", date: `${r.threads} スレッド`, label: "時間（秒）" }))}
+                formatY={(y) => y.toFixed(2)} footer={<Tag d={d} />} />
+            </div>
           </>
         );
       }}
@@ -149,7 +151,7 @@ export function BatchResultChart() {
       {(d) => {
         const pts = d.batch.price_by_yield.map((r) => ({ x: 100 * r.yield, y: r.clean_price, date: `複利利回り ${f(100 * r.yield, 3)}%` }));
         return (
-          <>
+          <div className="two-col">
             <LineChart title={`一括で評価した ${d.batch.count.toLocaleString("ja-JP")} 件の単価（60 件を抜き出して表示）`} origin="2026-01-01" xMin={0} xMax={3}
               xTicks={[0, 0.5, 1, 1.5, 2, 2.5, 3].map((x) => ({ x, label: `${x}%` }))} xLabel="複利利回り" yLabel="単価"
               series={[{ key: "p", label: "単価", color: "var(--series-1)", points: pts }]} formatY={(y) => y.toFixed(4)} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
@@ -163,7 +165,7 @@ export function BatchResultChart() {
                 ))}</tbody>
               </table>
             </div>
-          </>
+          </div>
         );
       }}
     </Need>

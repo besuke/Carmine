@@ -111,7 +111,7 @@ export function RateModelsControls({ which }: { which: Section }) {
             onChange={(e) => { const v = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(v)) set(which, { [fd.key]: v } as never); }} />
         </label>
       ))}
-      <button type="button" onClick={() => reset(which)}>原稿の値に戻す</button>
+      <button type="button" onClick={() => reset(which)}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : error ? <span className="error-text">{error}</span> : data ? <Tag d={data} /> : null}</span>
     </div>
   );
@@ -180,7 +180,7 @@ export function HjmLoadingChart() {
   );
 }
 
-/** II-7.4.2: the caplet by Black's formula and by simulation, and the distribution of its forward rate. */
+/** Caplet by Black's formula and by simulation, and the distribution of its forward rate. */
 export function CapletPanel() {
   return (
     <Need>
@@ -192,32 +192,34 @@ export function CapletPanel() {
         const st = hi - lo > 12 ? 2 : hi - lo > 6 ? 1 : 0.5;
         const xt = []; for (let v = Math.ceil(lo / st) * st; v <= hi; v += st) xt.push({ x: v, label: `${Number(v.toFixed(1))}%` });
         return (
-          <>
-            <div className="table-wrap">
-              <table className="data">
-                <caption>Caplet 価格：公式と周辺分布（想定元本 1 に対する bp。{c.paths.toLocaleString("ja-JP")} 本、R の seed {c.seed}）　<Tag d={d} /></caption>
-                <thead><tr><th scope="col">black_price</th><th scope="col">simulated_price</th><th scope="col">mc_standard_error</th><th scope="col">difference</th><th scope="col">差 ÷ 標準誤差</th></tr></thead>
-                <tbody><tr>
-                  <td className="num" data-testid="caplet-black">{f(1e4 * c.black_price, 6)}</td><td className="num" data-testid="caplet-mc">{f(1e4 * c.simulated_price, 6)}</td>
-                  <td className="num">{f(1e4 * c.mc_standard_error, 6)}</td><td className="num">{f(1e4 * (c.simulated_price - c.black_price), 6)}</td>
-                  <td className="num">{f((c.simulated_price - c.black_price) / c.mc_standard_error, 2)}</td></tr></tbody>
-              </table>
+          <div className="two-col">
+            <div>
+              <div className="table-wrap">
+                <table className="data">
+                  <caption>Caplet 価格：公式と周辺分布（想定元本 1 に対する bp。{c.paths.toLocaleString("ja-JP")} 本、seed {c.seed}）　<Tag d={d} /></caption>
+                  <thead><tr><th scope="col">black_price</th><th scope="col">simulated_price</th><th scope="col">mc_standard_error</th><th scope="col">difference</th><th scope="col">差 ÷ 標準誤差</th></tr></thead>
+                  <tbody><tr>
+                    <td className="num" data-testid="caplet-black">{f(1e4 * c.black_price, 6)}</td><td className="num" data-testid="caplet-mc">{f(1e4 * c.simulated_price, 6)}</td>
+                    <td className="num">{f(1e4 * c.mc_standard_error, 6)}</td><td className="num">{f(1e4 * (c.simulated_price - c.black_price), 6)}</td>
+                    <td className="num">{f((c.simulated_price - c.black_price) / c.mc_standard_error, 2)}</td></tr></tbody>
+                </table>
+              </div>
+              <p className="note">同じ条件の<strong>後決め</strong>キャップレット（金利期間 {c.expiry}〜{c.expiry + c.accrual} 年の翌日物の複利。期間中もボラが減衰しながら効く）は {f(1e4 * c.backward_price, 6)} bp で、
+                前決めの {f(1e4 * c.black_price, 6)} bp より {c.backward_price > c.black_price ? "高く" : "低く"}なります。</p>
             </div>
             <FlowChart title={`満期のフォワード金利 L(T) の分布（行使金利 ${pct(c.strike, 2)} を超える割合 ${pct(c.in_the_money, 1)}、平均 ${pct(c.terminal_mean, 4)} ≈ L(0)）`}
               origin="2026-01-01" xMin={lo} xMax={hi} xTicks={xt} barWidth={w} yLabel="本数" legend
               series={[{ key: "otm", label: "行使金利以下", color: "var(--series-1)" }, { key: "itm", label: "行使金利超（Payoff あり）", color: "var(--series-2)" }]}
               bars={h.map((b) => ({ x: b.x, value: b.count, series: b.x > 100 * c.strike ? "itm" : "otm", date: `${f(b.xmin, 3)}%〜${f(b.xmax, 3)}%`, label: "本数" }))}
               formatY={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
-            <p className="note">追加：同じ条件の<strong>後決め</strong>キャップレット（金利期間 {c.expiry}〜{c.expiry + c.accrual} 年の翌日物の複利。期間中もボラが減衰しながら効く）は {f(1e4 * c.backward_price, 6)} bp で、
-              前決めの {f(1e4 * c.black_price, 6)} bp より {c.backward_price > c.black_price ? "高く" : "低く"}なります（RiemannFinMath compute_backward_caplet_value）。</p>
-          </>
+          </div>
         );
       }}
     </Need>
   );
 }
 
-/** II-7.4.3: target and sample correlations, and the shocks. */
+/** Target and sample correlations, and the shocks. */
 export function ShockPanel() {
   return (
     <Need>
@@ -227,22 +229,22 @@ export function ShockPanel() {
         const cell = (a: string, b: string) => s.table.find((r) => r.forward_1 === a && r.forward_2 === b)!;
         const dots = (k: "b" | "c") => s.scatter.map((p, i) => ({ x: p.a, y: p[k], date: `${i}` }));
         return (
-          <>
+          <div className="two-col">
             <div className="table-wrap">
               <table className="data">
-                <caption>相関ショックの目標値と標本値（{s.paths.toLocaleString("ja-JP")} 組、R の seed {s.seed}。各セルは 目標 → 標本）　<Tag d={d} /></caption>
+                <caption>相関ショックの目標値と標本値（{s.paths.toLocaleString("ja-JP")} 組、seed {s.seed}。各セルは 目標 → 標本）　<Tag d={d} /></caption>
                 <thead><tr><th scope="col"></th>{names.map((n) => <th key={n} scope="col" className="num">{n}</th>)}</tr></thead>
                 <tbody>{names.map((a) => (
                   <tr key={a}><th scope="row">{a}</th>{names.map((b) => <td key={b} className="num" data-testid={`corr-${a}${b}`}>{f(cell(a, b).target, 2)} → {f(cell(a, b).simulated, 6)}</td>)}</tr>
                 ))}</tbody>
               </table>
             </div>
-            <LineChart title="相関ショックの散布図（先頭 400 組）：A に対する B と C" origin="2026-01-01" xMin={-4} xMax={4} height={300}
+            <LineChart title="相関ショックの散布図（先頭 400 組）：A に対する B と C" origin="2026-01-01" xMin={-4} xMax={4} height={280}
               xTicks={[-4, -2, 0, 2, 4].map((x) => ({ x, label: String(x) }))} xLabel="ショック A" yLabel="ショック B・C"
               series={[{ key: "b", label: `B（目標 ρ = ${f(cell("A", "B").target, 2)}）`, color: "var(--series-1)", points: [], dots: dots("b") },
                 { key: "c", label: `C（目標 ρ = ${f(cell("A", "C").target, 2)}）`, color: "var(--series-2)", points: [], dots: dots("c") }]}
               formatY={(y) => y.toFixed(2)} formatTick={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
-          </>
+          </div>
         );
       }}
     </Need>

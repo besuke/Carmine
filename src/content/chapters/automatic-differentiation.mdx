@@ -1,47 +1,45 @@
 import { PrdcRiskProvider, PrdcRiskStatus, RiskControls, NotePanel, AdPanel, McPanel } from "../../components/prdcRisk";
-import { ChapterNo } from "../../book/ChapterNo";
 
 <PrdcRiskProvider>
 
-# <ChapterNo n={11} />自動微分
+# エキゾチック自動微分
 
-> この章の本文は、Coral Book『金融工学の応用基礎』第III部の [第III-1章「金融計算技術の発展」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd)、[第III-4章「自動微分計算」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch04_automatic_differentiation.qmd)、[第III-5章「自動微分応用：オプション」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch05_option_greeks_autodiff.qmd)、[第III-6章「自動微分応用：金利リスク」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch06_interest_rate_risk_autodiff.qmd)、[第III-7章「自動微分応用：多因子モデル」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch07_prdc_autodiff.qmd) の原稿を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。冒頭の導入は第III-1章の III-1.7 です。オプションの価格と Greeks は「 4. ブラックモデル」、スワップの時価と気配の感応度は「 3. OISスワップ」、PRDC の評価そのもの（Coral Book II-9）はこの章の下の「PRDC」のページで操作できます。
+自動微分（Automatic Differentiation: AAD）による高次元リスク感応度の高速算出と、金利為替系エキゾチック商品（PRDC）の評価・リスク計算への応用を扱います。有限差分（Bump & Revalue）と自動微分の計算速度・精度の違いや、パスごとの自動微分モンテカルロを操作・確認できます。PRDCの契約構造やモンテカルロ評価そのものは「[PRDC（金利為替系デリバティブ）](#/prdc)」で操作できます。
 
 <PrdcRiskStatus />
 
+<h2 id="ad-vs-bump">PRDCの多因子感応度：自動微分（AAD）と有限差分（Bump & Revalue）の比較</h2>
 
-本章では、金融工学の計算が解析解から数値計算、Monte Carloへ発展するにつれて計算量が増大し、
-その対応としてMulti-core CPUや並列処理が重要になったことを確認した。
+価格 $V(S_{FX}, \mathbf r_{JPY}, \mathbf r_{Foreign}, \sigma_{FX})$ の12個のリスクファクター（FXスポット、FXボラティリティ、円カーブ5節点、外貨カーブ5節点）に対する感応度を、逆伝播の自動微分（評価1回）と中心差分（評価24回）で計算し、計算時間と精度を比較します。
 
-Rでは`future` / `furrr`を利用することで、逐次計算の構造を大きく変えずに
-一台のPC上で複数WorkerへTaskを配分できる。
+<RiskControls which="market" />
 
-しかし、エンタープライズ金融計算では一台のPCだけでは計算資源が不足する。
-次章では、Taskを複数の計算機へ配布する**分散コンピューティングとJob / Task Control**へ進む。
+<AdPanel />
 
-<h2 id="automatic-differentiation-basics">自動微分計算</h2>
+<h2 id="prdc-mc">対象PRDCの契約条件とパスごとの自動微分モンテカルロ</h2>
 
-出典：Coral Book 第III-4章「自動微分計算」
+<NotePanel />
 
-```r
+<RiskControls which="mc" />
 
-source(file.path("R", "utility_LFL.R"))
-```
+<McPanel />
 
-第III-1章から第III-3章では、金融計算をTaskへ分割し、Parallel / Distributed Computingによって大量のPricingを処理する仕組みを構築した。これは計算資源を増やすことで処理時間を短縮する方法である。
+<h2 id="automatic-differentiation-basics">自動微分計算の基礎</h2>
+
+これまでの節では、金融計算をTaskへ分割し、Parallel / Distributed Computingによって大量のPricingを処理する仕組みを構築した。これは計算資源を増やすことで処理時間を短縮する方法である。
 
 しかしGreeksやCurve Riskを有限差分で求める場合、Risk Factorごとに価格を再計算する必要がある。WorkerやGPUを増やせば一回ごとの再評価は速くなるが、Bump & Revalueが必要とするPricing回数そのものは減らない。
 
-そこで本章から、計算資源の拡張ではなく**計算方法そのものを変える**方向へ進む。
+そこでここからは、計算資源の拡張ではなく**計算方法そのものを変える**方向へ進む。
 
 Automatic Differentiation（自動微分）は、この問題に対して、
 価格計算そのものを微分可能な計算グラフとして扱う。
 
-本章では、金融リスク感応度を偏微分として整理したうえで、
+ここでは、金融リスク感応度を偏微分として整理したうえで、
 有限差分、連鎖律、Computational Graph、Forward Mode、Reverse Modeを順に確認する。
 最後にRの`torch`を用いて、自動微分の最小例を実装する。
 
-### III-4.1 金融計算と微分
+### 金融計算と微分
 
 金融商品の価格を、複数の市場変数に依存する関数として
 
@@ -104,7 +102,7 @@ $$
 このように、金融リスク計測の多くは、
 価格関数の一次または二次の微分を求める問題として整理できる。
 
-### III-4.2 有限差分法
+### 有限差分法
 
 最も直接的な感応度計算の一つが有限差分である。
 
@@ -165,7 +163,7 @@ $$
 
 という性質を持つ。
 
-### III-4.3 自動微分の原理と実装
+### 自動微分の原理と実装
 
 自動微分は有限差分による数値微分とは異なる。
 
@@ -492,7 +490,7 @@ dV/dx1 dV/dx2 ... dV/dxn
 重要なのは、AADがより高速なCPUを用いるという話ではなく、
 リスク計算のアルゴリズムそのものを変更するという点である。
 
-### III-4.4 深層学習ライブラリによる市場リスク感応度
+### 深層学習ライブラリによる市場リスク感応度
 
 ここから、Rの`torch`を使って実際に自動微分を確認する。
 
@@ -692,7 +690,7 @@ $$
 
 という構造である。
 
-第III部では、この考え方を段階的に金融商品へ適用する。
+ここでは、この考え方を段階的に金融商品へ適用する。
 
 まずOptionについて、
 
@@ -792,17 +790,10 @@ $$
 
 <h2 id="option-greeks">自動微分応用：オプション</h2>
 
-出典：Coral Book 第III-5章「自動微分応用：オプション」
+前節では、Bump & RevalueからAutomatic Differentiationへ発想を切り替え、偏微分、連鎖律、Computational Graph、Forward Mode、Reverse Modeを整理した。ここからは、その仕組みを実際の金融商品へ適用する。
 
-```r
-
-source(file.path("R", "utility_LFL.R"))
-```
-
-前章では、Bump & RevalueからAutomatic Differentiationへ発想を切り替え、偏微分、連鎖律、Computational Graph、Forward Mode、Reverse Modeを整理した。本章からは、その仕組みを実際の金融商品へ適用する。
-
-本章では、解析的なBlack-Scholes式を`torch`で書き直すのではなく、
-既存の金融工学ライブラリであるGaussQuantを基準値として利用し、
+ここでは、解析的なBlack-Scholes式を`torch`で書き直すのではなく、
+解析解を基準値として利用し、
 同じEuropean OptionをMonte Carlo SimulationとRの`torch`によって評価する。
 
 比較する量は、
@@ -819,22 +810,7 @@ $$
 
 である。
 
-本章の中心は、
-
-$$
-\boxed{
-\text{GaussQuant}
-\quad\longleftrightarrow\quad
-\text{Monte Carlo + torch + Automatic Differentiation}
-}
-$$
-
-という比較である。
-
-GaussQuantはQuantLibを利用した既存のPricing Engineとして使い、
-`torch`ではMonte Carlo PricingそのものをDifferentiable Computational Graphとして構築する。
-
-### III-5.1 オプション評価とリスク感応度
+### オプション評価とリスク感応度
 
 同じEuropean Call OptionをGaussQuantとMonte Carloで評価する。
 
@@ -873,7 +849,7 @@ tbl_option_input
 
 ここでは比較を明確にするため、フラットな金利、配当利回り、Volatilityを用いる。
 
-### III-5.2 ブラック・ショールズ式による解析解
+### ブラック・ショールズ式による解析解
 
 GaussQuantでは、European OptionをQuantLibオブジェクトとして構築できる。
 
@@ -913,7 +889,7 @@ tbl_gaussquant_greeks
 
 ここで得られる値を、本章におけるBenchmarkとする。
 
-### III-5.3 モンテカルロ法における自動微分のリスク感応度
+### モンテカルロ法における自動微分のリスク感応度
 
 Risk-Neutral Measureの下で、配当利回り$q$を持つ株価過程を、
 
@@ -1163,7 +1139,7 @@ Monte Carlo Gammaを単純な二階ADだけで安定して推定することは�
 そこで本章ではGammaについて、Payoffを滑らかに近似した
 Smooth Payoffを用いて二階自動微分を確認する。
 
-### III-5.4 微分不可なオプションペイオフのケーススタディ
+### 微分不可なオプションペイオフのケーススタディ
 
 正の部分、
 
@@ -1550,7 +1526,7 @@ FX Delta + JPY DV01 + Foreign DV01 + Vega
 ```
 
 本章のMonte Carlo + torch実装は、
-第III-7章で扱うPRDC Riskへの直接の準備となる。
+多因子モデルで扱うPRDC Riskへの直接の準備となる。
 
 
 本章では、European Optionについて、
@@ -1617,16 +1593,9 @@ $$
 
 <h2 id="interest-rate-risk">自動微分応用：金利リスク</h2>
 
-出典：Coral Book 第III-6章「自動微分応用：金利リスク」
+前節では、European Optionを解析解とMonte Carlo + `torch`で評価し、Delta、Gamma、Vega、ThetaをAutomatic Differentiationから取得した。OptionではRisk Factorの数が比較的少なかったが、金利商品ではYield Curve上の多数のNodeが同時に価格へ影響する。
 
-```r
-
-source(file.path("R", "utility_LFL.R"))
-```
-
-前章では、European OptionをGaussQuantとMonte Carlo + `torch`で評価し、Delta、Gamma、Vega、ThetaをAutomatic Differentiationから取得した。OptionではRisk Factorの数が比較的少なかったが、金利商品ではYield Curve上の多数のNodeが同時に価格へ影響する。
-
-本章では、自動微分を金利商品へ拡張する。
+ここでは、自動微分を金利商品へ拡張する。
 
 Optionでは、
 
@@ -1666,7 +1635,7 @@ $$
 
 というCurve全体のGradientへ進む必要がある。
 
-本章では、まず単一のフラット金利を用いたSwapのDV01を計算し、
+ここでは、まず単一のフラット金利を用いたSwapのDV01を計算し、
 その後、複数ノードを持つYield Curveへ拡張する。
 
 最終的に、
@@ -1685,7 +1654,7 @@ $$
 
 という流れを、自動微分によって統一的に捉える。
 
-### III-6.1 金利スワップ評価とリスク感応度
+### 金利スワップ評価とリスク感応度
 
 将来キャッシュフロー$CF_i$の現在価値は、
 
@@ -1872,7 +1841,7 @@ $$
 
 となる。
 
-### III-6.2 金利リスクにおける自動微分
+### 金利リスクにおける自動微分
 
 DV01は、金利が1bp変化したときの価格変化を表す。
 
@@ -2164,7 +2133,7 @@ tbl_dv01_comparison
 有限差分では価格を複数回評価する必要があるのに対し、
 自動微分では構築された計算グラフを利用して感応度を得る。
 
-### III-6.3 イールドカーブと自動微分
+### イールドカーブと自動微分
 
 実際の金利市場では、単一の金利$r$ではなく、
 満期ごとに異なる金利を持つ。
@@ -2317,7 +2286,7 @@ tbl_bucketed_dv01 <- tibble(
 tbl_bucketed_dv01
 ```
 
-### III-6.4 バケットDV01とGPS
+### バケットDV01とGPS
 
 本章では、Yield Curve上の各Grid Pointに対する価格感応度を
 GPS（Grid Point Sensitivity）として扱う。
@@ -2742,24 +2711,17 @@ $$
 
 を同じComputational Graphから計算する。
 
-これにより、第III部の最終段階として、
+これにより、
 為替と複数金利カーブを持つ多因子商品の
 Differentiable Risk Engineを構築する。
 
 <h2 id="prdc">自動微分応用：多因子モデル</h2>
 
-出典：Coral Book 第III-7章「自動微分応用：多因子モデル」
+ここでは、二つの方向からクオンツ計算の高度化を進めてきた。一つはParallel / Distributed Computingによって大量のPricingを処理する計算基盤であり、もう一つはPricingそのものをDifferentiable Computational Graphとして設計することで、Automatic DifferentiationからRisk Sensitivityを直接取得する手法である。
 
-```r
+この二つの考え方が同時に必要となる代表例としてPRDCを扱う。PRDCはFX、複数通貨のYield Curve、Volatilityなど多数のRisk Factorを持ち、価格評価にはMonte Carlo Simulationが必要となる。したがって、**大規模計算をどう実行するか**と、**多数の感応度をどう効率的に生成するか**という二つの課題が一つの商品に集約される。
 
-source(file.path("R", "utility_LFL.R"))
-```
-
-第III部では、二つの方向からクオンツ計算の高度化を進めてきた。前半ではParallel / Distributed Computingによって大量のPricingを処理する計算基盤を構築し、後半ではPricingそのものをDifferentiable Computational Graphとして設計することで、Automatic DifferentiationからRisk Sensitivityを直接取得した。
-
-最終章では、この二つの考え方が同時に必要となる代表例としてPRDCを扱う。PRDCはFX、複数通貨のYield Curve、Volatilityなど多数のRisk Factorを持ち、価格評価にはMonte Carlo Simulationが必要となる。したがって、**大規模計算をどう実行するか**と、**多数の感応度をどう効率的に生成するか**という第III部の二つの課題が一つの商品に集約される。
-
-第III-5章ではOption Greeks、第III-6章ではDV01からCurve Gradientへと、価格関数の入力次元を段階的に増やしてきた。本章ではさらに、
+Option Greeks、DV01からCurve Gradientへと、価格関数の入力次元を段階的に増やしてきた。ここではさらに、
 
 $$
 V
@@ -2789,9 +2751,9 @@ $$
 
 を一度のReverse-mode Automatic Differentiationから取得する。
 
-本章の目的は、単にPRDCのGreeksを計算することではない。**Monte Carlo PricingとRisk Calculationを別々の処理として繰り返すのではなく、PricingそのものからRiskを生成する**というDifferentiable Risk Engineの設計を示すことである。
+目的は、単にPRDCのGreeksを計算することではない。**Monte Carlo PricingとRisk Calculationを別々の処理として繰り返すのではなく、PricingそのものからRiskを生成する**というDifferentiable Risk Engineの設計を示すことである。
 
-### III-7.1 金利為替系デリバティブと多因子市場モデル
+### 金利為替系デリバティブと多因子市場モデル
 
 PRDCは、為替と複数通貨の金利を同時に扱うハイブリッド商品である。
 
@@ -2855,7 +2817,7 @@ PRDCには多様なCoupon構造、Callable条件、Notional Exchange、
 Target Redemption、Barrierなどが存在する。
 
 本章では自動微分の構造を明確にするため、
-第II部・第III部で扱ったPRDCの考え方を簡略化し、
+PRDCの考え方を簡略化し、
 為替連動Couponを、
 
 $$
@@ -2991,15 +2953,7 @@ $$
 したがってPRDC価格を微分すると、
 CouponだけではなくFX Path生成まで連鎖律が伝播する。
 
-#### R サーバーで確かめる：PRDC と市場の入力
-
-5年間、年1回クーポンを払う簡略な PRDC です。各年の円金利と外貨金利は、その年のあいだ一定とします。FX は Garman–Kohlhagen モデルに従い、ドリフトはその年の円金利 − 外貨金利、割引は円金利です。
-
-<RiskControls which="market" />
-
-<NotePanel />
-
-### III-7.2 多因子モンテカルロ法
+### 多因子モンテカルロ法
 
 PRDCのMonte Carlo価格を、
 
@@ -3299,15 +3253,7 @@ $$
 
 という多変数関数になっている。
 
-#### R サーバーで確かめる：パスごとの自動微分
-
-クーポンはキャップとフロアで折れ曲がる非線形なペイオフですが、各パスの微分を平均すれば、モンテカルロでも感応度が求まります。パス数と乱数の種を変えて、閉じた式との差を見られます。
-
-<RiskControls which="mc" />
-
-<McPanel />
-
-### III-7.3 多因子リスク感応度と自動微分
+### 多因子リスク感応度と自動微分
 
 Forward計算で得られたScalar NPVを出発点として、複数の市場入力へGradientを逆伝播させる。PRDCのように「多数入力・少数出力」となるPricingでは、Reverse Modeの利点が最も現れやすい。
 
@@ -3692,19 +3638,7 @@ tbl_fx_delta_check
 同じ乱数を用いることで、
 差分結果にMonte Carlo Noiseが混入することを抑えている。
 
-<h4 id="ad-vs-bump">R サーバーで確かめる：自動微分と Bump & Revalue</h4>
-
-価格 $V(S_{FX}, \mathbf r_{JPY}, \mathbf r_{Foreign}, \sigma_{FX})$ の感応度を中心差分で求めると、リスクファクターごとに評価を2回ずつやり直します。FX スポット、FX ボラティリティ、円カーブ5節点、外貨カーブ5節点の12個で、24回の評価です。自動微分は、評価の計算グラフを逆向きにたどって、すべての感応度を評価1回分の手間で返します。
-
-$$
-\nabla V = \left(\frac{\partial V}{\partial S_{FX}},\ \frac{\partial V}{\partial \sigma_{FX}},\ \frac{\partial V}{\partial r_{JPY,1}}, \ldots,\ \frac{\partial V}{\partial r_{Foreign,5}}\right)
-$$
-
-<AdPanel />
-
-二つの方法の値は、中心差分の打ち切り誤差の範囲で一致します。違いは評価の回数で、リスクファクターが増えるほど差は広がります。PRDC のように「多数の入力・少数の出力」の評価では、逆向き（リバース・モード）の自動微分の利点が最も大きくなります。
-
-### III-7.4 非線形ペイオフと自動微分
+### 非線形ペイオフと自動微分
 
 本章のCouponでは、
 
@@ -3797,9 +3731,9 @@ $$
 
 を結び付ける。
 
-### III-7.5 エンタープライズ・リスク計算
+### エンタープライズ・リスク計算
 
-第III-1章で確認したように、
+すでに確認したように、
 Monte CarloはGPUと相性が良い。
 
 本章の実装でも、
@@ -3879,7 +3813,7 @@ $$
 PRDCをDifferentiable Pricing Modelとして扱うという意味である。
 
 
-第III部で扱った商品を並べると、
+これまで扱った商品を並べると、
 自動微分の役割が明確になる。
 
 ##### オプション
@@ -3983,9 +3917,9 @@ $$
 
 を取得した。ここで重要なのは、Risk FactorごとにPricing Engineを何度も呼び出すBump & Revalueから、**Pricing GraphそのものがRiskを生成する構造**へ移行したことである。
 
-第III部全体を振り返ると、前半では`future` / `furrr`を中心にTaskを分割し、複数Core・複数Worker・分散環境へ計算を配布する方法を扱った。これは計算資源を増やすことによる**Hardware / Infrastructure Acceleration**である。後半では`torch`を用いて、価格計算にReverse-mode Automatic Differentiationを組み込み、感応度計算の方法そのものを変えた。これは**Algorithmic Acceleration**である。
+全体を振り返ると、まず`future` / `furrr`を中心にTaskを分割し、複数Core・複数Worker・分散環境へ計算を配布する方法を扱った。これは計算資源を増やすことによる**Hardware / Infrastructure Acceleration**である。続いて`torch`を用いて、価格計算にReverse-mode Automatic Differentiationを組み込み、感応度計算の方法そのものを変えた。これは**Algorithmic Acceleration**である。
 
-したがって、第III部の到達点は単なるParallel Computingでも、Automatic Differentiationの数式例でもない。大量のPricingを柔軟な計算資源へ配布し、そのPricing Graphから多数のRisk Sensitivityを同時に生成できる計算基盤である。
+したがって、到達点は単なるParallel Computingでも、Automatic Differentiationの数式例でもない。大量のPricingを柔軟な計算資源へ配布し、そのPricing Graphから多数のRisk Sensitivityを同時に生成できる計算基盤である。
 
 $$
 \boxed{

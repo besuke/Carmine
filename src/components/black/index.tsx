@@ -126,7 +126,7 @@ export function BlackControls({ which }: { which: Section }) {
           </select>
         </label>
       )}
-      <button type="button" onClick={() => reset(which)}>原稿の値に戻す</button>
+      <button type="button" onClick={() => reset(which)}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : data ? <Tag d={data} /> : null}</span>
     </div>
   );
@@ -257,7 +257,7 @@ function PathChart({ title, rows, yLabel, origin, footer }: { title: string; row
   );
 }
 
-/** II-4.4.2: the 120 paths and the terminal distribution (the bins are ggplot2's, from the API). */
+/** 120 paths and the terminal distribution. */
 export function McPathCharts() {
   return (
     <Need>
@@ -268,7 +268,7 @@ export function McPathCharts() {
         const xt = []; const st = (hi - lo) > 8 ? 2 : (hi - lo) > 4 ? 1 : 0.5;
         for (let v = Math.ceil(lo / st) * st; v <= hi; v += st) xt.push({ x: v, label: v.toFixed(st < 1 ? 1 : 0) });
         return (
-          <>
+          <div className="chart-pair">
             <PathChart title={`Black model Monte Carlo paths（${d.mc.sequence === "pseudo" ? "疑似乱数" : "Sobol 列"}、120 本、12 ステップ）`} rows={d.mc.shown_paths}
               yLabel="Forward price" origin={d.black.trade_date} footer={<Tag d={d} />} />
             <FlowChart title="Terminal forward-price distribution（横軸：同じ 120 本の満期価格、24 区間）" origin={d.black.trade_date} xMin={lo} xMax={hi} xTicks={xt}
@@ -276,7 +276,7 @@ export function McPathCharts() {
               series={[{ key: "n", label: "Count", color: "var(--series-1)" }]}
               bars={h.filter((b) => b.count > 0).map((b) => ({ x: b.x, value: b.count, series: "n", date: `${f(b.xmin, 3)}〜${f(b.xmax, 3)}`, label: "本数" }))}
               formatY={(y) => y.toFixed(0)} footer={<Tag d={d} />} />
-          </>
+          </div>
         );
       }}
     </Need>

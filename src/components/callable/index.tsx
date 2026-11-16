@@ -97,7 +97,7 @@ export function CallableControls({ which }: { which: Section }) {
             onChange={(e) => { const v = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(v)) set(which, { [fd.key]: v } as never); }} />
         </label>
       ))}
-      <button type="button" onClick={() => reset(which)}>原稿の値に戻す</button>
+      <button type="button" onClick={() => reset(which)}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : error ? <span className="error-text">{error}</span> : data ? <Tag d={data} /> : null}</span>
     </div>
   );
@@ -147,7 +147,7 @@ export function PricePanel() {
   );
 }
 
-/** II-8.4.3: the issuer's decision on year 2, and the boundary on each call date. */
+/** The issuer's decision on year 2, and the boundary on each call date. */
 export function DecisionPanel() {
   return (
     <Need>
@@ -156,7 +156,7 @@ export function DecisionPanel() {
         const pt = (k: "continuation_ex_coupon" | "call_price") => rows.map((r) => ({ x: 100 * r.short_rate, y: r[k], date: `短期金利 ${f(100 * r.short_rate, 3)}%` }));
         const year2 = d.bond.exercise_boundary.find((r) => Math.abs(r.payment_time - 2) < 1e-9);
         return (
-          <>
+          <div className="two-col">
             <LineChart title="2年目のコール判断（クーポン支払後）：継続価値がコール価格を上回る金利水準でコールする" origin="2026-01-01" xMin={-2} xMax={8}
               xTicks={[-2, 0, 2, 4, 6, 8].map((x) => ({ x, label: `${x}%` }))} xLabel="その時点の短期金利" yLabel="残存元本の価格"
               series={[
@@ -176,14 +176,14 @@ export function DecisionPanel() {
                 ))}</tbody>
               </table>
             </div>
-          </>
+          </div>
         );
       }}
     </Need>
   );
 }
 
-/** II-8.5: the call value against the volatility. */
+/** The call value against the volatility. */
 export function VolatilityPanel() {
   return (
     <Need>
@@ -191,7 +191,7 @@ export function VolatilityPanel() {
         const c = d.bond.curve_by_volatility.map((r) => ({ x: 1e4 * r.volatility, y: r.issuer_call_value, date: `σ = ${f(1e4 * r.volatility, 0)} bp` }));
         const dots = d.bond.by_volatility.map((r) => ({ x: 1e4 * r.volatility, y: r.issuer_call_value, date: `σ = ${f(1e4 * r.volatility, 0)} bp` }));
         return (
-          <>
+          <div className="two-col">
             <LineChart title="同じ初期曲線におけるコールオプションの価値" origin="2026-01-01" xMin={0} xMax={250}
               xTicks={[0, 50, 100, 150, 200, 250].map((x) => ({ x, label: String(x) }))} xLabel="短期金利ボラティリティ（bp/√年）" yLabel="額面100あたりのコール権の価値"
               series={[{ key: "v", label: "コール権の価値", color: "var(--series-1)", points: c, dots }]}
@@ -205,7 +205,7 @@ export function VolatilityPanel() {
                 ))}</tbody>
               </table>
             </div>
-          </>
+          </div>
         );
       }}
     </Need>
@@ -254,21 +254,23 @@ export function MbsScenarioPanel() {
                 ))}</tbody>
               </table>
             </div>
-            <LineChart title="借換え金利別の CPR（3年目から借換え金利が 3.5%・5%・6.5%）" origin="2026-01-01" xMin={0} xMax={30}
-              xTicks={[0, 5, 10, 15, 20, 25, 30].map((x) => ({ x, label: String(x) }))} xLabel="経過年数" yLabel="CPR（%）"
-              series={[
-                { key: "f", label: "借換え金利低下", color: "var(--series-1)", points: cpr("falling") },
-                { key: "c", label: "金利一定", color: "var(--series-3)", points: cpr("flat") },
-                { key: "r", label: "借換え金利上昇", color: "var(--series-2)", dashed: true, points: cpr("rising") },
-              ]}
-              formatY={(y) => `${y.toFixed(2)}%`} formatTick={(y) => `${y.toFixed(0)}%`} footer={<Tag d={d} />} />
-            <LineChart title="金利一定のシナリオの毎月の元本：約定返済と期限前返済" origin="2026-01-01" xMin={0} xMax={30}
-              xTicks={[0, 5, 10, 15, 20, 25, 30].map((x) => ({ x, label: String(x) }))} xLabel="経過年数" yLabel="額面100あたり"
-              series={[
-                { key: "s", label: "約定返済", color: "var(--series-1)", points: pr("scheduled_principal") },
-                { key: "p", label: "期限前返済", color: "var(--series-2)", points: pr("prepaid_principal") },
-              ]}
-              formatY={(y) => y.toFixed(4)} formatTick={(y) => y.toFixed(2)} footer={<Tag d={d} />} />
+            <div className="chart-pair">
+              <LineChart title="借換え金利別の CPR（3年目から借換え金利が 3.5%・5%・6.5%）" origin="2026-01-01" xMin={0} xMax={30}
+                xTicks={[0, 5, 10, 15, 20, 25, 30].map((x) => ({ x, label: String(x) }))} xLabel="経過年数" yLabel="CPR（%）"
+                series={[
+                  { key: "f", label: "借換え金利低下", color: "var(--series-1)", points: cpr("falling") },
+                  { key: "c", label: "金利一定", color: "var(--series-3)", points: cpr("flat") },
+                  { key: "r", label: "借換え金利上昇", color: "var(--series-2)", dashed: true, points: cpr("rising") },
+                ]}
+                formatY={(y) => `${y.toFixed(2)}%`} formatTick={(y) => `${y.toFixed(0)}%`} footer={<Tag d={d} />} />
+              <LineChart title="金利一定のシナリオの毎月の元本：約定返済と期限前返済" origin="2026-01-01" xMin={0} xMax={30}
+                xTicks={[0, 5, 10, 15, 20, 25, 30].map((x) => ({ x, label: String(x) }))} xLabel="経過年数" yLabel="額面100あたり"
+                series={[
+                  { key: "s", label: "約定返済", color: "var(--series-1)", points: pr("scheduled_principal") },
+                  { key: "p", label: "期限前返済", color: "var(--series-2)", points: pr("prepaid_principal") },
+                ]}
+                formatY={(y) => y.toFixed(4)} formatTick={(y) => y.toFixed(2)} footer={<Tag d={d} />} />
+            </div>
           </>
         );
       }}

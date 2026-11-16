@@ -104,14 +104,14 @@ export function NodeEditor() {
         </tbody>
       </table>
       <div className="controls" role="group" aria-label="ノードの操作">
-        <button type="button" onClick={reset} disabled={loading}>原稿の値に戻す</button>
+        <button type="button" onClick={reset} disabled={loading}>初期値に戻す</button>
         <span className="controls-state">{loading ? "R APIで再計算中…" : "値を変えると、下の図表が同じ API 応答で更新されます"}</span>
       </div>
     </div>
   );
 }
 
-/** II-2.2.2: the zero curve at standard tenors. */
+/** Zero curve at standard tenors. */
 export function ZeroCurveTable() {
   return (
     <Need>
@@ -128,7 +128,7 @@ export function ZeroCurveTable() {
   );
 }
 
-/** II-2.2.3: discount factor, zero rate and one-step forward of the zero curve. */
+/** Discount factor, zero rate and one-step forward of the zero curve. */
 export function ZeroCurveCharts() {
   return (
     <Need>
@@ -137,23 +137,23 @@ export function ZeroCurveCharts() {
         const one = (key: string, pick: (r: CurvePointRow) => number | null): Series[] => [{ key, label: "ZeroCurve", color: "var(--series-1)", points: pts(p, pick) }];
         const footer = <Tag d={d} />;
         return (
-          <>
-            <LineChart title="Discount factor curve（割引係数カーブ）" series={one("df", (r) => r.discount)} origin={d.evaluation_date} xMax={10.1}
+          <div className="chart-grid-3">
+            <LineChart title="Discount factor curve（割引係数カーブ）" series={one("df", (r) => r.discount)} origin={d.evaluation_date} xMax={10.1} height={245}
               yLabel="Discount factor" formatY={(y) => y.toFixed(8)} formatTick={(y) => y.toFixed(3)} footer={footer} />
-            <LineChart title="Continuous zero-rate curve（連続複利ゼロ金利カーブ）" origin={d.evaluation_date} xMax={10.1} yLabel="Zero rate (%)"
+            <LineChart title="Continuous zero-rate curve（連続複利ゼロ金利カーブ）" origin={d.evaluation_date} xMax={10.1} height={245} yLabel="Zero rate (%)"
               series={[{ ...one("zero", (r) => (r.zero_continuous === null ? null : r.zero_continuous * 100))[0],
                 dots: d.nodes.filter((n) => n.time > 0).map((n) => ({ x: n.time, y: n.zero_rate * 100, date: n.date })) }]}
               formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
             <LineChart title="One-step forward-rate curve（隣接区間のフォワード金利）" series={one("fwd", (r) => (r.forward_step === null ? null : r.forward_step * 100))}
-              origin={d.evaluation_date} xMax={10.1} yLabel="Forward rate (%)" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
-          </>
+              origin={d.evaluation_date} xMax={10.1} height={245} yLabel="Forward rate (%)" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
+          </div>
         );
       }}
     </Need>
   );
 }
 
-/** II-2.3.1: the same nodes with two interpolation targets. */
+/** The same nodes with two interpolation targets. */
 export function InterpolationCharts() {
   return (
     <Need>
@@ -164,19 +164,19 @@ export function InterpolationCharts() {
         ];
         const footer = <Tag d={d} />;
         return (
-          <>
+          <div className="chart-pair">
             <LineChart title="Zero rates under different interpolation targets" series={two((r) => (r.zero_continuous === null ? null : r.zero_continuous * 100))}
-              origin={d.evaluation_date} xMax={10.1} yLabel="Zero rate (%)" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
+              origin={d.evaluation_date} xMax={10.1} height={250} yLabel="Zero rate (%)" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
             <LineChart title="Forward rates under different interpolation targets" series={two((r) => (r.forward_step === null ? null : r.forward_step * 100))}
-              origin={d.evaluation_date} xMax={10.1} yLabel="Forward rate (%)" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
-          </>
+              origin={d.evaluation_date} xMax={10.1} height={250} yLabel="Forward rate (%)" formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={footer} />
+          </div>
         );
       }}
     </Need>
   );
 }
 
-/** II-2.5.2: a parallel shift of the zero curve. */
+/** A parallel shift of the zero curve. */
 export function ShiftSection() {
   const { shiftBp, setShiftBp } = useCurves();
   return (
@@ -193,8 +193,8 @@ export function ShiftSection() {
           const base = d.zero_curve.table;
           const sh = d.shifted_curve.table;
           return (
-            <>
-              <LineChart title="Parallel shift of the zero curve" origin={d.evaluation_date} xMax={10.1} yLabel="Continuous zero rate (%)"
+            <div className="two-col">
+              <LineChart title="Parallel shift of the zero curve" origin={d.evaluation_date} xMax={10.1} height={260} yLabel="Continuous zero rate (%)"
                 series={[
                   { key: "b", label: "Base curve", color: "var(--series-1)", points: pts(d.zero_curve.points, (r) => (r.zero_continuous === null ? null : r.zero_continuous * 100)) },
                   { key: "s", label: `Base curve ${d.request.shiftBp >= 0 ? "+" : ""}${d.request.shiftBp}bp`, color: "var(--series-2)", dashed: true,
@@ -203,8 +203,8 @@ export function ShiftSection() {
                 formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => y.toFixed(2)} footer={<Tag d={d} />} />
               <div className="table-wrap">
                 <table className="data">
-                  <caption>Parallel curve shift（シフトはゼロ金利に単利・年1回で加算。連続複利のゼロ金利の変化は加えた量と少し違う）　<Tag d={d} /></caption>
-                  <thead><tr><th scope="col">年限</th><th scope="col">日付</th><th scope="col" className="num">割引係数（基準）</th><th scope="col" className="num">割引係数（シフト後）</th><th scope="col" className="num">ゼロ金利（基準）</th><th scope="col" className="num">ゼロ金利（シフト後）</th><th scope="col" className="num">ゼロ金利の変化（bp）</th></tr></thead>
+                  <caption>Parallel curve shift（シフトはゼロ金利に単利・年1回で加算）　<Tag d={d} /></caption>
+                  <thead><tr><th scope="col">年限</th><th scope="col">日付</th><th scope="col" className="num">割引係数（基準）</th><th scope="col" className="num">割引係数（シフト後）</th><th scope="col" className="num">ゼロ金利（基準）</th><th scope="col" className="num">ゼロ金利（シフト後）</th><th scope="col" className="num">変化（bp）</th></tr></thead>
                   <tbody>
                     {base.map((r, i) => (
                       <tr key={r.tenor}><th scope="row">{r.tenor}</th><td>{r.date}</td><td className="num">{r.discount.toFixed(8)}</td><td className="num">{sh[i].discount.toFixed(8)}</td>
@@ -214,7 +214,7 @@ export function ShiftSection() {
                   </tbody>
                 </table>
               </div>
-            </>
+            </div>
           );
         }}
       </Need>
@@ -222,12 +222,12 @@ export function ShiftSection() {
   );
 }
 
-/** II-2.5.3: node recovery and validation. */
+/** Node recovery and validation. */
 export function ValidationTables() {
   return (
     <Need>
       {(d) => (
-        <>
+        <div className="two-col">
           <div className="table-wrap">
             <table className="data">
               <caption>Node recovery check（ノードのゼロ金利の再現）　<Tag d={d} /></caption>
@@ -248,7 +248,7 @@ export function ValidationTables() {
               ))}</tbody>
             </table>
           </div>
-        </>
+        </div>
       )}
     </Need>
   );

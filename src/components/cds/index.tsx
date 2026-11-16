@@ -91,13 +91,13 @@ export function CdsControls({ which }: { which: Section }) {
             onChange={(e) => { const v = Number(e.target.value); if (e.target.value !== "" && Number.isFinite(v)) set(which, { [fd.key]: v }); }} />
         </label>
       ))}
-      <button type="button" onClick={() => reset(which)}>原稿の値に戻す</button>
+      <button type="button" onClick={() => reset(which)}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : data ? <Tag d={data} /> : null}</span>
     </div>
   );
 }
 
-/** II-5.2.2: flat-hazard survival and cumulative default probabilities. */
+/** Flat-hazard survival and cumulative default probabilities. */
 export function FlatProbabilityChart() {
   return (
     <Need>
@@ -105,7 +105,7 @@ export function FlatProbabilityChart() {
         const c = d.flat.probability_curve;
         const pts = (k: "survival_probability" | "default_probability") => c.map((r) => ({ x: r.time, y: r[k] * 100, date: `${r.time}年` }));
         return (
-          <>
+          <div className="two-col">
             <LineChart title={`Flat-hazard survival and default probabilities（λ ≈ s/(1−R) = ${pct(d.flat.hazard_approx)}）`} origin={d.flat.trade_date} xMin={0} xMax={5}
               xLabel="Time (years)" yLabel="Probability (%)" xTicks={[0, 1, 2, 3, 4, 5].map((x) => ({ x, label: String(x) }))}
               series={[
@@ -127,7 +127,7 @@ export function FlatProbabilityChart() {
                 </tbody>
               </table>
             </div>
-          </>
+          </div>
         );
       }}
     </Need>

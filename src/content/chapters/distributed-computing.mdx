@@ -1,28 +1,24 @@
 import { PrdcRiskProvider, PrdcRiskStatus, DistributedPanel } from "../../components/prdcRisk";
-import { ChapterNo } from "../../book/ChapterNo";
 
 <PrdcRiskProvider>
 
-# <ChapterNo n={10} />分散計算
+# 分散計算
 
-本章では、金融計算をジョブに分け、結果を集約する構成を扱う。実演では、ブラウザから単一のR APIに計算を送る。複数ノードへの分配と Slurm での実行は今後の拡張である（序論）。
-
-> 出典：Coral Book『金融工学の応用基礎』[第III-2章「分散コンピューティング」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch02_distributed_computing_jobtask.qmd)、[第III-3章「金融計算アーキテクチャ」](https://github.com/besuke/coral-book/blob/main/part3_enterprise_riemann/ch03_enterprise_financial_computing.qmd)。R のコードは原稿のものを静的に載せ、この画面では実行しない。
+大規模な金融リスク計算やシナリオ評価をジョブに分割し、非同期に処理して結果を集約する分散コンピューティングのアーキテクチャを扱います。シナリオ格子をジョブに割り当てて集約する流れを操作・確認できます。
 
 <PrdcRiskStatus />
 
-<h2 id="distributed-jobs">分散コンピューティング</h2>
+<h2 id="jobs">シナリオ格子のジョブ分割・非同期実行と集約</h2>
 
-出典：Coral Book 第III-2章「分散コンピューティング」
+FX スポット9通り × ボラティリティ5通りの45シナリオをジョブに分割して計算サーバーへ送り、非同期に応答を集約します。1ジョブあたりのシナリオ数と同時送信数を変えて、レーンごとの実行状況とリアルタイム集計を確認できます。
 
-```r
+<DistributedPanel />
 
-source(file.path("R", "utility_LFL.R"))
-```
+<h2 id="distributed-jobs">分散コンピューティングの基本構造</h2>
 
-第III-1章では、金融工学と計算技術の発展を振り返り、一台のPC上で`future` / `furrr`を利用する並列計算を実装した。そこで使える計算資源は、あくまで一台のMachineに搭載されたCPU CoreとMemoryの範囲に限られる。
+並列計算では、一台のPC上で`future` / `furrr`を利用する並列計算を実装した。そこで使える計算資源は、あくまで一台のMachineに搭載されたCPU CoreとMemoryの範囲に限られる。
 
-実務のRisk Calculationでは、Trade、Scenario、Monte Carlo Pathを多数の独立Taskへ分割し、それらを複数の計算資源へ配布する必要がある。本章では、PC内のParallel Computingから一段進み、**Task生成 → Job Queue → Scheduler → Worker → Result Aggregation**という分散コンピューティングの基本構造をRで表現する。
+実務のRisk Calculationでは、Trade、Scenario、Monte Carlo Pathを多数の独立Taskへ分割し、それらを複数の計算資源へ配布する必要がある。ここでは、PC内のParallel Computingから一段進み、**Task生成 → Job Queue → Scheduler → Worker → Result Aggregation**という分散コンピューティングの基本構造をRで表現する。
 
 ```text
 Input Data
@@ -46,7 +42,7 @@ Scheduler
 Result Aggregation
 ```
 
-### III-2.1 計算処理の分割
+### 計算処理の分割
 
 ```r
 
@@ -75,7 +71,7 @@ calculate_task_result_LFL <- function(task_ID, input_value, worker_group) {
 }
 ```
 
-### III-2.2 計算資源への分配
+### 計算資源への分配
 
 ```r
 
@@ -130,7 +126,7 @@ tbl_remote_result <- tbl_remote_request |>
 show_table_LFL(tbl_remote_result)
 ```
 
-### III-2.3 計算処理の制御
+### 計算処理の制御
 
 ```r
 
@@ -166,7 +162,7 @@ show_table_LFL(tbl_job_status)
 
 SlurmのようなSchedulerでは、TaskをJobとして登録し、利用可能なWorkerへ割り当てる。R側のPricing Functionは可能な限り変更せず、「どこで実行するか」を実行基盤側へ分離することが重要である。
 
-### III-2.4 分散コンピューティング
+### 分散コンピューティング
 
 ```r
 
@@ -246,34 +242,15 @@ tbl_distributed_paths <- tibble(
 show_table_LFL(tbl_distributed_paths)
 ```
 
-<h4 id="jobs">R サーバーで確かめる：ジョブを送って集約する</h4>
+### 計算資源の統合
 
-FX スポット9通り × ボラティリティ5通りの45シナリオを、ジョブに分けて計算する。ここではブラウザがスケジューラーになり、ジョブをキューから取り出して単一の R API（ワーカー）へリクエストとして送り、返ってきた応答を集約する。計算の関数そのものは変えず、「どこで計算するか」を実行の仕組みの側に分けるのが分散計算の考え方である。
+ここでは、一台のMachine内部の並列化から、複数の計算資源を前提とする分散処理へ考え方を拡張した。重要なのは、計算関数そのものよりも、TaskをJobとして管理し、Queueへ投入し、SchedulerがWorkerへ配布し、結果を再び集約するというControl Planeである。
 
-```text
-Scenario Grid -> Task Generation -> Job Queue -> Scheduler (browser) -> Worker (R API) -> Result Aggregation
-```
-
-<DistributedPanel />
-
-ワーカーが1台（このサーバー1つ）なので、同時に送るジョブを増やしても、サーバーは届いた順に計算し、全体の時間はあまり縮まない。1ジョブあたりのシナリオを減らすと、通信の往復が増えて、そのぶん時間がかかる。ワーカーを社内 LAN の別のサーバーやクラウドのワーカーに置き換えれば、同じ仕組みのまま計算を分担できる（今後の拡張）。
-
-### III-2.5 計算資源の統合
-
-本章では、一台のMachine内部の並列化から、複数の計算資源を前提とする分散処理へ考え方を拡張した。重要なのは、計算関数そのものよりも、TaskをJobとして管理し、Queueへ投入し、SchedulerがWorkerへ配布し、結果を再び集約するというControl Planeである。
-
-この構造があれば、Workerの実体はLocal Process、別Server、Container、Cloud Batch、HPC Clusterへ置き換えることができる。次章では、この計算基盤の上にTrade Data、Market Data、Calibration、Scenario、Pricing、Risk Aggregationを統合し、エンタープライズ金融計算システムとして組み立てる。
+この構造があれば、Workerの実体はLocal Process、別Server、Container、Cloud Batch、HPC Clusterへ置き換えることができる。続いて、この計算基盤の上にTrade Data、Market Data、Calibration、Scenario、Pricing、Risk Aggregationを統合し、エンタープライズ金融計算システムとして組み立てる。
 
 <h2 id="enterprise-computing">金融計算アーキテクチャ</h2>
 
-出典：Coral Book 第III-3章「金融計算アーキテクチャ」
-
-```r
-
-source(file.path("R", "utility_LFL.R"))
-```
-
-第III-1章ではLocal Parallel Computing、第III-2章ではJob / Task Controlを含むDistributed Computingを扱った。本章では、それらを実際の金融リスク計算システムの形へ統合する。
+ここまでLocal Parallel Computingと、Job / Task Controlを含むDistributed Computingを扱った。ここでは、それらを実際の金融リスク計算システムの形へ統合する。
 
 エンタープライズ金融計算では、Pricing Functionだけがシステムなのではない。Trade Data、Market Data、Calibration Data、Scenario、Calculation Configurationを分離して管理し、それらをTaskへ変換し、並列・分散実行し、最終的にRisk Tableへ集約する必要がある。
 
@@ -300,7 +277,7 @@ Risk Table
 Aggregation / Report
 ```
 
-### III-3.1 金融取引とマーケットデータ
+### 金融取引とマーケットデータ
 
 ```r
 
@@ -334,9 +311,9 @@ show_table_LFL(tbl_prdc_calibration)
 show_table_LFL(tbl_prdc_calculation)
 ```
 
-### III-3.2 プライシング・エンジン
+### プライシング・エンジン
 
-本章では計算基盤に焦点を当てるため、Scenario Pricing Functionは軽量な代理モデルとして表現する。第II部で構築したPRDC Pricing Functionへ置き換えても、Task生成と並列実行の構造は変わらない。
+ここでは計算基盤に焦点を当てるため、Scenario Pricing Functionは軽量な代理モデルとして表現する。本格的なPRDC Pricing Functionへ置き換えても、Task生成と並列実行の構造は変わらない。
 
 ```r
 
@@ -369,7 +346,7 @@ price_prdc_scenario_LFL <- function(
 }
 ```
 
-### III-3.3 リスク・シミュレーション・シナリオ
+### リスク・シミュレーション・シナリオ
 
 ```r
 
@@ -392,7 +369,7 @@ show_table_LFL(
 )
 ```
 
-### III-3.4 計算エンジン
+### 計算エンジン
 
 ```r
 
@@ -439,7 +416,7 @@ show_table_LFL(
 )
 ```
 
-### III-3.5 リスクアグリゲーション・レポート
+### リスクアグリゲーション・レポート
 
 ```r
 
@@ -495,7 +472,7 @@ tbl_prdc_risk_output <- tibble(
 show_table_LFL(tbl_prdc_risk_output)
 ```
 
-### III-3.6 エンタープライズ金融計算
+### エンタープライズ金融計算
 
 ここまでの並列・分散計算は、Pricingを多数回実行することでリスクを求める設計である。計算資源を増やせば処理時間を短縮できるが、Risk Factorが増えるほどBump & RevalueのPricing回数が増えるという構造そのものは残る。
 
@@ -512,8 +489,8 @@ Faster Revaluation
 But still many Revaluations
 ```
 
-ここまでで、第III部前半のテーマである「計算を分割し、より多くの計算資源で処理する」構造が完成した。しかし、計算資源を増やしても、SensitivityのためにPricingそのものを繰り返す構造は残る。
+ここまでで、「計算を分割し、より多くの計算資源で処理する」構造が完成した。しかし、計算資源を増やしても、SensitivityのためにPricingそのものを繰り返す構造は残る。
 
-次章では発想を変え、Pricing Programそのものを微分可能なComputational Graphとして構築するAutomatic Differentiationへ進む。ここが、**Hardware / Infrastructure AccelerationからAlgorithmic Accelerationへの転換点**である。
+自動微分では発想を変え、Pricing Programそのものを微分可能なComputational Graphとして構築するAutomatic Differentiationへ進む。ここが、**Hardware / Infrastructure AccelerationからAlgorithmic Accelerationへの転換点**である。
 
 </PrdcRiskProvider>

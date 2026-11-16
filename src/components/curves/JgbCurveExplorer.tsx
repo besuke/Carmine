@@ -56,7 +56,7 @@ export function JgbCurveExplorer() {
     });
     const nodes: SeriesPoint[] = month.node_tenor.map((t, k) => ({ x: t, y: month.node_yield_pct[k], date: `${t}年` }));
     return [
-      { key: "curve", label: "カーブ（RiemannFinMath）", color: "var(--series-1)", points: curve },
+      { key: "curve", label: "推計イールドカーブ", color: "var(--series-1)", points: curve },
       { key: "nodes", label: "観測した複利利回り", color: "var(--series-2)", points: [], dots: nodes },
     ];
   }, [data, month]);

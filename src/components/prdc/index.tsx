@@ -120,7 +120,7 @@ export function PrdcControls({ which }: { which: "market" | "terms" | "mc" }) {
           </label>
         </>
       )}
-      <button type="button" onClick={() => reset(which === "mc" ? "mc" : "note")}>原稿の値に戻す</button>
+      <button type="button" onClick={() => reset(which === "mc" ? "mc" : "note")}>初期値に戻す</button>
       <span className="controls-state">{loading ? "R APIで再計算中…" : error ? <span className="error-text">{error}</span> : data ? <Tag d={data} /> : null}</span>
     </div>
   );
@@ -235,7 +235,7 @@ export function ValuePanel() {
   );
 }
 
-/** II-9.3.4 and II-9.4.1–9.4.2: expected coupons and the probabilities of the floor and the cap. */
+/** Expected coupons and the probabilities of the floor and the cap. */
 export function CouponTermPanel() {
   return (
     <Need>
@@ -246,16 +246,18 @@ export function CouponTermPanel() {
         const tMax = cs[cs.length - 1].time;
         return (
           <>
-            <LineChart title="期待クーポンの期間構造：E[C(S)] と、期待 FX をクーポン式に入れた C(E[S])" origin="2026-01-01" xMin={0} xMax={tMax}
-              xTicks={[0, 5, 10, 15].map((x) => ({ x, label: String(x) }))} xLabel="評価日からの年数" yLabel="クーポン（%）"
-              series={[{ key: "e", label: "期待クーポン E[C(S)]", color: "var(--series-1)", points: pt("expected_coupon_rate"), dots: pt("expected_coupon_rate") },
-                { key: "c", label: "C(E[S])", color: "var(--series-2)", dashed: true, points: pt("coupon_at_expected_fx") }]}
-              formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => `${y.toFixed(1)}%`} footer={<Tag d={d} />} />
-            <LineChart title="クーポンがフロア・キャップになる確率" origin="2026-01-01" xMin={0} xMax={tMax}
-              xTicks={[0, 5, 10, 15].map((x) => ({ x, label: String(x) }))} xLabel="評価日からの年数" yLabel="確率（%）"
-              series={[{ key: "f", label: "フロア（クーポン 0%）", color: "var(--series-1)", points: pp("floor_probability") },
-                { key: "c", label: "キャップ（クーポン上限）", color: "var(--series-2)", points: pp("cap_probability") }]}
-              formatY={(y) => `${y.toFixed(2)}%`} formatTick={(y) => `${y.toFixed(0)}%`} footer={<Tag d={d} />} />
+            <div className="chart-pair">
+              <LineChart title="期待クーポンの期間構造：E[C(S)] と、期待 FX をクーポン式に入れた C(E[S])" origin="2026-01-01" xMin={0} xMax={tMax}
+                xTicks={[0, 5, 10, 15].map((x) => ({ x, label: String(x) }))} xLabel="評価日からの年数" yLabel="クーポン（%）"
+                series={[{ key: "e", label: "期待クーポン E[C(S)]", color: "var(--series-1)", points: pt("expected_coupon_rate"), dots: pt("expected_coupon_rate") },
+                  { key: "c", label: "C(E[S])", color: "var(--series-2)", dashed: true, points: pt("coupon_at_expected_fx") }]}
+                formatY={(y) => `${y.toFixed(4)}%`} formatTick={(y) => `${y.toFixed(1)}%`} footer={<Tag d={d} />} />
+              <LineChart title="クーポンがフロア・キャップになる確率" origin="2026-01-01" xMin={0} xMax={tMax}
+                xTicks={[0, 5, 10, 15].map((x) => ({ x, label: String(x) }))} xLabel="評価日からの年数" yLabel="確率（%）"
+                series={[{ key: "f", label: "フロア（クーポン 0%）", color: "var(--series-1)", points: pp("floor_probability") },
+                  { key: "c", label: "キャップ（クーポン上限）", color: "var(--series-2)", points: pp("cap_probability") }]}
+                formatY={(y) => `${y.toFixed(2)}%`} formatTick={(y) => `${y.toFixed(0)}%`} footer={<Tag d={d} />} />
+            </div>
             <details>
               <summary>期待クーポンとキャッシュフローの表（{cs.length} 日）を開く</summary>
               <div className="table-wrap">
@@ -279,7 +281,7 @@ export function CouponTermPanel() {
   );
 }
 
-/** II-9.4.3: the coupon's distribution on the first, a middle and the last coupon date. */
+/** The coupon's distribution on the first, a middle and the last coupon date. */
 export function DistributionCharts() {
   return (
     <Need>
@@ -287,7 +289,7 @@ export function DistributionCharts() {
         const ids = [...new Set(d.note.distribution.map((r) => r.coupon_number))];
         const cap = d.inputs.note.capPct, floor = d.inputs.note.floorPct;
         return (
-          <div className="chart-pair">
+          <div className="chart-grid-3">
             {ids.map((id) => {
               const rows = d.note.distribution.filter((r) => r.coupon_number === id);
               const between = rows.filter((r) => r.kind === "between");
