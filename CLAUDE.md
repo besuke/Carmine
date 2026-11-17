@@ -10,6 +10,8 @@ Carmine Studio『エンタープライズ金融モデル』：Coral Book『金�
 | API | `server/`（R、httpuv） | 入力の検査（不正は 400 と日本語のメッセージ）、`RiemannFinMath` の呼び出し、JSON と `response.request_id` | 計算ロジックの実装。足りない計算は Riemann に関数を足す |
 | 計算エンジン | Riemann リポジトリの `RiemannFinMath`（Rust） | カーブ、評価、感応度、モンテカルロ、並列の一括評価 | — |
 
+- **RiemannFinMath の入れ方・更新・呼び方**は `../Riemann/docs/client_guide.md`。Windows では Rust なしで、`install.packages("RiemannFinMath", repos = c("https://besuke.github.io/Riemann", "https://cloud.r-project.org"))`。入れ替える前に R API（8787）を止める。足りない計算は Riemann の会話に頼む（共通のきまりは `../Riemann/CLAUDE.md`）。
+
 - 新しい計算は、原稿（Coral Book）または独立な計算と照合し、`reconciliation/` に記録してから画面に出す。回帰テストは `tests/`（Vitest、API を 8788 で起動）。
 - ポート：画面は 8081（使用中なら止める、別ポートへ移らない）、開発用の R API は 8787。
 - 並列：一台では Rust のスレッド（`compute_bond_values_batch` など）か `furrr::future_map()`。Slurm（`future.batchtools`）は構想で、未導入。
