@@ -6,7 +6,7 @@ import { ApiError, fetchScenario } from "../src/api/client";
 import type { CaseResult, ScenarioResponse } from "../src/api/types";
 
 // Regression test of the R API against the reconciled expected values (server/tests/golden/tona_ois_golden.json,
-// written by server/tests/golden/generate_golden.R from RiemannFinMath). All comparisons use unrounded values.
+// written by server/tests/golden/generate_golden.R from rmql). All comparisons use unrounded values.
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -31,7 +31,7 @@ interface Golden {
 
 const golden: Golden = JSON.parse(readFileSync(path.join(root, "..", "server", "tests", "golden", "tona_ois_golden.json"), "utf8"));
 
-// Tolerances (README "照合と許容誤差"): the same as the GaussQuant–RiemannFinMath reconciliation.
+// Tolerances (README "照合と許容誤差"): the same as the GaussQuant–rmql reconciliation.
 const TOL = {
   discountRel: 1e-12,
   rateAbs: 1e-10,

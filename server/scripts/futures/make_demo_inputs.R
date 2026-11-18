@@ -10,9 +10,9 @@
 #                   (0.25Y 1.23%, 2Y 1.55%, 5Y 2.20%, 7Y 2.55%, 10Y 2.90%), linear in years to maturity,
 #                   semiannual compounding, Actual/365 Fixed, rounded to 3 decimals
 #   futures price : the smallest (price - carry) / CF over the basket, less 0.10, rounded to 2 decimals
-# Writes server/data/futures_demo/inputs.json. RiemannFinMath computes the prices, as the API does.
+# Writes server/data/futures_demo/inputs.json. rmql computes the prices, as the API does.
 
-suppressPackageStartupMessages({ library(RiemannFinMath); library(jsonlite) })
+suppressPackageStartupMessages({ library(rmql); library(jsonlite) })
 out_dir <- "C:/AnalyticFin/Projects/carmine-studio/server/data/futures_demo"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -29,7 +29,7 @@ basket <- data.frame(
 curve <- data.frame(tenor_years = c(0.25, 2, 5, 7, 10), yield_pct = c(1.23, 1.55, 2.20, 2.55, 2.90))
 
 jgb <- function(issue_date, maturity_date, coupon_pct) {
-  RiemannFinMath::create_fixed_rate_bond(
+  rmql::create_fixed_rate_bond(
     settlement_days = 0L, face_amount = 100, effective_date = issue_date, termination_date = maturity_date, tenor = "6M",
     calendar = "japan", convention = "unadjusted", termination_convention = "unadjusted", rule = "backward", end_of_month = FALSE,
     coupon_rate = coupon_pct / 100, day_count = "actual_365_fixed", payment_convention = "following", redemption = 100
@@ -39,11 +39,11 @@ years <- as.numeric(basket$maturity_date - valuation) / 365
 basket$curve_yield_pct <- stats::approx(curve$tenor_years, curve$yield_pct, xout = years)$y
 basket$fictitious_price <- vapply(seq_len(nrow(basket)), function(i) {
   b <- jgb(basket$issue_date[i], basket$maturity_date[i], basket$coupon_pct[i])
-  round(RiemannFinMath::compute_clean_price(b, basket$curve_yield_pct[i] / 100, "actual_365_fixed", "compounded", 2L, valuation), 3)
+  round(rmql::compute_clean_price(b, basket$curve_yield_pct[i] / 100, "actual_365_fixed", "compounded", 2L, valuation), 3)
 }, 0)
 bonds <- lapply(seq_len(nrow(basket)), function(i) jgb(basket$issue_date[i], basket$maturity_date[i], basket$coupon_pct[i]))
 # carry at an arbitrary futures price does not depend on it: price - carry is the forward clean value
-probe <- RiemannFinMath::compute_future_basket(bonds, basket$fictitious_price, 100, basket$conversion_factor, funding, valuation, delivery)
+probe <- rmql::compute_future_basket(bonds, basket$fictitious_price, 100, basket$conversion_factor, funding, valuation, delivery)
 futures_price <- round(min((basket$fictitious_price - probe$carry) / basket$conversion_factor) - 0.10, 2)
 
 inputs <- list(

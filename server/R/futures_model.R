@@ -1,4 +1,4 @@
-# JGB futures, CTD and futures BPV (Coral Book II-2.6–2.7). All calculations are RiemannFinMath; reconciled
+# JGB futures, CTD and futures BPV (Coral Book II-2.6–2.7). All calculations are rmql; reconciled
 # with GaussQuant and the manuscript's own results in server/tests/reconciliation/futures/ (difference 0).
 #
 # POST /api/futures/basket
@@ -18,7 +18,7 @@ FUT <- local({
 FUT_DC <- "actual_365_fixed"
 
 fut_bond <- function(issue_date, maturity_date, coupon_pct) {
-  RiemannFinMath::create_fixed_rate_bond(
+  rmql::create_fixed_rate_bond(
     settlement_days = 0L, face_amount = 100, effective_date = issue_date, termination_date = maturity_date, tenor = "6M",
     calendar = "japan", convention = "unadjusted", termination_convention = "unadjusted", rule = "backward", end_of_month = FALSE,
     coupon_rate = coupon_pct / 100, day_count = FUT_DC, payment_convention = "following", redemption = 100
@@ -27,15 +27,15 @@ fut_bond <- function(issue_date, maturity_date, coupon_pct) {
 FUT_BONDS <- lapply(seq_len(nrow(FUT$basket)), function(i) fut_bond(FUT$basket$issue_date[i], FUT$basket$maturity_date[i], FUT$basket$coupon_pct[i]))
 FUT_STANDARD <- fut_bond(as.Date(FUT$valuation_date), as.Date(FUT$stress$standard_maturity), 100 * FUT$stress$standard_coupon)
 
-fut_price <- function(bond, y) RiemannFinMath::compute_clean_price(bond, y, FUT_DC, "compounded", 2L, FUT$valuation_date)
+fut_price <- function(bond, y) rmql::compute_clean_price(bond, y, FUT_DC, "compounded", 2L, FUT$valuation_date)
 fut_dv01 <- function(bond, y) (fut_price(bond, y - 1e-4) - fut_price(bond, y + 1e-4)) / 2
 
 fut_basket <- function(prices, yields, futures_price, funding) {
   b <- FUT$basket
-  basis <- RiemannFinMath::compute_future_basket(FUT_BONDS, prices, futures_price, b$conversion_factor, funding, FUT$valuation_date, FUT$delivery_date)
-  dur <- vapply(seq_along(FUT_BONDS), function(i) RiemannFinMath::compute_duration(FUT_BONDS[[i]], yields[i], FUT_DC, "compounded", 2L, FUT$valuation_date, "modified"), 0)
+  basis <- rmql::compute_future_basket(FUT_BONDS, prices, futures_price, b$conversion_factor, funding, FUT$valuation_date, FUT$delivery_date)
+  dur <- vapply(seq_along(FUT_BONDS), function(i) rmql::compute_duration(FUT_BONDS[[i]], yields[i], FUT_DC, "compounded", 2L, FUT$valuation_date, "modified"), 0)
   dv01 <- vapply(seq_along(FUT_BONDS), function(i) fut_dv01(FUT_BONDS[[i]], yields[i]), 0)
-  bpv_ql <- vapply(seq_along(FUT_BONDS), function(i) RiemannFinMath::compute_basis_point_value(FUT_BONDS[[i]], yields[i], FUT_DC, "compounded", 2L, FUT$valuation_date), 0)
+  bpv_ql <- vapply(seq_along(FUT_BONDS), function(i) rmql::compute_basis_point_value(FUT_BONDS[[i]], yields[i], FUT_DC, "compounded", 2L, FUT$valuation_date), 0)
   ctd <- which(basis$ctd)[1]
   list(
     rows = data.frame(issue = b$issue, coupon_pct = b$coupon_pct, maturity_date = format(b$maturity_date), conversion_factor = b$conversion_factor,
@@ -75,7 +75,7 @@ fut_compute <- function(mode = "current", yield_pct = 8, funding_pct = NULL) {
   if (mode == "current") {
     funding <- if (is.null(funding_pct)) FUT$funding_rate else { if (!num_ok(funding_pct, -1, 20)) bad("fundingPct must be within -1 and 20"); funding_pct / 100 }
     prices <- FUT$basket$fictitious_price
-    yields <- vapply(seq_along(FUT_BONDS), function(i) RiemannFinMath::compute_yield_from_price(
+    yields <- vapply(seq_along(FUT_BONDS), function(i) rmql::compute_yield_from_price(
       FUT_BONDS[[i]], prices[i], "clean", FUT_DC, "compounded", 2L, FUT$valuation_date, accuracy = 1e-8), 0)
     res <- fut_basket(prices, yields, FUT$futures_price, funding)
   } else {
@@ -91,6 +91,6 @@ fut_compute <- function(mode = "current", yield_pct = 8, funding_pct = NULL) {
                        yield = "複利利回り（年2回複利、Actual/365 Fixed）。価格からの逆算は QuantLib の既定の精度 1e-8（GaussQuant と同じ）",
                        carry = "Carry = 保有期間のクーポン ＋（受渡日の経過利子 − 評価日の経過利子）− Funding Cost、Funding Cost = ダーティ価格 × Funding Rate × 日数/365",
                        futures_bpv = "先物BPV = CTD の DV01 ÷ CF（GaussQuant futures_bpv_GQL）。DV01 = （−1bp の価格 − ＋1bp の価格）/ 2（額面100）",
-                       engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath"))))),
+                       engine = paste("rmql", as.character(utils::packageVersion("rmql"))))),
     res, list(ctd_by_level = by_level))
 }

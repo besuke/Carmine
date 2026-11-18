@@ -1,4 +1,4 @@
-// Shapes of the R API (server/server.R). All numbers are unrounded doubles from RiemannFinMath.
+// Shapes of the R API (server/server.R). All numbers are unrounded doubles from rmql.
 
 export interface ScenarioRequest {
   bumpTenor: string;

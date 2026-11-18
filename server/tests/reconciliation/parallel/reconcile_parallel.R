@@ -7,7 +7,7 @@
 # Writes server/tests/golden/parallel_golden.json and server/tests/reconciliation/parallel/results/.
 
 suppressPackageStartupMessages({
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(tidyr)
   library(purrr)
@@ -43,16 +43,16 @@ bonds <- par_bonds(2000)
 rows_checked <- c(1L, 500L, 1000L, 1500L, 2000L)
 one_by_one <- map_dfr(rows_checked, \(i) {
   b <- bonds[i, ]
-  bond <- RiemannFinMath::create_fixed_rate_bond(
+  bond <- rmql::create_fixed_rate_bond(
     settlement_days = b$settlement_days, face_amount = b$face_amount, effective_date = b$effective_date, termination_date = b$termination_date,
     tenor = b$tenor, calendar = b$calendar, convention = b$convention, termination_convention = b$termination_convention, rule = b$rule,
     end_of_month = b$end_of_month, coupon_rate = b$coupon_rate, day_count = b$day_count, payment_convention = b$payment_convention,
     redemption = b$redemption, issue_date = b$issue_date)
-  settlement <- RiemannFinMath::compute_settlement_date(bond, b$evaluation_date)
-  v <- RiemannFinMath::compute_bond_values(bond, b$rate, b$yield_day_count, b$compounding, b$frequency, settlement)
+  settlement <- rmql::compute_settlement_date(bond, b$evaluation_date)
+  v <- rmql::compute_bond_values(bond, b$rate, b$yield_day_count, b$compounding, b$frequency, settlement)
   tibble(row = i, clean_price = v$clean_price, duration_modified = v$duration_modified)
 })
-batch_one <- RiemannFinMath::compute_bond_values_batch(bonds, threads = 1L)
+batch_one <- rmql::compute_bond_values_batch(bonds, threads = 1L)
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
 cmp <- function(item, a, ref, tol, note = "") {
@@ -80,5 +80,5 @@ write(toJSON(list(engine = "the manuscript's purrr and furrr examples", present_
                   one_by_one = one_by_one), auto_unbox = TRUE, digits = I(17), pretty = TRUE),
       file.path(lab, "server/tests/golden/parallel_golden.json"))
 writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), R.version.string, paste("logical processors", PAR_CORES),
-             paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))), file.path(out_dir, "session_info.txt"))
+             paste("rmql", as.character(packageVersion("rmql")))), file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

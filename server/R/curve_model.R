@@ -1,5 +1,5 @@
 # Zero-rate nodes to curves, for the yield-curve chapter (Coral Book II-2.2, II-2.3.1, II-2.5.2, II-2.5.3).
-# All calculations are RiemannFinMath; reconciled with GaussQuant in server/tests/reconciliation/curves/ (difference 0).
+# All calculations are rmql; reconciled with GaussQuant in server/tests/reconciliation/curves/ (difference 0).
 #
 # POST /api/curves/zero  {"zeroRatesPct": [9 numbers, or omitted for the manuscript's], "shiftBp": 50}
 #   ZeroCurve      : zero rates linear in time (QuantLib ZeroCurve), continuous, Actual/365 Fixed
@@ -32,7 +32,7 @@ curve_add_tenor <- function(d, tenor) {
 
 curve_points <- function(curve, dates, ev) {
   t <- as.numeric(dates - ev) / 365
-  df <- RiemannFinMath::compute_discount(curve, dates)
+  df <- rmql::compute_discount(curve, dates)
   zero <- ifelse(t > 0, -log(df) / t, NA_real_)
   # one-step forward between neighbouring grid dates, as in II-2.2.3: -log(D(t2)/D(t1)) / (t2 - t1)
   fwd <- c(-log(df[-1] / df[-length(df)]) / diff(t), NA_real_)
@@ -60,9 +60,9 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50, bump = NULL) {
   }
   ev <- m$evaluation_date
   t_nodes <- as.numeric(m$dates - ev) / 365
-  zc <- RiemannFinMath::with_extrapolation(RiemannFinMath::create_zero_curve(m$dates, rates, "actual_365_fixed", "continuous"))
-  dcv <- RiemannFinMath::with_extrapolation(RiemannFinMath::create_discount_curve(m$dates, exp(-rates * t_nodes), "actual_365_fixed", "log_linear"))
-  shifted <- RiemannFinMath::create_zero_spreaded_curve(zc, shift_bp / 1e4, "simple", 1L)
+  zc <- rmql::with_extrapolation(rmql::create_zero_curve(m$dates, rates, "actual_365_fixed", "continuous"))
+  dcv <- rmql::with_extrapolation(rmql::create_discount_curve(m$dates, exp(-rates * t_nodes), "actual_365_fixed", "log_linear"))
+  shifted <- rmql::create_zero_spreaded_curve(zc, shift_bp / 1e4, "simple", 1L)
   grid_t <- seq(0, max(t_nodes), length.out = 300)
   grid <- ev + round(grid_t * 365)
   grid <- sort(unique(c(grid, m$dates)))
@@ -71,8 +71,8 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50, bump = NULL) {
     p <- curve_points(curve, tdates, ev)
     data.frame(tenor = m$table_tenors, date = p$date, discount = p$discount, zero_continuous = p$zero_continuous)
   }
-  zc_nodes <- RiemannFinMath::compute_discount(zc, m$dates)
-  dc_nodes <- RiemannFinMath::compute_discount(dcv, m$dates)
+  zc_nodes <- rmql::compute_discount(zc, m$dates)
+  dc_nodes <- rmql::compute_discount(dcv, m$dates)
   recovered <- function(df) ifelse(t_nodes > 0, -log(df) / t_nodes, rates)
   validation <- function(name, curve) {
     p <- curve_points(curve, grid, ev)
@@ -85,7 +85,7 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50, bump = NULL) {
     conventions = list(day_count = "Actual/365 Fixed", zero_curve = "ゼロ金利を時間について線形補間（QuantLib ZeroCurve、連続複利）",
                        discount_curve = "ノードのゼロ金利を割引係数に直し、対数線形補間（QuantLib DiscountCurve）",
                        shift = "ゼロ金利に単利・年1回の複利で一定のスプレッドを加える（QuantLib ZeroSpreadedTermStructure、GaussQuant の既定）",
-                       engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+                       engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     request = list(zeroRatesPct = I(rates * 100), shiftBp = shift_bp),
     nodes = data.frame(tenor = m$tenors, date = format(m$dates), time = t_nodes, zero_rate = rates),
     zero_curve = list(table = table(zc), points = curve_points(zc, grid, ev)),
@@ -98,13 +98,13 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50, bump = NULL) {
   )
   if (!is.na(bump_i)) {
     rates_b <- rates; rates_b[bump_i] <- rates_b[bump_i] + bump_bp / 1e4
-    zcb <- RiemannFinMath::with_extrapolation(RiemannFinMath::create_zero_curve(m$dates, rates_b, "actual_365_fixed", "continuous"))
+    zcb <- rmql::with_extrapolation(rmql::create_zero_curve(m$dates, rates_b, "actual_365_fixed", "continuous"))
     # nodes and table tenors in date order (a date that is both keeps the node's name)
     all_dates <- c(m$dates, tdates); all_tenors <- c(m$tenors, m$table_tenors); is_node <- c(rep(TRUE, length(m$dates)), rep(FALSE, length(tdates)))
     ord <- order(all_dates); all_dates <- all_dates[ord]; all_tenors <- all_tenors[ord]; is_node <- is_node[ord]
     dup <- duplicated(all_dates); all_dates <- all_dates[!dup]; all_tenors <- all_tenors[!dup]; is_node <- is_node[!dup]
     t <- as.numeric(all_dates - ev) / 365
-    d0 <- RiemannFinMath::compute_discount(zc, all_dates); d1 <- RiemannFinMath::compute_discount(zcb, all_dates)
+    d0 <- rmql::compute_discount(zc, all_dates); d1 <- rmql::compute_discount(zcb, all_dates)
     z <- function(d) ifelse(t > 0, -log(d) / t, NA_real_)
     out$bump <- list(
       tenor = m$tenors[bump_i], bp = bump_bp, node_date = format(m$dates[bump_i]),

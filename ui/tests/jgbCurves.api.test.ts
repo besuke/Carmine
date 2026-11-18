@@ -1,7 +1,7 @@
 import { describe, expect, inject, it } from "vitest";
 import { fetchJgbCurves } from "../src/api/jgbCurves";
 
-// The yield-curve slider: every month-end JGB curve, built by RiemannFinMath on the server.
+// The yield-curve slider: every month-end JGB curve, built by rmql on the server.
 
 const baseUrl = inject("apiBaseUrl");
 

@@ -6,7 +6,7 @@ import { fetchFutures } from "../src/api/futures";
 
 // The JGB futures chapter's API against GaussQuant running the manuscript's code on the same fictitious inputs
 // (server/tests/golden/futures_golden.json, written by server/tests/reconciliation/futures/reconcile_futures.R). The stress scenario
-// there also matches the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
+// there also matches the manuscript's own results (rmql comparison/baseline/lagrange_values.csv).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 type G = Record<string, number | boolean>[]; // the GaussQuant tables, one object per bond

@@ -1,4 +1,4 @@
-# 国債先物・CTD・先物BPV の照合：GaussQuant・原稿と RiemannFinMath
+# 国債先物・CTD・先物BPV の照合：GaussQuant・原稿と rmql
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：LagrangeFinance II-2.6（受渡適格銘柄、複利利回りと Duration、Gross Basis・Carry・Net Basis・Implied Repo・CTD）、II-2.7（8%・9% のストレスシナリオ）、先物BPV（GaussQuant `futures_bpv_GQL()`：CTD の DV01 ÷ CF）
@@ -19,10 +19,10 @@
 
 | 比べたもの | 項目 | 最大差 |
 |---|---|---|
-| RiemannFinMath − GaussQuant（同じ架空の入力） | 経過利子（評価日・受渡日）、保有期間のクーポン、複利利回り、修正デュレーション、DV01、Gross Basis、Carry、Net Basis、Implied Repo、CTD、先物BPV | すべて 0 |
+| rmql − GaussQuant（同じ架空の入力） | 経過利子（評価日・受渡日）、保有期間のクーポン、複利利回り、修正デュレーション、DV01、Gross Basis、Carry、Net Basis、Implied Repo、CTD、先物BPV | すべて 0 |
 | 同上（ストレス） | 先物価格、現物価格、Net Basis、Implied Repo、修正デュレーション、先物BPV | すべて 0 |
-| RiemannFinMath − 原稿の計算結果（Riemann `comparison/baseline/lagrange_values.csv`） | 経過利子・保有期間のクーポン（価格に依存しない）、ストレスの先物価格・現物価格・Gross Basis・Net Basis・Implied Repo・CTD | すべて 0 |
+| rmql − 原稿の計算結果（rmql `comparison/baseline/lagrange_values.csv`） | 経過利子・保有期間のクーポン（価格に依存しない）、ストレスの先物価格・現物価格・Gross Basis・Net Basis・Implied Repo・CTD | すべて 0 |
 
 CTD は、架空の価格の現在の市場で 373回債、ストレスで 383回債（原稿と同じ）。全銘柄を同じ利回りで評価すると、Funding 9% では利回り 6.25% 以上で 373回債から 383回債に入れ替わる。
 
-**利回りの逆算の精度**：GaussQuant の `bond_yield_from_price_GQL()` は QuantLib の `Bond_yield` を既定の精度 1e-8 で呼ぶ。RiemannFinMath の既定は 1e-10 なので、そのままでは利回りに最大 8.8e-9 の差が出た。API と照合は `accuracy = 1e-8` を指定して原稿と同じにしている。
+**利回りの逆算の精度**：GaussQuant の `bond_yield_from_price_GQL()` は QuantLib の `Bond_yield` を既定の精度 1e-8 で呼ぶ。rmql の既定は 1e-10 なので、そのままでは利回りに最大 8.8e-9 の差が出た。API と照合は `accuracy = 1e-8` を指定して原稿と同じにしている。

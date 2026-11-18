@@ -1,14 +1,14 @@
-# Reconcile JPY TONA OIS curve construction and valuation: GaussQuant (QuantLib, reference) vs RiemannFinMath.
+# Reconcile JPY TONA OIS curve construction and valuation: GaussQuant (QuantLib, reference) vs rmql.
 #
 # Run from anywhere:
 #   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/carmine-studio/server/tests/reconciliation/reconcile_tona_ois.R
 #
-# Writes raw (unrounded) results to server/tests/reconciliation/results/*.csv. Nothing in GaussQuant or Riemann is modified.
+# Writes raw (unrounded) results to server/tests/reconciliation/results/*.csv. Nothing in GaussQuant or rmql is modified.
 
 suppressPackageStartupMessages({
   library(GaussQuant)
   library(QuantLib)
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -72,18 +72,18 @@ gq_build <- function(q, curve_type) {
 }
 
 rfm_build <- function(q, interpolation) {
-  instruments <- RiemannFinMath::create_ois_instruments(
+  instruments <- rmql::create_ois_instruments(
     tenor = tenor_label(q$tenor_n, q$tenor_unit),
     rate = q$rate,
     settlement_days = q$fixing_days, # 2 business days, as GaussQuant passes to OISRateHelper
     payment_frequency = 1L, # QuantLib OISRateHelper default Annual
     payment_lag = 0L # QuantLib OISRateHelper default 0
   )
-  curve <- RiemannFinMath::bootstrap_ois_curve(
+  curve <- rmql::bootstrap_ois_curve(
     evaluation_date, evaluation_date, "tonar", "actual_365_fixed", instruments,
     interpolation = interpolation, accuracy = 1e-12
   )
-  RiemannFinMath::with_extrapolation(curve)
+  rmql::with_extrapolation(curve)
 }
 
 gq_discount <- function(bundle, dates) {
@@ -118,18 +118,18 @@ gq_swap <- function(bundle, fixed_rate) {
 }
 
 # ---------------------------------------------------------------------------
-# 3. 7Y OIS dates on the Riemann side, derived with Riemann's own calendar functions (MakeOIS rule)
+# 3. 7Y OIS dates on the rmql side, derived with rmql's own calendar functions (MakeOIS rule)
 # ---------------------------------------------------------------------------
 
-rfm_spot <- RiemannFinMath::compute_advanced_date(
-  "japan", RiemannFinMath::compute_adjusted_date("japan", evaluation_date), "2D"
+rfm_spot <- rmql::compute_advanced_date(
+  "japan", rmql::compute_adjusted_date("japan", evaluation_date), "2D"
 )
-rfm_eom <- RiemannFinMath::compute_end_of_month("japan", rfm_spot) == rfm_spot
+rfm_eom <- rmql::compute_end_of_month("japan", rfm_spot) == rfm_spot
 rfm_end <- seq(rfm_spot, by = paste(swap_years, "years"), length.out = 2L)[2L]
-if (isTRUE(rfm_eom)) rfm_end <- RiemannFinMath::compute_end_of_month("japan", rfm_end)
+if (isTRUE(rfm_eom)) rfm_end <- rmql::compute_end_of_month("japan", rfm_end)
 
 rfm_swap <- function(fixed_rate, nominal) {
-  RiemannFinMath::create_ois_swap(
+  rmql::create_ois_swap(
     "payer", nominal, rfm_spot, rfm_end, "tonar", fixed_rate,
     fixed_frequency = 1L, overnight_frequency = 1L, payment_lag = 0L
   )
@@ -160,7 +160,7 @@ for (qs_name in names(quote_sets)) {
 
       # Instruments
       h_gq <- gq_helpers(gq)
-      h_rfm <- RiemannFinMath::get_quote_repricing(rfm)
+      h_rfm <- rmql::get_quote_repricing(rfm)
       inst <- h_gq |>
         dplyr::mutate(
           quote = q$rate,
@@ -186,15 +186,15 @@ for (qs_name in names(quote_sets)) {
       dfs <- pts |>
         dplyr::mutate(
           gq_df = gq_discount(gq, date),
-          rfm_df = RiemannFinMath::compute_discount(rfm, date),
+          rfm_df = rmql::compute_discount(rfm, date),
           gq_fwd_1d = gq_forward_1d(gq, date),
-          rfm_fwd_1d = RiemannFinMath::compute_forward_rate(rfm, date, date + 1L, "actual_365_fixed", "simple")
+          rfm_fwd_1d = rmql::compute_forward_rate(rfm, date, date + 1L, "actual_365_fixed", "simple")
         )
 
-      # 7Y OIS: unit-nominal GaussQuant NPV scaled to yen; Riemann at the yen notional and at 1
+      # 7Y OIS: unit-nominal GaussQuant NPV scaled to yen; rmql at the yen notional and at 1
       sw_rfm <- rfm_swap(fixed_rate, notional_jpy)
-      v_rfm <- RiemannFinMath::compute_ois_swap_value(sw_rfm, rfm, evaluation_date)
-      v_rfm1 <- RiemannFinMath::compute_ois_swap_value(rfm_swap(fixed_rate, 1), rfm, evaluation_date)
+      v_rfm <- rmql::compute_ois_swap_value(sw_rfm, rfm, evaluation_date)
+      v_rfm1 <- rmql::compute_ois_swap_value(rfm_swap(fixed_rate, 1), rfm, evaluation_date)
       par_gq <- gq_swap(gq, 0)$fairRate()
       swap_row <- tibble::tibble(
         fixed_rate = fixed_rate,
@@ -207,7 +207,7 @@ for (qs_name in names(quote_sets)) {
       )
 
       # Cash flows
-      cf_rfm <- RiemannFinMath::compute_ois_swap_cashflows(sw_rfm, rfm, evaluation_date)
+      cf_rfm <- rmql::compute_ois_swap_cashflows(sw_rfm, rfm, evaluation_date)
       cf <- dplyr::bind_rows(
         tibble::tibble(leg = "fixed", n = seq_len(nrow(fixed_tbl)), gq_date = as.Date(fixed_tbl$date), gq_amount_jpy = fixed_tbl$amount * notional_jpy),
         tibble::tibble(leg = "overnight", n = seq_len(nrow(on_tbl)), gq_date = as.Date(on_tbl$date), gq_amount_jpy = on_tbl$amount * notional_jpy)
@@ -330,8 +330,8 @@ writeLines(c(
   paste("R:", R.version.string),
   paste("QuantLib (R):", as.character(packageVersion("QuantLib"))),
   paste("GaussQuant:", as.character(packageVersion("GaussQuant")), "built", packageDescription("GaussQuant")$Built),
-  paste("RiemannFinMath:", as.character(packageVersion("RiemannFinMath")), "built", packageDescription("RiemannFinMath")$Built),
-  paste("RiemannFinMath path:", find.package("RiemannFinMath"))
+  paste("rmql:", as.character(packageVersion("rmql")), "built", packageDescription("rmql")$Built),
+  paste("rmql path:", find.package("rmql"))
 ), file.path(out_dir, "session_info.txt"))
 
 options(width = 200, pillar.sigfig = 10)

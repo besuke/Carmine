@@ -94,7 +94,7 @@ def main():
         links = "、".join(f"[{name}](#{route})" for name, route in pages)
         head = f"""# {title}
 
-> この章は、Coral Book『金融工学の応用基礎』第III部の原稿 [`part3_enterprise_riemann/{src}`]({REPO}/{src}) の本文を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。この章の計算は {links} で、条件を変えながら R サーバー（RiemannFinMath）で確かめられます。
+> この章は、Coral Book『金融工学の応用基礎』第III部の原稿 [`part3_enterprise_riemann/{src}`]({REPO}/{src}) の本文を移したものです（見出し・数式・定義・注記は原文のまま）。R のコードは原稿のものを載せていますが、この画面では実行しないので、表や数値の出力は表示されません。この章の計算は {links} で、条件を変えながら R サーバー（rmql）で確かめられます。
 
 """
         io.open(os.path.join(DST, f"{slug}.mdx"), "w", encoding="utf-8", newline="\n").write(head + body)

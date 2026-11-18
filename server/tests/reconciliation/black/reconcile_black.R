@@ -1,12 +1,12 @@
 # Reconcile the Black model chapter (Coral Book II-4): GaussQuant / QuantLib 1.42 running the manuscript's code
-# against the page's own model (server/R/black_model.R, RiemannFinMath), and that model against the manuscript's own
-# results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
+# against the page's own model (server/R/black_model.R, rmql), and that model against the manuscript's own
+# results (rmql comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
 #
 #   npm run reconcile:black
 #
 # Writes server/tests/golden/black_golden.json (GaussQuant's values) and server/tests/reconciliation/black/results/.
 
-suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite) })
+suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(rmql); library(jsonlite) })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "server/tests/reconciliation/black/results")
@@ -63,7 +63,7 @@ gq_exercise <- as.data.frame(dplyr::count(lsm_result$exercise, exercise_step, na
 gq_diag <- as.data.frame(lsm_result$diagnostics)
 
 # ---- comparisons -------------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))
@@ -91,8 +91,8 @@ rows <- rbind(
   cmp("Black76 process：Theta", pr$theta, analytic$theta, 1e-12),
   cmp("Black76 process：Theta（1日）", pr$theta_per_day, analytic$theta_per_day, 1e-14),
   info("Black76：インプライド・ボラティリティ", bk$implied_volatility, analytic$implied_volatility,
-       "判定しない：QuantLib の既定の精度は 1e-4、RiemannFinMath は 1e-10（入力 5.2% を再現する）"),
-  info("MC：疑似乱数 200 パスの価格（Riemann − QuantLib MT）", api$mc$npv, gq_mc$npv,
+       "判定しない：QuantLib の既定の精度は 1e-4、rmql は 1e-10（入力 5.2% を再現する）"),
+  info("MC：疑似乱数 200 パスの価格（rmql − QuantLib MT）", api$mc$npv, gq_mc$npv,
        sprintf("判定しない：乱数が別。差は標準誤差の %.2f 倍", (api$mc$npv - gq_mc$npv) / gq_mc$standard_error)),
   cmp("1パスの確認：Sobol 3ステップ×4本のパス（RFM−GQ）", api$mc$one_path$generated_price,
       gq_black_sobol$price[gq_black_sobol$path_id %in% 2:4], 1e-12),
@@ -139,6 +139,6 @@ golden <- list(
   sobol_64_paths = sobol_display_tbl$price, lsm = gq_lsm, lsm_exercise = gq_exercise, lsm_diagnostics = gq_diag
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/black_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

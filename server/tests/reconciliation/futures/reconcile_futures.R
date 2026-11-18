@@ -1,13 +1,13 @@
 # Reconcile the JGB futures chapter (Coral Book II-2.6–2.7) and the futures BPV:
-# GaussQuant / QuantLib 1.42 (the manuscript's code) against RiemannFinMath, on the same fictitious inputs
+# GaussQuant / QuantLib 1.42 (the manuscript's code) against rmql, on the same fictitious inputs
 # (server/data/futures_demo/inputs.json), plus the values that do not depend on the market prices and the stress
-# scenario against the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
+# scenario against the manuscript's own results (rmql comparison/baseline/lagrange_values.csv).
 #
 #   node ui/scripts/run-r.mjs server/tests/reconciliation/futures/reconcile_futures.R
 #
 # Writes server/tests/golden/futures_golden.json (GaussQuant's values) and server/tests/reconciliation/futures/results/.
 
-suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite); library(dplyr); library(purrr) })
+suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(rmql); library(jsonlite); library(dplyr); library(purrr) })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "server/tests/reconciliation/futures/results")
@@ -62,28 +62,28 @@ stress <- basis_table(stress_price, rep(stress_y, nrow(b)), stress_futures, inp$
 sctd <- which(stress$ctd)
 stress_futures_bpv <- GaussQuant::futures_bpv_GQL(stress$dv01[sctd], b$conversion_factor[sctd])
 
-# ---- RiemannFinMath ---------------------------------------------------------------------------------------
-rb <- function(issue_date, maturity_date, coupon_pct) RiemannFinMath::create_fixed_rate_bond(
+# ---- rmql ---------------------------------------------------------------------------------------
+rb <- function(issue_date, maturity_date, coupon_pct) rmql::create_fixed_rate_bond(
   settlement_days = 0L, face_amount = 100, effective_date = issue_date, termination_date = maturity_date, tenor = "6M", calendar = "japan",
   convention = "unadjusted", termination_convention = "unadjusted", rule = "backward", end_of_month = FALSE,
   coupon_rate = coupon_pct / 100, day_count = "actual_365_fixed", payment_convention = "following", redemption = 100)
 r_bonds <- pmap(list(b$issue_date, b$maturity_date, b$coupon_pct), rb)
-r_yield <- map2_dbl(r_bonds, b$fictitious_price, \(x, p) RiemannFinMath::compute_yield_from_price(x, p, "clean", "actual_365_fixed", "compounded", 2L, valuation, accuracy = 1e-8)) # QuantLib Bond::yield default accuracy, as GaussQuant uses
-r_dur <- map2_dbl(r_bonds, r_yield, \(x, y) RiemannFinMath::compute_duration(x, y, "actual_365_fixed", "compounded", 2L, valuation, "modified"))
-r_dv01 <- map2_dbl(r_bonds, r_yield, \(x, y) (RiemannFinMath::compute_clean_price(x, y - 1e-4, "actual_365_fixed", "compounded", 2L, valuation) -
-                                                RiemannFinMath::compute_clean_price(x, y + 1e-4, "actual_365_fixed", "compounded", 2L, valuation)) / 2)
-r_bpv <- map2_dbl(r_bonds, r_yield, \(x, y) RiemannFinMath::compute_basis_point_value(x, y, "actual_365_fixed", "compounded", 2L, valuation))
-r_cur <- RiemannFinMath::compute_future_basket(r_bonds, b$fictitious_price, inp$futures_price, b$conversion_factor, inp$funding_rate, valuation, delivery)
+r_yield <- map2_dbl(r_bonds, b$fictitious_price, \(x, p) rmql::compute_yield_from_price(x, p, "clean", "actual_365_fixed", "compounded", 2L, valuation, accuracy = 1e-8)) # QuantLib Bond::yield default accuracy, as GaussQuant uses
+r_dur <- map2_dbl(r_bonds, r_yield, \(x, y) rmql::compute_duration(x, y, "actual_365_fixed", "compounded", 2L, valuation, "modified"))
+r_dv01 <- map2_dbl(r_bonds, r_yield, \(x, y) (rmql::compute_clean_price(x, y - 1e-4, "actual_365_fixed", "compounded", 2L, valuation) -
+                                                rmql::compute_clean_price(x, y + 1e-4, "actual_365_fixed", "compounded", 2L, valuation)) / 2)
+r_bpv <- map2_dbl(r_bonds, r_yield, \(x, y) rmql::compute_basis_point_value(x, y, "actual_365_fixed", "compounded", 2L, valuation))
+r_cur <- rmql::compute_future_basket(r_bonds, b$fictitious_price, inp$futures_price, b$conversion_factor, inp$funding_rate, valuation, delivery)
 r_std <- rb(valuation, inp$stress$standard_maturity, 100 * inp$stress$standard_coupon)
-r_stress_futures <- RiemannFinMath::compute_clean_price(r_std, stress_y, "actual_365_fixed", "compounded", 2L, valuation)
-r_stress_price <- map_dbl(r_bonds, \(x) RiemannFinMath::compute_clean_price(x, stress_y, "actual_365_fixed", "compounded", 2L, valuation))
-r_str <- RiemannFinMath::compute_future_basket(r_bonds, r_stress_price, r_stress_futures, b$conversion_factor, inp$stress$funding_rate, valuation, delivery)
-r_str_dur <- map_dbl(r_bonds, \(x) RiemannFinMath::compute_duration(x, stress_y, "actual_365_fixed", "compounded", 2L, valuation, "modified"))
-r_str_dv01 <- map_dbl(r_bonds, \(x) (RiemannFinMath::compute_clean_price(x, stress_y - 1e-4, "actual_365_fixed", "compounded", 2L, valuation) -
-                                       RiemannFinMath::compute_clean_price(x, stress_y + 1e-4, "actual_365_fixed", "compounded", 2L, valuation)) / 2)
+r_stress_futures <- rmql::compute_clean_price(r_std, stress_y, "actual_365_fixed", "compounded", 2L, valuation)
+r_stress_price <- map_dbl(r_bonds, \(x) rmql::compute_clean_price(x, stress_y, "actual_365_fixed", "compounded", 2L, valuation))
+r_str <- rmql::compute_future_basket(r_bonds, r_stress_price, r_stress_futures, b$conversion_factor, inp$stress$funding_rate, valuation, delivery)
+r_str_dur <- map_dbl(r_bonds, \(x) rmql::compute_duration(x, stress_y, "actual_365_fixed", "compounded", 2L, valuation, "modified"))
+r_str_dv01 <- map_dbl(r_bonds, \(x) (rmql::compute_clean_price(x, stress_y - 1e-4, "actual_365_fixed", "compounded", 2L, valuation) -
+                                       rmql::compute_clean_price(x, stress_y + 1e-4, "actual_365_fixed", "compounded", 2L, valuation)) / 2)
 
 # ---- Baseline: the manuscript's own results (price-independent values and the stress scenario) ----------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 
 cmp <- function(item, api, ref, tol) data.frame(item = item, n = length(api), max_abs_diff = max(abs(api - ref)), tolerance = tol, pass = max(abs(api - ref)) <= tol)
@@ -129,6 +129,6 @@ golden <- list(
   stress_ctd_issue = b$issue[sctd]
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE), file.path(lab, "server/tests/golden/futures_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass))

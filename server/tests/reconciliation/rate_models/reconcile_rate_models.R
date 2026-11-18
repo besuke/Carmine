@@ -1,13 +1,13 @@
 # Reconcile the interest-rate models chapter (Coral Book II-7): the manuscript's code (R, with its seeds) against
-# the page's own model (server/R/rate_models_model.R, RiemannFinMath where it takes the same normals), and that model
-# against the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
+# the page's own model (server/R/rate_models_model.R, rmql where it takes the same normals), and that model
+# against the manuscript's own results (rmql comparison/baseline/lagrange_values.csv).
 #
 #   npm run reconcile:rate-models
 #
 # Writes server/tests/golden/rate_models_golden.json (the manuscript's code's values) and server/tests/reconciliation/rate_models/results/.
 
 suppressPackageStartupMessages({
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -66,7 +66,7 @@ ms_compounded <- (prod(1 + rate / 365) - 1) / (90 / 365)
 ms_to_date <- (cumprod(1 + rate / 365) - 1) / cumsum(rep(1 / 365, 90))
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))
@@ -74,15 +74,15 @@ cmp <- function(item, a, ref, tol, note = "") {
 }
 info <- function(item, a, ref, note) tibble(item = item, n = length(a), max_abs_diff = max(abs(as.numeric(a) - as.numeric(ref))), tolerance = NA_real_, pass = NA, note = note)
 dc <- api$hw$discount_check
-riemann_rows <- dc[grepl("RiemannFinMath", dc$model), ]
+rmql_rows <- dc[grepl("rmql", dc$model), ]
 corr_keys <- with(api$shocks$table, sprintf("lmm.correlation.%s.%s", forward_1, forward_2))
 rows <- bind_rows(
   cmp("HW：表示する短期金利の経路（8本 × 121点）", unlist(api$hw$sample_paths), as.vector(t(hw_example$rates[1:8, ])), 0),
   cmp("HW：平均の経路", api$hw$mean_path, colMeans(hw_example$rates), 1e-15),
-  cmp("HW：経路別割引の平均（1・2・5年）", dc$simulation[!grepl("RiemannFinMath", dc$model)], ms_discount, 1e-15),
-  info("HW：RiemannFinMath の月次の経路の割引 − 初期曲線（1・2・5年）", riemann_rows$simulation, riemann_rows$initial_curve,
+  cmp("HW：経路別割引の平均（1・2・5年）", dc$simulation[!grepl("rmql", dc$model)], ms_discount, 1e-15),
+  info("HW：rmql の月次の経路の割引 − 初期曲線（1・2・5年）", rmql_rows$simulation, rmql_rows$initial_curve,
        sprintf("判定しない：乱数が別（パッケージの乱数、antithetic）。差は標準誤差の最大 %.2f 倍",
-               max(abs(riemann_rows$difference) / riemann_rows$mc_standard_error))),
+               max(abs(rmql_rows$difference) / rmql_rows$mc_standard_error))),
   cmp("キャップレット：Black の公式（RFM − 原稿の R 関数）", api$caplet$black_price, ms_caplet$black, 1e-17),
   cmp("キャップレット：周辺分布のモンテカルロ（同じ R の乱数）", api$caplet$simulated_price, ms_caplet$simulated, 1e-17),
   cmp("キャップレット：標準誤差", api$caplet$mc_standard_error, ms_caplet$se, 1e-17),
@@ -106,6 +106,6 @@ golden <- list(
   caplet = ms_caplet, correlation = ms_correlation, compounded = ms_compounded
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/rate_models_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), R.version.string, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), R.version.string, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

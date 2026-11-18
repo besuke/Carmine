@@ -1,5 +1,5 @@
 # Computational evolution and parallel computing (Coral Book III-1). The chapter's worked example (present values
-# of six scenarios, applied row by row) is the manuscript's R; the measurement of parallel valuation is RiemannFinMath's
+# of six scenarios, applied row by row) is the manuscript's R; the measurement of parallel valuation is rmql's
 # batch of bonds on worker threads (compute_bond_values_batch), whose results do not depend on the number of threads.
 #
 # POST /api/parallel
@@ -44,7 +44,7 @@ par_measure <- function(p) {
   base <- NULL
   rows <- lapply(threads, \(th) {
     t0 <- proc.time()[["elapsed"]]
-    r <- RiemannFinMath::compute_bond_values_batch(bonds, threads = th)
+    r <- rmql::compute_bond_values_batch(bonds, threads = th)
     elapsed <- proc.time()[["elapsed"]] - t0
     if (is.null(base)) base <<- r
     cols <- c("clean_price", "dirty_price", "accrued_amount", "duration_modified", "convexity", "basis_point_value")
@@ -77,7 +77,7 @@ parallel_compute <- function(body = list()) {
     conventions = list(
       example = "原稿の III-1.4 の6シナリオ。各行が独立したタスクで、purrr::pmap で1行ずつ評価する",
       batch = "残存約10年の固定利付債（クーポン 1.5%、半年払い、Japan カレンダー）を、0.1%〜3% の複利利回りで件数分だけ評価する。スレッドは計算のあいだ R を呼ばない",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     example = par_example(),
     batch = par_measure(p)
   )

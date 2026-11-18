@@ -4,7 +4,7 @@ import { PrdcRiskProvider, PrdcRiskStatus, RiskControls, NotePanel, AdPanel, McP
 
 # 第III部 自動微分・並列・分散による PRDC のリスク計算
 
-第III部の流れは、二つの方向に要約できます。一つは計算を分けて多くの計算資源で処理すること（並列計算と分散コンピューティング、III-1〜III-3）、もう一つは評価のプログラムそのものを微分できる形にして、感応度を一度に求めること（自動微分、III-4〜III-7）です。このページでは、原稿の III-7 の PRDC を題材に、この二つを一つの流れで確かめます。計算は R の HTTP API が **RiemannFinMath** で行い、照合しています（`reconciliation/prdc_risk/`）。
+第III部の流れは、二つの方向に要約できます。一つは計算を分けて多くの計算資源で処理すること（並列計算と分散コンピューティング、III-1〜III-3）、もう一つは評価のプログラムそのものを微分できる形にして、感応度を一度に求めること（自動微分、III-4〜III-7）です。このページでは、原稿の III-7 の PRDC を題材に、この二つを一つの流れで確かめます。計算は R の HTTP API が **rmql** で行い、照合しています（`reconciliation/prdc_risk/`）。
 
 $$
 \text{Scale Up / Scale Out} + \text{Automatic Differentiation} = \text{Enterprise Differentiable Risk Engine}

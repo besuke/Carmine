@@ -30,10 +30,10 @@ describe("Interest-rate models chapter (II-7) against the manuscript's code", ()
   it("reproduces the Hull-White paths and the discount check with the manuscript's random numbers", async () => {
     const h = (await fetchRateModels({}, { baseUrl })).hw;
     h.sample_paths.forEach((p, i) => p.forEach((r, k) => record("HW の経路", r - golden.hw_sample_paths[i][k], TOL.same_numbers)));
-    const ms = h.discount_check.filter((r) => !r.model.startsWith("RiemannFinMath"));
+    const ms = h.discount_check.filter((r) => !r.model.startsWith("rmql"));
     ms.forEach((r, i) => record("HW 割引の平均", r.simulation - golden.hw_discount[i], TOL.same_numbers));
-    // RiemannFinMath's own monthly paths: within three standard errors of the initial curve
-    for (const r of h.discount_check.filter((x) => x.model.startsWith("RiemannFinMath"))) expect(Math.abs(r.difference)).toBeLessThan(3 * r.mc_standard_error);
+    // rmql's own monthly paths: within three standard errors of the initial curve
+    for (const r of h.discount_check.filter((x) => x.model.startsWith("rmql"))) expect(Math.abs(r.difference)).toBeLessThan(3 * r.mc_standard_error);
   });
 
   it("reproduces the caplet, the correlated shocks and the compounded rate", async () => {

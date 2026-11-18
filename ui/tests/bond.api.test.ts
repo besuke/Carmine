@@ -56,7 +56,7 @@ describe("Deterministic cash-flow chapter (II-1) against GaussQuant", () => {
     record("修正デュレーション", b.risk.modified_duration - trunc3(golden.risk.modified_duration), TOL.risk);
     record("コンベクシティ", b.risk.convexity - trunc3(golden.risk.convexity), TOL.risk);
     record("QuantLib 方式の利回り", b.solvers[5].yield_pct - golden.yield_quantlib_pct, TOL.price);
-    // the root finders agree, and the manuscript's formulas agree with RiemannFinMath
+    // the root finders agree, and the manuscript's formulas agree with rmql
     for (const s of b.solvers.slice(1, 4)) expect(Math.abs(s.yield_pct - b.solvers[0].yield_pct)).toBeLessThan(1e-9);
     expect(Math.abs(b.formula.modified_duration - b.risk.modified_duration)).toBeLessThan(1e-10);
   });

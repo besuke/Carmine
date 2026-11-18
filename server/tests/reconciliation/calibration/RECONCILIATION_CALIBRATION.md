@@ -1,8 +1,8 @@
-# 金利デリバティブのキャリブレーションの照合：GaussQuant・原稿と RiemannFinMath
+# 金利デリバティブのキャリブレーションの照合：GaussQuant・原稿と rmql
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：LagrangeFinance II-6（`part2_quantive_riemann/ch06_irs_calibration.qmd`）の II-6.2〜6.5
-- 照合する側：API が実際に使う `server/R/calibration_model.R`（RiemannFinMath 0.3.0）をそのまま読み込んで比べる
+- 照合する側：API が実際に使う `server/R/calibration_model.R`（rmql 0.3.0）をそのまま読み込んで比べる
 - 再実行：`npm run reconcile:calibration`（参照値 `server/tests/golden/calibration_golden.json` も書き直す）、`npm test`（`tests/calibration.api.test.ts`）
 
 ## 入力
@@ -20,12 +20,12 @@
 
 | 項目 | 原稿 | このページ |
 |---|---|---|
-| Normal 型の価格 | 原稿の R 関数 | RiemannFinMath `compute_forward_option_value("bachelier")` |
-| SABR のボラ | GaussQuant `safe_sabr_vol_GQL()`（QuantLib `sabrVolatility`） | RiemannFinMath `compute_sabr_volatility("lognormal")` |
-| SABR のあてはめ | `optim`（L-BFGS-B、初期値 0.1、範囲、ボラの二乗誤差の平均） | 同じ `optim` を RiemannFinMath のボラの上で。並べて `calibrate_sabr`（Levenberg–Marquardt） |
-| HW の債券オプション | 原稿の R 関数（閉じた式） | RiemannFinMath `compute_hull_white_bond_option_value()`（フラットカーブは `create_flat_curve`） |
-| HW のあてはめ | `optim`（L-BFGS-B、初期値 a = 5%・σ = 1%、価格差 × 1万の二乗和） | 同じ `optim` を RiemannFinMath の価格の上で。並べて `calibrate_hull_white` |
-| BGM | 原稿の固定ウェイト近似と `optimize` | 同じ式（R）。追加で RiemannFinMath の LMM の Rebonato の近似と `calibrate_lmm_correlation` |
+| Normal 型の価格 | 原稿の R 関数 | rmql `compute_forward_option_value("bachelier")` |
+| SABR のボラ | GaussQuant `safe_sabr_vol_GQL()`（QuantLib `sabrVolatility`） | rmql `compute_sabr_volatility("lognormal")` |
+| SABR のあてはめ | `optim`（L-BFGS-B、初期値 0.1、範囲、ボラの二乗誤差の平均） | 同じ `optim` を rmql のボラの上で。並べて `calibrate_sabr`（Levenberg–Marquardt） |
+| HW の債券オプション | 原稿の R 関数（閉じた式） | rmql `compute_hull_white_bond_option_value()`（フラットカーブは `create_flat_curve`） |
+| HW のあてはめ | `optim`（L-BFGS-B、初期値 a = 5%・σ = 1%、価格差 × 1万の二乗和） | 同じ `optim` を rmql の価格の上で。並べて `calibrate_hull_white` |
+| BGM | 原稿の固定ウェイト近似と `optimize` | 同じ式（R）。追加で rmql の LMM の Rebonato の近似と `calibrate_lmm_correlation` |
 
 ## 結果【実行照合済み】
 
@@ -48,7 +48,7 @@
 
 **許容誤差を 0 にしなかった理由**：SABR と HW のあてはめは、同じ `optim`・同じ初期値と範囲でも、目的関数の値が最下位ビットで違うと止まる位置がわずかに動く（最大 2.6e-11）。
 
-**判定しない項目**：`calibrate_sabr` の α・ν・ρ は、原稿の手順と最適化の方法が違うので判定しない（差は最大 2.4e-4）。同じクォートへの当てはまりは RMSE で比べ、RiemannFinMath が 0.0138805989、原稿の手順が 0.0138807545 で、RiemannFinMath の方がわずかに小さい。HW では、原稿の手順は目的関数 0.0348 で止まり（a = 7.7479%、σ = 1.1933%、原稿と同じ）、`calibrate_hull_white` は価格を作った基準の a = 8%、σ = 1.2% に戻る。
+**判定しない項目**：`calibrate_sabr` の α・ν・ρ は、原稿の手順と最適化の方法が違うので判定しない（差は最大 2.4e-4）。同じクォートへの当てはまりは RMSE で比べ、rmql が 0.0138805989、原稿の手順が 0.0138807545 で、rmql の方がわずかに小さい。HW では、原稿の手順は目的関数 0.0348 で止まり（a = 7.7479%、σ = 1.1933%、原稿と同じ）、`calibrate_hull_white` は価格を作った基準の a = 8%、σ = 1.2% に戻る。
 
 **途中で直したこと**：フォワードを 0 以下にすると Black 型の価格で計算が失敗し、API が 500 を返していた。Black 型はフォワードと行使金利が正のときだけ定義されるので、それ以外は価格なし（null）にして、Normal 型だけを計算するようにした（テストを追加）。
 

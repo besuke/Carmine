@@ -1,6 +1,6 @@
-# Deterministic cash flows (Coral Book II-1). All calculations are RiemannFinMath, except the manuscript's own
+# Deterministic cash flows (Coral Book II-1). All calculations are rmql, except the manuscript's own
 # teaching formulas (the closed-form price of a regular semiannual bond, its derivatives, and the root finders of
-# II-1.8), which are written here in R as in the manuscript and compared with RiemannFinMath. Reconciled with
+# II-1.8), which are written here in R as in the manuscript and compared with rmql. Reconciled with
 # GaussQuant running the manuscript's code, and with the manuscript's own results, in server/tests/reconciliation/bond/.
 #
 # POST /api/bond
@@ -22,9 +22,9 @@ BOND_TONAR <- local({
   q <- GaussQuant::bluegamma_tonar_quotes_GQL()
   date <- "2026-09-10"
   tenor <- paste0(q$tenor_n, ifelse(q$tenor_unit == "Years", "Y", "M"))
-  curve <- RiemannFinMath::with_extrapolation(RiemannFinMath::bootstrap_ois_curve(
-    date, date, "tonar", "actual_365_fixed", RiemannFinMath::create_ois_instruments(tenor, q$rate, 2L, 1L, 0L)))
-  pillars <- RiemannFinMath::get_quote_repricing(curve)
+  curve <- rmql::with_extrapolation(rmql::bootstrap_ois_curve(
+    date, date, "tonar", "actual_365_fixed", rmql::create_ois_instruments(tenor, q$rate, 2L, 1L, 0L)))
+  pillars <- rmql::get_quote_repricing(curve)
   list(date = date, quotes = data.frame(quote_id = q$quote_id, tenor = tenor, rate = q$rate), curve = curve, pillars = pillars)
 })
 
@@ -32,11 +32,11 @@ BOND_TONAR <- local({
 bond_tonar <- function() {
   tc <- BOND_TONAR
   pillar <- as.Date(tc$pillars$pillar_date)
-  v <- RiemannFinMath::compute_curve_values(tc$curve, pillar, "actual_365_fixed")
+  v <- rmql::compute_curve_values(tc$curve, pillar, "actual_365_fixed")
   data.frame(
     quote_id = tc$quotes$quote_id, tenor = tc$quotes$tenor, pillar_date = format(pillar), par_rate = tc$quotes$rate,
     discount_factor = v$discount, zero_rate = v$zero_continuous,
-    inst_fwd_rate = RiemannFinMath::compute_forward_rate(tc$curve, pillar, pillar, "actual_365_fixed", "continuous"),
+    inst_fwd_rate = rmql::compute_forward_rate(tc$curve, pillar, pillar, "actual_365_fixed", "continuous"),
     repricing_error = tc$pillars$reproduction_error
   )
 }
@@ -115,33 +115,33 @@ bond_time_us <- function(fun, reps = 8L) {
 
 bond_value <- function(p) {
   d <- list(trade = p$tradeDate, issue = p$issueDate, maturity = p$maturityDate)
-  bond <- RiemannFinMath::create_fixed_rate_bond(
+  bond <- rmql::create_fixed_rate_bond(
     settlement_days = 2L, face_amount = 100, effective_date = d$issue, termination_date = d$maturity, tenor = "6M", calendar = "japan",
     convention = "unadjusted", termination_convention = "unadjusted", rule = "backward", end_of_month = FALSE,
     coupon_rate = p$couponPct / 100, day_count = BOND_DC, payment_convention = "unadjusted", redemption = 100, issue_date = d$issue)
-  settlement <- RiemannFinMath::compute_settlement_date(bond, d$trade)
-  cf <- RiemannFinMath::get_bond_cashflows(bond)
+  settlement <- rmql::compute_settlement_date(bond, d$trade)
+  cf <- rmql::get_bond_cashflows(bond)
   # II-1.4: Japanese simple yield -> price (truncated to 3 decimals) -> compound yield (truncated to 3 decimals)
   trunc3 <- function(x) trunc(x * 1000) / 1000
-  t <- RiemannFinMath::compute_remaining_years(settlement, d$maturity)
+  t <- rmql::compute_remaining_years(settlement, d$maturity)
   C <- p$couponPct
-  price <- RiemannFinMath::compute_price_from_simple_rate(t, C, p$simpleYieldPct, 100)
-  simple_back <- RiemannFinMath::compute_simple_rate_from_price(t, C, price, 100)
-  Y_raw <- RiemannFinMath::compute_compound_yield_from_price(t, C, price, 100)
+  price <- rmql::compute_price_from_simple_rate(t, C, p$simpleYieldPct, 100)
+  simple_back <- rmql::compute_simple_rate_from_price(t, C, price, 100)
+  Y_raw <- rmql::compute_compound_yield_from_price(t, C, price, 100)
   Y <- trunc3(Y_raw)
-  compound_price <- RiemannFinMath::compute_price_from_compound_yield(t, C, Y_raw, 100)
-  accrued <- RiemannFinMath::compute_accrued_amount(bond, settlement)
+  compound_price <- rmql::compute_price_from_compound_yield(t, C, Y_raw, 100)
+  accrued <- rmql::compute_accrued_amount(bond, settlement)
   y <- Y_raw / 100
   # II-1.5.3–1.5.4 and II-1.6.2: flat curve at the compound yield (30/360, semiannual), its continuous equivalent,
   # and the value with a zero spread on that curve
-  flat <- RiemannFinMath::create_flat_curve(settlement, y, BOND_DC, "compounded", 2L)
+  flat <- rmql::create_flat_curve(settlement, y, BOND_DC, "compounded", 2L)
   # evaluated on the trade date, as QuantLib's evaluation date; the bond settles two business days later
-  flat_value <- RiemannFinMath::compute_bond_value_on_curve(bond, flat, d$trade)
+  flat_value <- rmql::compute_bond_value_on_curve(bond, flat, d$trade)
   z <- p$zSpreadBp / 1e4
-  z_value <- RiemannFinMath::compute_bond_value_with_zero_spread(bond, flat, z, "compounded", 2L, d$trade)
-  z_back <- RiemannFinMath::compute_z_spread_from_price(bond, flat, z_value$npv, "dirty", "compounded", 2L, settlement)
-  # II-1.7: risk by the manuscript's formulas and by RiemannFinMath (duration and convexity truncated to 3 decimals)
-  risk <- as.list(RiemannFinMath::compute_risk_from_compound_yield(t, C, Y_raw, 100, accrued))
+  z_value <- rmql::compute_bond_value_with_zero_spread(bond, flat, z, "compounded", 2L, d$trade)
+  z_back <- rmql::compute_z_spread_from_price(bond, flat, z_value$npv, "dirty", "compounded", 2L, settlement)
+  # II-1.7: risk by the manuscript's formulas and by rmql (duration and convexity truncated to 3 decimals)
+  risk <- as.list(rmql::compute_risk_from_compound_yield(t, C, Y_raw, 100, accrued))
   risk$modified_duration <- trunc3(risk$modified_duration)
   risk$convexity <- trunc3(risk$convexity)
   Pf <- bond_price_formula(Y_raw, C, t); dP <- bond_dprice_formula(Y_raw, C, t); d2P <- bond_d2price_formula(Y_raw, C, t)
@@ -163,10 +163,10 @@ bond_value <- function(p) {
   bisection <- bond_bisection(f)
   brent <- stats::uniroot(f, c(-1, 20), tol = 1e-12)
   poly <- bond_polyroot(price, C / 2, periods, f)
-  ql_style <- 100 * RiemannFinMath::compute_yield_from_price(bond, price, "clean", BOND_DC, "compounded", 2L, settlement, accuracy = 1e-8)
+  ql_style <- 100 * rmql::compute_yield_from_price(bond, price, "clean", BOND_DC, "compounded", 2L, settlement, accuracy = 1e-8)
   solvers <- data.frame(
     method = c("ニュートン・ラフソン法", "二分法", "Brent法（uniroot）", "多項式求根法（polyroot）",
-               "RiemannFinMath：compute_compound_yield_from_price（3桁切り捨て）", "RiemannFinMath：compute_yield_from_price（精度 1e-8）"),
+               "rmql：compute_compound_yield_from_price（3桁切り捨て）", "rmql：compute_yield_from_price（精度 1e-8）"),
     yield_pct = c(newton$root, bisection$root, brent$root, poly$root, Y, ql_style),
     iterations = c(nrow(newton$steps), nrow(bisection$steps), brent$iter, NA, NA, NA)
   )
@@ -175,8 +175,8 @@ bond_value <- function(p) {
   solvers$average_us <- BOND_TIMING[[timing_key <- paste(format(c(C, price, t), digits = 17), collapse = "|")]] %||% (BOND_TIMING[[timing_key]] <- c(
     bond_time_us(function() bond_newton(f, dfn, p$simpleYieldPct, keep = FALSE)), bond_time_us(function() bond_bisection(f, keep = FALSE)),
     bond_time_us(function() stats::uniroot(f, c(-1, 20), tol = 1e-12)), bond_time_us(function() bond_polyroot(price, C / 2, periods, f), 50L),
-    bond_time_us(function() RiemannFinMath::compute_compound_yield_from_price(t, C, price, 100, digits = 3L)),
-    bond_time_us(function() RiemannFinMath::compute_yield_from_price(bond, price, "clean", BOND_DC, "compounded", 2L, settlement, accuracy = 1e-8))))
+    bond_time_us(function() rmql::compute_compound_yield_from_price(t, C, price, 100, digits = 3L)),
+    bond_time_us(function() rmql::compute_yield_from_price(bond, price, "clean", BOND_DC, "compounded", 2L, settlement, accuracy = 1e-8))))
   list(
     trade_date = d$trade, settlement_date = format(settlement), issue_date = d$issue, maturity_date = d$maturity,
     coupon_pct = C, simple_yield_pct = p$simpleYieldPct, z_spread_bp = p$zSpreadBp,
@@ -225,7 +225,7 @@ bond_compute <- function(body = list()) {
       tonar = sprintf("TONAR OIS：%s 時点の GaussQuant のサンプル気配（BlueGamma、14本）。スポット開始2日、年1回払い、Japan、MonotonicLogCubic。フォワードは QuantLib の forwardRate(d, d) と同じ瞬間フォワード", BOND_TONAR$date),
       bond = "固定利付債：額面100、半年払い、30/360（Bond Basis）、日付は調整なし、Backward、受渡は取引日の2営業日後（Japan）",
       yen = "単利→単価は日本の計算規則（残存年数は年＋日/365 を小数7桁で切り捨て、単価は小数3桁で切り捨て）、複利利回り・修正デュレーション・コンベクシティは小数3桁（4桁目切り捨て）",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     tonar = bond_tonar(), shapes = bond_shapes(shapes), bond = bond_value(b)
   )
 }

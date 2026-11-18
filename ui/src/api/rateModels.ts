@@ -15,7 +15,7 @@ export interface RateModelsResponse {
   hw: {
     flat_rate: number; a: number; sigma: number; steps_per_year: number; paths: number; seed: number;
     times: number[]; sample_paths: number[][]; mean_path: number[]; quantile_05: number[]; quantile_95: number[]; shift: number[];
-    riemann_sample_paths: (number | null)[][]; riemann_times: number[];
+    rmql_sample_paths: (number | null)[][]; rmql_times: number[];
     discount_check: { model: string; maturity: number; initial_curve: number; simulation: number; mc_standard_error: number; difference: number }[];
     hjm_loading: { time_to_maturity: number; forward_volatility: number }[];
   };

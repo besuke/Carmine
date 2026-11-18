@@ -1,9 +1,9 @@
-# PRDC の照合：QuantLib・原稿のコードと RiemannFinMath
+# PRDC の照合：QuantLib・原稿のコードと rmql
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：LagrangeFinance II-9（`part2_quantive_riemann/ch09_exotic_derivatives_prdc.qmd`）の II-9.1〜9.5
 - 照合する側：API が実際に使う `server/R/prdc_model.R` をそのまま読み込んで比べる
-- 比べる相手：QuantLib（Schedule と `blackFormula`）、原稿の qmd から計算部分をそのまま読み込み GaussQuant で実行した値、原稿の計算結果（Riemann `comparison/baseline/lagrange_values.csv`）
+- 比べる相手：QuantLib（Schedule と `blackFormula`）、原稿の qmd から計算部分をそのまま読み込み GaussQuant で実行した値、原稿の計算結果（rmql `comparison/baseline/lagrange_values.csv`）
 - 再実行：`npm run reconcile:prdc`（参照値 `server/tests/golden/prdc_golden.json` も書き直す）、`npm test`（`tests/prdc.api.test.ts`）
 
 ## 入力
@@ -14,12 +14,12 @@
 
 | 項目 | このページの計算 |
 |---|---|
-| スケジュール | RiemannFinMath `generate_schedule()` |
-| 現在価値（閉じた式）・FX デルタ・ベガ | RiemannFinMath `compute_prdc_value(paths = 0)`：各クーポンをフロア＋FX のコールスプレッドとして評価 |
-| 現在価値（モンテカルロ） | RiemannFinMath `compute_prdc_value(paths, seed)` |
-| 期待クーポン、フロア・キャップに到達する確率 | RiemannFinMath `compute_forward_option_value("black")` のコール価格と行使価格感応度（割引なしで −P(S > K)） |
+| スケジュール | rmql `generate_schedule()` |
+| 現在価値（閉じた式）・FX デルタ・ベガ | rmql `compute_prdc_value(paths = 0)`：各クーポンをフロア＋FX のコールスプレッドとして評価 |
+| 現在価値（モンテカルロ） | rmql `compute_prdc_value(paths, seed)` |
+| 期待クーポン、フロア・キャップに到達する確率 | rmql `compute_forward_option_value("black")` のコール価格と行使価格感応度（割引なしで −P(S > K)） |
 | クーポンの分布（3日） | 対数正規分布の分布関数（フロアとキャップの確率と、その間の30区間） |
-| サンプル FX パス | RiemannFinMath `generate_black_scholes_paths()`（等間隔37ステップ） |
+| サンプル FX パス | rmql `generate_black_scholes_paths()`（等間隔37ステップ） |
 
 **割引とドリフト**：原稿は割引金利 0.5% で割り引き、FX は円金利 − 外貨金利（−2%）でドリフトさせる。`compute_prdc_value` は円の1本のカーブを両方に使うので、円のカーブを割引金利 0.5%、外貨のカーブを 2.5% にして、ドリフト −2% を保つ（同じモデル）。
 
@@ -42,7 +42,7 @@
 - 現在価値：閉じた式 334,146,942 円、原稿の MC 335,361,061 円。差は原稿の標準誤差 2,045,078 円の −0.59 倍。
 - 期待クーポン（37日）：最大差 0.13%（300本の標本平均）。
 - スポット・ボラ感応度（各5通り）：最大差 4.5 百万円（100本の標本平均、共通乱数）。
-- RiemannFinMath の MC（3000本、seed 123）：閉じた式との差は標準誤差 213,375 円の −1.30 倍。
+- rmql の MC（3000本、seed 123）：閉じた式との差は標準誤差 213,375 円の −1.30 倍。
 
 **途中で直したこと**：サンプル FX パスを `split()` で分けたときの名前が残り、JSON が配列ではなくオブジェクトになって画面が表示されなかった。名前を外して配列で返し、テストに配列であることの確認を加えた。キャップがフロア以下の入力は、API が 400 と日本語の理由を返す。
 

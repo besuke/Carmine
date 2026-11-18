@@ -1,4 +1,4 @@
-# OIS asset swap offer sheet for the Carmine Studio API. All calculations are RiemannFinMath.
+# OIS asset swap offer sheet for the Carmine Studio API. All calculations are rmql.
 # Inputs: Curie's demo (fictitious) offers, bond attributes and OIS quotes, copied into server/data/asw_demo.
 #
 # Conventions follow Curie's A1 demo (reconciled in server/tests/reconciliation/asw/): OIS curves MonotonicLogCubic,
@@ -9,7 +9,7 @@
 #   s* = (B - L - R - U D(t,S)) / A
 # B bond cash flows after S, L the overnight leg, R the principal at the last overnight payment, A the spread annuity.
 
-suppressPackageStartupMessages(library(RiemannFinMath))
+suppressPackageStartupMessages(library(rmql))
 
 # server.R defines script_dir (the server folder); the data can also be pointed to with LFL_ASW_DATA.
 ASW_DATA_DIR <- Sys.getenv("LFL_ASW_DATA", file.path(if (exists("script_dir")) script_dir else "server", "data", "asw_demo"))
@@ -95,11 +95,11 @@ ASW_CURVES <- lapply(stats::setNames(names(ASW_CURRENCIES), names(ASW_CURRENCIES
   q <- q[q$marketdate == ASW_VALUATION_DATE & q$instrument_type == "spot_ois", ]
   if (!nrow(q)) return(list(error = paste0(ccy, " の評価日のOIS気配がない")))
   tryCatch({
-    instruments <- RiemannFinMath::create_ois_instruments(q$tenor, q$rate_pct / 100, spec$settlement_days,
+    instruments <- rmql::create_ois_instruments(q$tenor, q$rate_pct / 100, spec$settlement_days,
                                                           ASW_SETTINGS$curve_payment_frequency, ASW_SETTINGS$curve_payment_lag)
-    curve <- RiemannFinMath::bootstrap_ois_curve(ASW_VALUATION_DATE, ASW_VALUATION_DATE, spec$index, spec$day_count, instruments,
+    curve <- rmql::bootstrap_ois_curve(ASW_VALUATION_DATE, ASW_VALUATION_DATE, spec$index, spec$day_count, instruments,
                                                  interpolation = ASW_SETTINGS$curve_interpolation)
-    rep <- RiemannFinMath::get_quote_repricing(curve)
+    rep <- rmql::get_quote_repricing(curve)
     list(curve = curve, quotes = q, repricing = rep, last_date = max(rep$pillar_date), quote_time = unique(q$quote_time)[1],
          source = unique(q$source)[1])
   }, error = function(e) list(error = conditionMessage(e)))
@@ -141,7 +141,7 @@ asw_offer_rows <- function() {
 }
 
 asw_bond <- function(attr) {
-  RiemannFinMath::create_fixed_rate_bond(
+  rmql::create_fixed_rate_bond(
     settlement_days = as.integer(attr$settlement_days), face_amount = 100,
     effective_date = attr$issue_date, termination_date = attr$maturity_date,
     tenor = ASW_FREQ_TENOR[[as.character(attr$coupon_frequency)]], calendar = ASW_CALENDARS[[attr$calendar]],
@@ -160,12 +160,12 @@ asw_price <- function(row, detail = FALSE) {
   offer <- row$offer
   cv <- ASW_CURVES[[attr$currency]]
   bond <- asw_bond(attr)
-  settle <- RiemannFinMath::compute_settlement_date(bond, ASW_VALUATION_DATE)
+  settle <- rmql::compute_settlement_date(bond, ASW_VALUATION_DATE)
   if (settle != offer$offer_settlementdate) {
     return(list(error = paste0("受渡日の不一致：債券の受渡日 ", settle, "（評価日＋", attr$settlement_days,
                                "営業日）とオファー受渡日 ", offer$offer_settlementdate, " が異なる")))
   }
-  v <- RiemannFinMath::compute_ois_asset_swap(bond, offer$offer_price, cv$curve, ASW_VALUATION_DATE,
+  v <- rmql::compute_ois_asset_swap(bond, offer$offer_price, cv$curve, ASW_VALUATION_DATE,
                                               payment_frequency = ASW_SETTINGS$asw_payment_frequency,
                                               payment_lag = ASW_SETTINGS$asw_payment_lag, on_error = "na")
   if (!is.na(v$error)) return(list(error = paste("計算エラー：", v$error)))
@@ -180,34 +180,34 @@ asw_price <- function(row, detail = FALSE) {
   curve <- cv$curve
   N <- 100
   # Bond cash flows after the start of the swap, as the ASW pays them
-  bcf <- RiemannFinMath::get_bond_cashflows(bond)
+  bcf <- rmql::get_bond_cashflows(bond)
   bcf <- bcf[bcf$payment_date > v$effective_date, ]
-  bcf_df <- RiemannFinMath::compute_discount(curve, bcf$payment_date)
+  bcf_df <- rmql::compute_discount(curve, bcf$payment_date)
   # The overnight leg and the spread annuity: an OIS from the start to the maturity, semiannual, lag 0,
   # fixed rate 1 so that its fixed amounts are N * tau (the annuity units).
-  swap <- RiemannFinMath::create_ois_swap("receiver", N, v$effective_date, v$maturity_date, ASW_CURRENCIES[[attr$currency]]$index, 1,
+  swap <- rmql::create_ois_swap("receiver", N, v$effective_date, v$maturity_date, ASW_CURRENCIES[[attr$currency]]$index, 1,
                                           fixed_frequency = ASW_SETTINGS$asw_payment_frequency,
                                           overnight_frequency = ASW_SETTINGS$asw_payment_frequency,
                                           payment_lag = ASW_SETTINGS$asw_payment_lag)
-  scf <- RiemannFinMath::compute_ois_swap_cashflows(swap, curve, ASW_VALUATION_DATE)
+  scf <- rmql::compute_ois_swap_cashflows(swap, curve, ASW_VALUATION_DATE)
   on <- scf[scf$leg == "overnight", ]
   fx <- scf[scf$leg == "fixed", ]
-  on_df <- RiemannFinMath::compute_discount(curve, on$payment_date)
-  fx_df <- RiemannFinMath::compute_discount(curve, fx$payment_date)
-  start_df <- RiemannFinMath::compute_discount(curve, v$effective_date)
+  on_df <- rmql::compute_discount(curve, on$payment_date)
+  fx_df <- rmql::compute_discount(curve, fx$payment_date)
+  start_df <- rmql::compute_discount(curve, v$effective_date)
   last_pay <- max(on$payment_date)
   upfront <- N * (v$dirty_price / 100 - 1)
   # Components rebuilt from the cash flows; they must agree with compute_ois_asset_swap
   parts <- list(
     bond_pv = sum(bcf$amount * bcf_df), overnight_pv = sum(on$amount * on_df), annuity = sum(fx$amount * fx_df),
-    principal_pv = N * RiemannFinMath::compute_discount(curve, last_pay), upfront_pv = upfront * start_df
+    principal_pv = N * rmql::compute_discount(curve, last_pay), upfront_pv = upfront * start_df
   )
   rebuilt_spread <- (parts$bond_pv - parts$overnight_pv - parts$principal_pv - parts$upfront_pv) / parts$annuity
   # Curve for the chart: weekly dates from the valuation date to the bond's maturity (+ the pillars)
   rep <- cv$repricing
   dates <- sort(unique(c(seq(ASW_VALUATION_DATE, as.Date(v$maturity_date) + 30L, by = "1 week"), rep$pillar_date)))
   dates <- dates[dates <= cv$last_date]
-  zero <- RiemannFinMath::compute_zero_rate(curve, dates, "actual_365_fixed", "continuous")
+  zero <- rmql::compute_zero_rate(curve, dates, "actual_365_fixed", "continuous")
   zero[dates == ASW_VALUATION_DATE] <- NA_real_
   spec <- ASW_CURRENCIES[[attr$currency]]
   list(summary = summary, yen = yen, detail = list(
@@ -219,7 +219,7 @@ asw_price <- function(row, detail = FALSE) {
       quotes = data.frame(tenor = rep$tenor, rate = rep$rate, start_date = iso(rep$start_date), pillar_date = iso(rep$pillar_date),
                           implied_rate = rep$implied_rate, reproduction_error = rep$reproduction_error),
       points = data.frame(date = iso(dates), time = as.numeric(dates - ASW_VALUATION_DATE) / 365,
-                          discount = RiemannFinMath::compute_discount(curve, dates), zero_continuous = zero)
+                          discount = rmql::compute_discount(curve, dates), zero_continuous = zero)
     ),
     price = list(
       clean_price = offer$offer_price, accrued = v$accrued, dirty_price = v$dirty_price, upfront = upfront,
@@ -233,7 +233,7 @@ asw_price <- function(row, detail = FALSE) {
     overnight_cashflows = data.frame(accrual_start = iso(on$accrual_start), accrual_end = iso(on$accrual_end),
                                      payment_date = iso(on$payment_date), amount = on$amount, spread_unit = fx$amount,
                                      discount = on_df, pv = on$amount * on_df, spread_unit_pv = fx$amount * fx_df),
-    principal = list(payment_date = iso(last_pay), amount = N, discount = RiemannFinMath::compute_discount(curve, last_pay)),
+    principal = list(payment_date = iso(last_pay), amount = N, discount = rmql::compute_discount(curve, last_pay)),
     components = list(
       notional = N, bond_pv = parts$bond_pv, overnight_pv = parts$overnight_pv, principal_pv = parts$principal_pv,
       upfront_pv = parts$upfront_pv, annuity = parts$annuity, fair_spread_bp = v$fair_spread_bp,
@@ -250,7 +250,7 @@ asw_price <- function(row, detail = FALSE) {
 }
 
 # Yen-converted ASW of a foreign bond (Coral Book asw_offer_sheet_spec.qmd "通貨ベーシスを反映した円換算ASW";
-# Curie compute_asset_swap_basis_JPY). RiemannFinMath compute_yen_asset_swap computes it. With detail = TRUE the
+# Curie compute_asset_swap_basis_JPY). rmql compute_yen_asset_swap computes it. With detail = TRUE the
 # hedged cash flows, the calibration of z and the checks are rebuilt here from the same curves:
 #   F_z(S,T) = X (D_f(T)/D_f(S)) / (D_j(T)/D_j(S)) exp(-z tau(S,T)),   Q_f(z) - Q_j - b A_j = 0,
 #   s_j = (B_j - Q_j - U_j) / A_j
@@ -273,7 +273,7 @@ asw_yen <- function(attr, offer, bond, v, detail = FALSE) {
   basis <- asw_interpolate_basis(ccy, attr$maturity_date)
   out$basis_bp <- basis$value
   if (is.na(basis$value)) return(fail(basis$message))
-  y <- RiemannFinMath::compute_yen_asset_swap(
+  y <- rmql::compute_yen_asset_swap(
     bond, offer$offer_price, ASW_CURVES[[ccy]]$curve, jpy$curve, fx$fx_spot, basis$value, ASW_VALUATION_DATE,
     foreign_payment_frequency = ASW_SETTINGS$asw_payment_frequency, yen_payment_frequency = ASW_SETTINGS$asw_payment_frequency,
     foreign_payment_lag = ASW_SETTINGS$asw_payment_lag, yen_payment_lag = ASW_SETTINGS$asw_payment_lag, on_error = "na"
@@ -293,10 +293,10 @@ asw_yen <- function(attr, offer, bond, v, detail = FALSE) {
   fcurve <- ASW_CURVES[[ccy]]$curve
   jcurve <- jpy$curve
   z <- y$calibrated_discount_spread_bp / 1e4
-  dfs <- function(curve, d) RiemannFinMath::compute_discount(curve, as.Date(d))
+  dfs <- function(curve, d) rmql::compute_discount(curve, as.Date(d))
   tau <- function(d) as.numeric(as.Date(d) - S) / 365
   fwd <- function(d) X * (dfs(fcurve, d) / dfs(fcurve, S)) / (dfs(jcurve, d) / dfs(jcurve, S)) * exp(-z * tau(d))
-  bcf <- RiemannFinMath::get_bond_cashflows(bond)
+  bcf <- rmql::get_bond_cashflows(bond)
   bcf <- bcf[bcf$payment_date > S, ]
   F <- fwd(bcf$payment_date)
   dj <- dfs(jcurve, bcf$payment_date)
@@ -305,10 +305,10 @@ asw_yen <- function(attr, offer, bond, v, detail = FALSE) {
   # Base legs on the dates of the ASW: the foreign overnight leg + principal (foreign curve) and the TONAR leg +
   # principal (JPY curve), with the spread annuity of the yen leg; amounts per 100 of foreign face.
   base_leg <- function(index, curve) {
-    sw <- RiemannFinMath::create_ois_swap("receiver", N, S, as.Date(v$maturity_date), index, 1,
+    sw <- rmql::create_ois_swap("receiver", N, S, as.Date(v$maturity_date), index, 1,
                                           fixed_frequency = ASW_SETTINGS$asw_payment_frequency,
                                           overnight_frequency = ASW_SETTINGS$asw_payment_frequency, payment_lag = ASW_SETTINGS$asw_payment_lag)
-    cf <- RiemannFinMath::compute_ois_swap_cashflows(sw, curve, ASW_VALUATION_DATE)
+    cf <- rmql::compute_ois_swap_cashflows(sw, curve, ASW_VALUATION_DATE)
     on <- cf[cf$leg == "overnight", ]
     list(pay = c(on$payment_date, max(on$payment_date)), amount = c(on$amount, N), unit = cf[cf$leg == "fixed", ])
   }
@@ -362,7 +362,7 @@ asw_conditions <- function() {
       fx = "FXスポットは ASW 開始日に交換するレート。FXの受渡日と開始日が違う行は計算しない",
       not_included = "取引費用、売買の気配差、MtMリセット付きCCS、クオント調整、信用・資本・資金調達の調整"
     ),
-    engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))
+    engine = paste("rmql", as.character(utils::packageVersion("rmql")))
   )
 }
 

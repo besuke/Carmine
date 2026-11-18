@@ -1,12 +1,12 @@
 # Carmine Studio『エンタープライズ金融モデル』
 
-金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する** Web アプリです。Coral Book『金融工学の応用基礎』の無裁定モデルの数式と解説を読みながら、ブラウザで金融モデルを動かせます。「 9. 並列計算」「10. 分散計算」「11. 自動微分」では、同じモデルを多数のシナリオや感応度へ広げる計算を扱います。メニューと目次は部に分けず、一つの章の並びにしています（各章には Coral Book の章番号を添えています）。計算は R の HTTP API（開発時は 127.0.0.1:8787）が RiemannFinMath で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
+金融モデルを「手元で計算する」「サーバーで動かす」「仮定から何が導けるかを証明する」の三つの入口から学ぶ三部作のうち、**React で条件を操作し、R サーバー上の rmql でモデルを評価する** Web アプリです。Coral Book『金融工学の応用基礎』の無裁定モデルの数式と解説を読みながら、ブラウザで金融モデルを動かせます。「 9. 並列計算」「10. 分散計算」「11. 自動微分」では、同じモデルを多数のシナリオや感応度へ広げる計算を扱います。メニューと目次は部に分けず、一つの章の並びにしています（各章には Coral Book の章番号を添えています）。計算は R の HTTP API（開発時は 127.0.0.1:8787）が rmql で行い、React は返ってきた JSON を本文・表・グラフに表示します。画面は <http://127.0.0.1:8081/> です。
 
 ## 三部作
 
 | | Coral Book『金融工学の応用基礎』 | Carmine Studio『エンタープライズ金融モデル』 | Crimson Proof『Leanから見た金融数学』 |
 |---|---|---|---|
-| 学び方 | **手元で計算する**：理論を読み、手元の R で計算を再現する Quarto の本 | **サーバーで動かす**：React で条件を操作し、R サーバー上の RiemannFinMath でモデルを評価する Web アプリ | **証明する**：金融モデルの仮定を Lean で定義し、どの仮定のもとで何が成り立つかを証明する本 |
+| 学び方 | **手元で計算する**：理論を読み、手元の R で計算を再現する Quarto の本 | **サーバーで動かす**：React で条件を操作し、R サーバー上の rmql でモデルを評価する Web アプリ | **証明する**：金融モデルの仮定を Lean で定義し、どの仮定のもとで何が成り立つかを証明する本 |
 | リポジトリ | <https://github.com/besuke/coral-book> | <https://github.com/besuke/carmine-studio> | <https://github.com/besuke/crimson-proof> |
 | 始め方 | `quarto render`（または RStudio で各章を実行） | R API（`npm run api`、127.0.0.1:8787）と画面（`npm run dev`）を起動し、<http://127.0.0.1:8081/> を開く | `lean/` で `lake build`、本は `quarto render` |
 
@@ -29,16 +29,16 @@
 
 詳しい説明は本文の「序論」（<http://127.0.0.1:8081/#/introduction>）にあります。
 
-- **役割分担**：React（TypeScript）は入力と結果の表示を担当し、金融の計算はしません。R の HTTP API（`server/`）は入力を検査し、`RiemannFinMath` の計算結果を JSON で返します。計算ロジックは Rust の `RiemannFinMath`（Riemann リポジトリ）に置きます。
+- **役割分担**：React（TypeScript）は入力と結果の表示を担当し、金融の計算はしません。R の HTTP API（`server/`）は入力を検査し、`rmql` の計算結果を JSON で返します。計算ロジックは Rust の `rmql`（rmql リポジトリ）に置きます。
 - **Rust を使う理由**：所有権と借用の規則をコンパイラが検査するので、市場データを共有しながら銘柄ごとの評価や自動微分を並列に動かしても、データ競合が起きません。Cargo でビルド・テスト（参照値との照合を含む）・ドキュメント生成を共通の手順で扱えます。
-- **並列と分散**：一台では `furrr::future_map()` で R のワーカーに仕事を配り、各ワーカーが `RiemannFinMath` を呼びます。Rust 側の一括評価もスレッドで並列化でき、結果はスレッド数によりません。第10章の実演では、ブラウザがシナリオを複数のリクエストに分けて単一の R API へ送り、応答を集約します。複数ノードへは `future.batchtools` の Slurm 連携で広げる構想です（未導入）。
+- **並列と分散**：一台では `furrr::future_map()` で R のワーカーに仕事を配り、各ワーカーが `rmql` を呼びます。Rust 側の一括評価もスレッドで並列化でき、結果はスレッド数によりません。第10章の実演では、ブラウザがシナリオを複数のリクエストに分けて単一の R API へ送り、応答を集約します。複数ノードへは `future.batchtools` の Slurm 連携で広げる構想です（未導入）。
 - **画面**：計算は非同期で、最後の入力に対する応答だけを表示に使います。一部の表とグラフは、操作性の参考例としてインタラクティブにしています（例：イールドカーブの年月スライダーと再生）。サーバー側のバックグラウンドジョブ、Excel 風の表入力と出力は構想です。
 
 ## 画面
 
 | 画面 | 内容 | URL（開発時） |
 |---|---|---|
-| 目次と対応状況 | 序論と全11章について、操作できること、RiemannFinMath で計算できる範囲、追加実装が必要な箇所（`ui/src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
+| 目次と対応状況 | 序論と全11章について、操作できること、rmql で計算できる範囲、追加実装が必要な箇所（`ui/src/book/toc.ts`） | http://127.0.0.1:8081/#/ |
 | 序論 | Coral Book で手元の R を使って再現した金融モデルを、複数の利用者がブラウザから使える形にする設計の考え方（役割分担、Rust、並列・分散計算、非同期の画面） | `#/introduction` |
 |  1. 確定キャッシュフロー | TONAR のパー・スポット・フォワード、順・逆イールドの模式図、40年債のキャッシュフロー、単利→単価→複利利回り、フラットイールド、Zスプレッド、BPV・デュレーション・コンベクシティ、利回りの数値解法（II-1.1〜1.8。GaussQuant・原稿の結果に照合）。取引日・発行日・償還日を変えられる（`bond.tradeDate`・`issueDate`・`maturityDate`、既定は原稿の例。Infrago Quantlet から移した） | `#/deterministic-cashflow` |
 |  2. 金利カーブ | ゼロ金利ノードと平行シフトを操作して、ZeroCurve・DiscountCurve・シフト後のカーブを描く（II-2.2、2.3.1、2.5.2〜2.5.3。GaussQuant と差 0）。財務省の国債金利（月末、1990年1月〜）から作ったカーブを、年月スライダーと再生で切り替える。ノードのシミュレーション（1つのノードのゼロ金利だけを bp 動かし、割引係数とゼロクーポン債の価格の変化を見る。`POST /api/curves/zero` の任意の入力 `bump`。Infrago Quantlet から移した） | `#/yield-curves` |
@@ -53,7 +53,7 @@
 | 10. 分散計算 | Coral Book III-2・III-3 の本文に、45シナリオをジョブに分けてブラウザから R API へ送り、集約する画面を組み込んだ章 | `#/enterprise/distributed-jobs` |
 | 11. 自動微分 | Coral Book III-4〜III-7 の本文（III-1.7 を導入に）に、PRDC の12の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べる画面と、パスごとの自動微分のモンテカルロを組み込んだ章。旧ページ（`#/parallel`、`#/prdc-risk`、`#/enterprise/...`）からは、統合先の節へ移る。統合は `docs/port/merge_part3.py` | `#/enterprise/automatic-differentiation` |
 | 11.1 PRDC | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
-| サーバー接続 | Riemann Compute Server（R の HTTP API）との接続の状態、往復の時間、利用者が開くアドレス、API の一覧。右上の「Riemann Compute Server：接続中／未接続」からも開く | `#/server` |
+| サーバー接続 | rmql Compute Server（R の HTTP API）との接続の状態、往復の時間、利用者が開くアドレス、API の一覧。右上の「rmql Compute Server：接続中／未接続」からも開く | `#/server` |
 
 メニューと目次の番号は、主章が 1.〜11.、章の下のページが「2.1」「11.1」です（序論とサーバー接続は番号なし）。本文の見出しも同じ番号です。オファーシート（POC と ASW）は QuantLet に移したので、メニューと目次から外しました（`ui/src/asw/` のコードと API は残してあります）。
 
@@ -61,10 +61,10 @@
 
 | 役割 | 担当 | 場所 |
 |---|---|---|
-| 計算（カーブ構築、割引係数、フォワード、7年OISのパーレートとPV） | R の **RiemannFinMath**（ローカルHTTP API） | `server/` |
+| 計算（カーブ構築、割引係数、フォワード、7年OISのパーレートとPV） | R の **rmql**（ローカルHTTP API） | `server/` |
 | 画面（MDXの本文と数式、表、グラフ、操作） | React＋TypeScript（Vite） | `ui/src/` |
 | APIの回帰テスト | Vitest。照合済みJSONと比べる | `tests/` |
-| 照合済みJSONの生成 | R の RiemannFinMath | `golden/` |
+| 照合済みJSONの生成 | R の rmql | `golden/` |
 | GaussQuant（QuantLib）との照合記録 | R | `server/tests/reconciliation/` |
 
 TypeScript は金融計算をしません。APIへの送信と、返ってきた値の表示だけを担当します。表示のために、2本のカーブの差（変更後 − 初期）を引き算することはあります。
@@ -78,9 +78,9 @@ TypeScript は金融計算をしません。APIへの送信と、返ってきた
 
 ## 起動（Windows）
 
-前提：R 4.6.0（`C:/Program Files/R/R-4.6.0`）に RiemannFinMath 0.3.0、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。Node.js 26（npm 11）で確認しています。
+前提：R 4.6.0（`C:/Program Files/R/R-4.6.0`）に rmql 0.3.0、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。Node.js 26（npm 11）で確認しています。
 
-起動はプロジェクトの `CarmineStudio.ps1`（デスクトップのショートカット「Carmine Studio」）でできます。メニューの「1」でこのPCの開発用（Riemann Compute Server 127.0.0.1:8787 と画面 http://127.0.0.1:8081/）、「2」で社内LANへの公開です（次の「社内LANで使う」）。引数でも選べます：
+起動はプロジェクトの `CarmineStudio.ps1`（デスクトップのショートカット「Carmine Studio」）でできます。メニューの「1」でこのPCの開発用（rmql Compute Server 127.0.0.1:8787 と画面 http://127.0.0.1:8081/）、「2」で社内LANへの公開です（次の「社内LANで使う」）。引数でも選べます：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 dev
@@ -129,7 +129,7 @@ npm run dev
 powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 lan
 ```
 
-（メニューの「2」と同じです。`npm run lan` を直接実行してもかまいません。）画面をビルドしてから Riemann Compute Server を起動し、全てのネットワークインターフェース（`0.0.0.0`）の 8081 番で画面（`dist/`）と API を同じポートで返します。止めるときは「Carmine Studio - LAN (8081)」のウィンドウを閉じます（`npm run lan` なら Ctrl+C）。
+（メニューの「2」と同じです。`npm run lan` を直接実行してもかまいません。）画面をビルドしてから rmql Compute Server を起動し、全てのネットワークインターフェース（`0.0.0.0`）の 8081 番で画面（`dist/`）と API を同じポートで返します。止めるときは「Carmine Studio - LAN (8081)」のウィンドウを閉じます（`npm run lan` なら Ctrl+C）。
 
 ### 利用者に案内するアドレス（配備先のホスト名）
 
@@ -181,7 +181,7 @@ New-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)" -Direction Inbound 
 | クォート | 円TONA OIS 13本（1M, 3M, 6M, 1Y, 2Y, 3Y, 4Y, 5Y, 8Y, 10Y, 15Y, 20Y, 30Y）。GaussQuant `bluegamma_tonar_quotes_GQL()` の14本から7年を除いたもの。**サンプルデータ** |
 | クォートの単位 | 小数の金利（0.0224 = 2.24%）。画面では % で表示 |
 | 評価日・カーブの基準日 | 2026-09-10 |
-| カレンダー | 日本（RiemannFinMath の QuantLib 互換カレンダー） |
+| カレンダー | 日本（rmql の QuantLib 互換カレンダー） |
 | カーブの日数計算 | Actual/365 Fixed |
 | OISの受渡日数 | 2営業日（スポット日 2026-09-14） |
 | 支払頻度・支払ラグ | 年1回・0営業日（QuantLib の既定。市場慣行とされる2営業日とは異なる） |
@@ -217,20 +217,20 @@ New-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)" -Direction Inbound 
 
 Coral Book の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW を、Curie の A1 オファーシートのデモデータ（**架空**、評価日 2026-10-06、12件）で計算します。
 
-- **ASW**：$s^* = (B - L - R - U,D(t,S)) / A$。債券CFを支払い、翌日物（日次複利）＋スプレッドと満期の元本を受け取り、受渡日に $U = N(P_d/100 - 1)$ を授受します。計算は RiemannFinMath の `compute_ois_asset_swap`。詳細画面のキャッシュフローは `get_bond_cashflows` と `create_ois_swap`・`compute_ois_swap_cashflows` から組み立て、エンジンの値と一致することを確かめています。
+- **ASW**：$s^* = (B - L - R - U,D(t,S)) / A$。債券CFを支払い、翌日物（日次複利）＋スプレッドと満期の元本を受け取り、受渡日に $U = N(P_d/100 - 1)$ を授受します。計算は rmql の `compute_ois_asset_swap`。詳細画面のキャッシュフローは `get_bond_cashflows` と `create_ois_swap`・`compute_ois_swap_cashflows` から組み立て、エンジンの値と一致することを確かめています。
 - **規約**（Curie の旧デモと同じ）：OIS カーブは MonotonicLogCubic・年1回払い・支払ラグ0・外挿なし（JPY は TONA、USD は SOFR、EUR は €STR、受渡2営業日）。ASW の翌日物レグは年2回・支払ラグ0（Curie のデモの仮定）。銘柄属性は ISIN とオファー日で結合（exact）。
 - **計算しない行**：変動利付債、期限前償還条項付き債、償還額が100でない債券、カーブの最後のピラーより後に満期がある債券、受渡日が合わないオファーなど。理由を表示し、行は残します。
 - **データの更新**：`npm run snapshot:asw`（`server/scripts/asw/snapshot_curie_demo.R`）が Curie から `server/data/asw_demo/`（入力データ、オファーExcelの列の対応 `offer_columns.csv`、旧デモの結果 `curie_reference.json`）を作ります。出所は `server/data/asw_demo/PROVENANCE.md`。
 - **照合**：`npm run reconcile:asw` と `server/tests/reconciliation/asw/RECONCILIATION_ASW.md`。テスト円債B（JPTEST000022）の ASW は旧デモ 10.484125871669359 bp との差 5.3e-15 bp（全10件で最大 2.8e-14 bp）。TEST USD BOND F（USTEST000016）の円換算 ASW は旧デモ 86.349380112377887 bp との差 7.3e-11 bp（全5件で最大 1.1e-9 bp）。
-- **円換算 ASW**（外貨建て債券）：円担保・元本一定の通貨スワップ（外貨翌日物フラット支払、円TONAR＋ベーシス受取）で円にヘッジしたときの、円TONAR に対するフェア・スプレッド $s_j^* = (B_j - Q_j - U_j)/A_j$。満期のベーシス1点で外貨割引の一定スプレッド $z$ を $Q_f(z) - Q_j - bA_j = 0$ から校正する（CCS の期間構造の校正ではない）。計算は RiemannFinMath の `compute_yen_asset_swap`。ベーシスは、元本一定・円担保の気配だけを同じ満期で平均し、評価日からの年数で自然3次スプライン補間（外挿なし、R の `stats::splinefun`）。FX スポットの受渡日が ASW の開始日と違う行は計算しない。データは `server/data/asw_demo/fx.txt`・`basis.txt`。
-- **JGBスプレッド**（円建て債券）：（複利利回り − 同じ償還日に補間したJGB複利利回り）× 100 bp。複利利回りは日本式（利払・複利とも年2回、残存年数は満年数＋端数ACT/365、小数第7位で切り捨て）で RiemannFinMath の `compute_compound_yield_from_price`。JGB 時価は `server/data/asw_demo/jgb.txt`。同じ受渡日の JGB を償還日ごとに平均し、受渡日からの年数で自然3次スプライン補間（外挿なし）。
+- **円換算 ASW**（外貨建て債券）：円担保・元本一定の通貨スワップ（外貨翌日物フラット支払、円TONAR＋ベーシス受取）で円にヘッジしたときの、円TONAR に対するフェア・スプレッド $s_j^* = (B_j - Q_j - U_j)/A_j$。満期のベーシス1点で外貨割引の一定スプレッド $z$ を $Q_f(z) - Q_j - bA_j = 0$ から校正する（CCS の期間構造の校正ではない）。計算は rmql の `compute_yen_asset_swap`。ベーシスは、元本一定・円担保の気配だけを同じ満期で平均し、評価日からの年数で自然3次スプライン補間（外挿なし、R の `stats::splinefun`）。FX スポットの受渡日が ASW の開始日と違う行は計算しない。データは `server/data/asw_demo/fx.txt`・`basis.txt`。
+- **JGBスプレッド**（円建て債券）：（複利利回り − 同じ償還日に補間したJGB複利利回り）× 100 bp。複利利回りは日本式（利払・複利とも年2回、残存年数は満年数＋端数ACT/365、小数第7位で切り捨て）で rmql の `compute_compound_yield_from_price`。JGB 時価は `server/data/asw_demo/jgb.txt`。同じ受渡日の JGB を償還日ごとに平均し、受渡日からの年数で自然3次スプライン補間（外挿なし）。
 - **入力項目と入力検証**：オファーExcelの見出しと共通形式の列の対応（`offer_columns.csv`、Curie の `convert_offer_sheet_Curie()` で作成）を詳細画面と POC に表示。入力検証は Curie と同じ問題コード（`unsupported_product` など）。
 - **JGB対比スプレッドで提示された気配**：Curie は扱わない（単価 `offer_price` が必須）。POC の 3.3 で、Curie の定義を逆に解いて単価に換算できる（参考機能。特定のベンチマーク銘柄対比や単利利回りでの提示には対応しない）。
 - **未対応**：元本リセット型 CCS、FX スワップによる受渡日の調整、CCS の期間構造の校正。
 
 ## 照合済みJSON（回帰テストの期待値）
 
-`server/tests/golden/tona_ois_golden.json` は、`server/tests/golden/generate_golden.R` が RiemannFinMath で作ります。このスクリプトは API のコード（`server/R/tona_ois_model.R`）とは別に書いてあり、同じ条件を独立に組み立てます。記録している内容は次のとおりです。
+`server/tests/golden/tona_ois_golden.json` は、`server/tests/golden/generate_golden.R` が rmql で作ります。このスクリプトは API のコード（`server/R/tona_ois_model.R`）とは別に書いてあり、同じ条件を独立に組み立てます。記録している内容は次のとおりです。
 
 - クォート（初期・5年＋1 bp）、評価日、計算規約、5年＋1 bp の指定
 - 7年OISの条件：想定元本、丸め前の固定レート、開始日・満期日、両レグの支払日程（計算期間、支払日、金額）
@@ -244,7 +244,7 @@ npm run golden
 # = Rscript server/tests/golden/generate_golden.R（ui/scripts/run-r.mjs が C:/Program Files/R/R-4.6.0/bin/Rscript.exe を呼ぶ。別の場所なら環境変数 RSCRIPT で指定）
 ```
 
-スクリプトは17桁で書き出し、読み戻した値が元の倍精度と同じであることを確かめます。RiemannFinMath を入れ替えたり、条件を変えたりした場合は、先に `npm run reconcile`（GaussQuant との照合、`server/tests/reconciliation/reconcile_tona_ois.R`）で照合し直し、その結果を確かめてから再生成してください。
+スクリプトは17桁で書き出し、読み戻した値が元の倍精度と同じであることを確かめます。rmql を入れ替えたり、条件を変えたりした場合は、先に `npm run reconcile`（GaussQuant との照合、`server/tests/reconciliation/reconcile_tona_ois.R`）で照合し直し、その結果を確かめてから再生成してください。
 
 ## テスト
 
@@ -271,7 +271,7 @@ npm test
 | PV差 | 1 | 絶対 0.2円 | 0（PV差 1,512,212.8199円、丸めると +1,512,213円） |
 | 初期カーブでの7年パーと固定レートの差 | 1 | 絶対 1e-10 | 6.2e-17 |
 
-許容誤差は GaussQuant と RiemannFinMath の照合（`server/tests/reconciliation/RECONCILIATION.md` 4章）と同じです。根拠も同じで、割引係数はブートストラップの精度 1e-12、金利は 1e-6 bp、PVは想定元本あたり 1e-11（100億円で0.1円）です。今回は、APIと照合済みJSONが同じ RiemannFinMath のビルドで計算されているため、差はすべて0でした。許容誤差は、RiemannFinMath のビルドや実行環境が変わったときの最下位ビットの差を許すためのものです。
+許容誤差は GaussQuant と rmql の照合（`server/tests/reconciliation/RECONCILIATION.md` 4章）と同じです。根拠も同じで、割引係数はブートストラップの精度 1e-12、金利は 1e-6 bp、PVは想定元本あたり 1e-11（100億円で0.1円）です。今回は、APIと照合済みJSONが同じ rmql のビルドで計算されているため、差はすべて0でした。許容誤差は、rmql のビルドや実行環境が変わったときの最下位ビットの差を許すためのものです。
 
 最後の行の 6.2e-17 は誤差ではありません。固定レートは「固定レート0のスワップのパーレート」として求め、テストでは「固定レートKのスワップのパーレート（K − NPV／年金現価）」と比べるため、最下位の桁が違います。
 
@@ -279,8 +279,8 @@ npm test
 
 ```
 server/server.R              R API（httpuv）
-server/R/tona_ois_model.R    円OIS：入力・規約と RiemannFinMath の呼び出し
-server/R/asw_model.R         ASW：オファーと属性の結合、検証、RiemannFinMath の呼び出し
+server/R/tona_ois_model.R    円OIS：入力・規約と rmql の呼び出し
+server/R/asw_model.R         ASW：オファーと属性の結合、検証、rmql の呼び出し
 server/data/asw_demo/        ASW のデモデータ（Curie から複製、架空）
 ui/src/book/                    共通目次（toc.ts）、目次画面、ルーター
 ui/src/api/                     APIの型とクライアント
@@ -290,7 +290,7 @@ ui/src/content/           章の本文と数式（MDX）
 ui/src/asw/                     オファー一覧と詳細の画面
 server/scripts/             データ取得・複製のスクリプト（asw/・futures/・jgb/・capm/）
 server/tests/golden/      照合済みの基準 JSON（generate_golden.R が作る）
-server/tests/reconciliation/  GaussQuant と RiemannFinMath の照合（asw/ は Curie の旧デモとの照合）
+server/tests/reconciliation/  GaussQuant と rmql の照合（asw/ は Curie の旧デモとの照合）
 ui/                          画面一式（src/・public/・index.html・package.json・vite.config.ts・scripts/・tests/）。npm はここで実行する
 ui/tests/                    APIの回帰テスト（Vitest）
 docs/port/                  Coral Book 第III部の移植ツールと記録
@@ -299,6 +299,6 @@ docs/port/                  Coral Book 第III部の移植ツールと記録
 ## 制約
 
 - 照合と期待値は「QuantLib の既定の規約（支払ラグ0、年1回払い）」によるもので、市場で標準とされる規約ではありません。
-- 7年OISの日付は、QuantLib の `MakeOIS` と同じ規則でR側で作ります（RiemannFinMath には期間からスワップを作る関数がないため）。開始日が月末営業日の場合には対応していません。
-- RiemannFinMath 0.3.0 の導入版のビルド元コミットは未確認です（`server/tests/reconciliation/RECONCILIATION.md` 6章）。
+- 7年OISの日付は、QuantLib の `MakeOIS` と同じ規則でR側で作ります（rmql には期間からスワップを作る関数がないため）。開始日が月末営業日の場合には対応していません。
+- rmql 0.3.0 の導入版のビルド元コミットは未確認です（`server/tests/reconciliation/RECONCILIATION.md` 6章）。
 - 計算にはR APIが必要です。ブラウザだけでは動きません。

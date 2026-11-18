@@ -2,7 +2,7 @@ import { ApiError, newRequestId } from "./client";
 import type { ResponseStamp } from "./asw";
 
 // The connection page's API (server/R/server_info.R). The page measures the round trip; the server measures
-// one RiemannFinMath call, so the two can be told apart.
+// one rmql call, so the two can be told apart.
 
 export interface ServerRoute { method: "GET" | "POST"; path: string; page: string }
 
@@ -32,13 +32,13 @@ export async function fetchServerInfo(options: { baseUrl?: string; signal?: Abor
     res = await fetch(`${options.baseUrl ?? ""}/api/server`, { headers: { "X-Request-Id": requestId }, signal: options.signal, cache: "no-store" });
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") throw e;
-    throw new ApiError("Riemann Compute Server に接続できません。", null);
+    throw new ApiError("rmql Compute Server に接続できません。", null);
   }
   const body = (await res.json().catch(() => null)) as (ServerInfo & { error?: string }) | null;
   const roundTripMs = performance.now() - t0;
   if (!res.ok || !body) {
     // The page's own server answers 502/504 when it cannot reach the calculation server behind it.
-    if (res.status === 502 || res.status === 504 || (!body && res.status >= 500)) throw new ApiError("Riemann Compute Server に接続できません。", res.status);
+    if (res.status === 502 || res.status === 504 || (!body && res.status >= 500)) throw new ApiError("rmql Compute Server に接続できません。", res.status);
     throw new ApiError(body?.error ?? `HTTP ${res.status}`, res.status);
   }
   if (body.response?.request_id !== requestId) throw new ApiError("サーバーの応答が要求と対応していません", res.status);

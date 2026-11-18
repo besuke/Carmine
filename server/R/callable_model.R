@@ -1,7 +1,7 @@
-# Early redemption models (Coral Book II-8). The callable bond and the mortgage pool are RiemannFinMath, and so are the
-# issuer's exercise decisions (II-8.4.3: compute_hull_white_callable_bond_decisions, from RiemannFinMath 0.3.5; reconciled with the
-# manuscript's decisions in Riemann's tests, and here in server/tests/reconciliation/callable/). The 20 Hull-White
-# paths of II-8.8 are the manuscript's (R's set.seed 48, antithetic) and are valued with RiemannFinMath.
+# Early redemption models (Coral Book II-8). The callable bond and the mortgage pool are rmql, and so are the
+# issuer's exercise decisions (II-8.4.3: compute_hull_white_callable_bond_decisions, from rmql 0.3.5; reconciled with the
+# manuscript's decisions in rmql's tests, and here in server/tests/reconciliation/callable/). The 20 Hull-White
+# paths of II-8.8 are the manuscript's (R's set.seed 48, antithetic) and are valued with rmql.
 #
 # POST /api/callable
 #   {"bond": {"ratePct": 2, "aPct": 15, "sigmaPct": 1.2, "couponPct": 3, "firstCallYear": 1, "callPrice": 100},
@@ -23,9 +23,9 @@ cb_memo <- function(name, inputs, f) {
   cb_memo_env[[key]]
 }
 
-# ---- II-8.4.3: the issuer's decisions, from RiemannFinMath (the same grid and quadrature as the price) -------------------
+# ---- II-8.4.3: the issuer's decisions, from rmql (the same grid and quadrature as the price) -------------------
 cb_decisions <- function(flows, a, sigma, curve, points = 321L, limit = 0.13, nodes = 24L) {
-  RiemannFinMath::compute_hull_white_callable_bond_decisions(flows$time, flows$coupon, flows$principal, flows$call_price,
+  rmql::compute_hull_white_callable_bond_decisions(flows$time, flows$coupon, flows$principal, flows$call_price,
                                                               a, sigma, curve, points = points, limit = limit, nodes = nodes)
 }
 
@@ -36,12 +36,12 @@ cb_flows <- function(p) {
              call_price = ifelse(time >= p$firstCallYear & time < 5, p$callPrice, NA_real_))
 }
 cb_value <- function(flows, r, a, sigma, curve, points = 321L, nodes = 24L) {
-  as.list(RiemannFinMath::compute_hull_white_callable_bond_value(flows$time, flows$coupon, flows$principal, flows$call_price,
+  as.list(rmql::compute_hull_white_callable_bond_value(flows$time, flows$coupon, flows$principal, flows$call_price,
                                                                  a, sigma, curve, points = points, limit = 0.13, nodes = nodes))
 }
 cb_bond <- function(p) cb_memo("bond", p, function() {
   r <- p$ratePct / 100; a <- p$aPct / 100; sigma <- p$sigmaPct / 100
-  curve <- RiemannFinMath::create_flat_curve(CB_CURVE_DATE, r, "actual_365_fixed", "continuous")
+  curve <- rmql::create_flat_curve(CB_CURVE_DATE, r, "actual_365_fixed", "continuous")
   flows <- cb_flows(p)
   v <- cb_value(flows, r, a, sigma, curve)
   bullet_curve <- sum((flows$coupon + flows$principal) * exp(-r * flows$time))
@@ -89,28 +89,28 @@ CB_MBS_RATES <- cb_hw_monthly_manuscript()
 
 cb_mbs <- function(p) cb_memo("mbs", p, function() {
   m <- CB_MBS
-  pool <- RiemannFinMath::create_mbs_pass_through(m$balance, m$mortgage_rate, m$pass_through_rate, maturity_months = m$months,
+  pool <- rmql::create_mbs_pass_through(m$balance, m$mortgage_rate, m$pass_through_rate, maturity_months = m$months,
                                                   psa_multiplier = p$psaPct / 100, incentive_sensitivity = p$incentive,
                                                   refinancing_cost_rate = p$refiCostPct / 100, cpr_cap = 0.6, amortization = "fixed_payment")
   names3 <- c("借換え金利低下", "金利一定", "借換え金利上昇")
   paths <- list(c(rep(0.05, 24), rep(0.035, m$months - 24)), rep(0.05, m$months), c(rep(0.05, 24), rep(0.065, m$months - 24)))
   scen <- do.call(rbind, lapply(seq_along(paths), \(i) {
     f <- paths[[i]]
-    fixed <- RiemannFinMath::compute_mbs_path_values(pool, matrix(0.04, 1, m$months), matrix(f, 1))
-    path <- RiemannFinMath::compute_mbs_path_values(pool, matrix(f - 0.01, 1), matrix(f, 1))
-    cf <- RiemannFinMath::compute_mbs_cashflows(pool, f)
+    fixed <- rmql::compute_mbs_path_values(pool, matrix(0.04, 1, m$months), matrix(f, 1))
+    path <- rmql::compute_mbs_path_values(pool, matrix(f - 0.01, 1), matrix(f, 1))
+    cf <- rmql::compute_mbs_cashflows(pool, f)
     data.frame(scenario = names3[i], weighted_average_life = fixed$weighted_average_life, price_fixed_discount = fixed$price,
                price_path_discount = path$price, total_principal = sum(cf$scheduled_principal + cf$prepaid_principal))
   }))
-  cf_flat <- as.data.frame(RiemannFinMath::compute_mbs_cashflows(pool, paths[[2]]))
+  cf_flat <- as.data.frame(rmql::compute_mbs_cashflows(pool, paths[[2]]))
   cpr <- data.frame(month = seq_len(m$months),
-                    falling = RiemannFinMath::compute_mbs_cashflows(pool, paths[[1]])$cpr, flat = cf_flat$cpr,
-                    rising = RiemannFinMath::compute_mbs_cashflows(pool, paths[[3]])$cpr)
+                    falling = rmql::compute_mbs_cashflows(pool, paths[[1]])$cpr, flat = cf_flat$cpr,
+                    rising = rmql::compute_mbs_cashflows(pool, paths[[3]])$cpr)
   hw <- CB_MBS_RATES
-  pv <- RiemannFinMath::compute_mbs_path_values(pool, hw, pmax(hw + 0.03, 0))
+  pv <- rmql::compute_mbs_path_values(pool, hw, pmax(hw + 0.03, 0))
   own <- cb_memo("mbs-own", p, function() {
-    rates <- RiemannFinMath::generate_hull_white_monthly_rates(m$own_paths, m$months, 0.02, 0.15, 0.012, seed = m$own_seed)
-    v <- RiemannFinMath::compute_mbs_path_values(pool, rates, pmax(rates + 0.03, 0))
+    rates <- rmql::generate_hull_white_monthly_rates(m$own_paths, m$months, 0.02, 0.15, 0.012, seed = m$own_seed)
+    v <- rmql::compute_mbs_path_values(pool, rates, pmax(rates + 0.03, 0))
     list(mean_price = mean(v$price), standard_error = stats::sd(v$price) / sqrt(nrow(v)), mean_wal = mean(v$weighted_average_life))
   })
   list(
@@ -130,15 +130,15 @@ cb_mbs <- function(p) cb_memo("mbs", p, function() {
 cb_static <- function() cb_memo("static", list(), function() {
   m <- CB_MBS
   grid <- expand.grid(assumed_price = c(95, 105), psa_percent = c(0, 50, 100))[, c("psa_percent", "assumed_price")]
-  pool_at <- function(psa) RiemannFinMath::create_mbs_pass_through(m$balance, m$mortgage_rate, m$pass_through_rate, maturity_months = m$months,
+  pool_at <- function(psa) rmql::create_mbs_pass_through(m$balance, m$mortgage_rate, m$pass_through_rate, maturity_months = m$months,
                                                                    psa_multiplier = psa / 100, incentive_sensitivity = 0)
   r4 <- matrix(0.04, 1, m$months); f5 <- matrix(0.05, 1, m$months)
-  grid$oas_bp <- mapply(\(psa, price) 1e4 * RiemannFinMath::compute_mbs_oas(pool_at(psa), price, r4, f5), grid$psa_percent, grid$assumed_price)
+  grid$oas_bp <- mapply(\(psa, price) 1e4 * rmql::compute_mbs_oas(pool_at(psa), price, r4, f5), grid$psa_percent, grid$assumed_price)
   spreads <- seq(-200, 300, by = 10)
   price_curve <- do.call(rbind, lapply(c(0, 50, 100), \(psa) {
     pool <- pool_at(psa)
     data.frame(psa_percent = psa, spread_bp = spreads,
-               price = vapply(spreads, \(s) RiemannFinMath::compute_mbs_path_values(pool, r4 + s / 1e4, f5)$price, 0))
+               price = vapply(spreads, \(s) rmql::compute_mbs_path_values(pool, r4 + s / 1e4, f5)$price, 0))
   }))
   list(table = grid, price_curve = price_curve)
 })
@@ -166,10 +166,10 @@ callable_compute <- function(body = list()) {
   list(
     inputs = list(bond = b, mbs = m),
     conventions = list(
-      bond = "額面100、5年、半年ごとのクーポン、コールはクーポン支払後に元本をコール価格で償還。フラットな連続複利の初期曲線、Hull–White 1因子。状態の格子 321 点（±0.13）、Gauss–Hermite 24 点（RiemannFinMath compute_hull_white_callable_bond_value）。コール判断の表は原稿の R 関数（同じ格子と求積）",
+      bond = "額面100、5年、半年ごとのクーポン、コールはクーポン支払後に元本をコール価格で償還。フラットな連続複利の初期曲線、Hull–White 1因子。状態の格子 321 点（±0.13）、Gauss–Hermite 24 点（rmql compute_hull_white_callable_bond_value）。コール判断の表は原稿の R 関数（同じ格子と求積）",
       mbs = "パススルー（元本100、モーゲージ金利 5%、パススルー金利 4.5%、360か月、元の毎月返済額を維持）。CPR = min(0.6, PSA × min(0.002m, 0.06) × exp(β(c − f − k)))。Hull–White の20経路は原稿の乱数（R の seed 48、antithetic）、借換え金利は短期金利 + 3%",
       static = "静的 OAS：PSA 0・50・100%、借換え金利 5% でインセンティブなし、ゼロ金利 4% にスプレッドを加えて架空の価格 95・105 に合わせる",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     bond = cb_bond(b), mbs = cb_mbs(m), static = cb_static()
   )
 }

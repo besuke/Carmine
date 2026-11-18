@@ -4,7 +4,7 @@ export interface SectionRow {
   sections: string;
   topic: string;
   coverage: Coverage;
-  riemann: string;
+  rmql: string;
 }
 
 export interface Chapter {
@@ -47,10 +47,10 @@ export const TOC: Part[] = [
           "パーレート・ゼロ金利・フォワードの三つの曲線を重ねて比べる",
         ],
         rows: [
-          { sections: "1.1〜1.2", topic: "パーレート、割引係数、スポット、フォワード", coverage: "対応", riemann: "OISブートストラップ、割引係数・ゼロ金利・フォワード算出" },
-          { sections: "1.3〜1.5", topic: "固定利付債、キャッシュフロー、単利・複利利回りと単価", coverage: "対応", riemann: "固定利付債キャッシュフロー展開、単利・複利・単価換算" },
-          { sections: "1.6〜1.7", topic: "カーブ評価、Zスプレッド、ASW、デュレーション、BPV", coverage: "対応", riemann: "カーブ上の債券評価、Zスプレッド逆算、デュレーション・コンベクシティ・BPV" },
-          { sections: "1.8", topic: "複利利回りの数値解法の比較", coverage: "対応", riemann: "ニュートン法、二分法、Brent法、多項式求根の反復・速度比較" },
+          { sections: "1.1〜1.2", topic: "パーレート、割引係数、スポット、フォワード", coverage: "対応", rmql: "OISブートストラップ、割引係数・ゼロ金利・フォワード算出" },
+          { sections: "1.3〜1.5", topic: "固定利付債、キャッシュフロー、単利・複利利回りと単価", coverage: "対応", rmql: "固定利付債キャッシュフロー展開、単利・複利・単価換算" },
+          { sections: "1.6〜1.7", topic: "カーブ評価、Zスプレッド、ASW、デュレーション、BPV", coverage: "対応", rmql: "カーブ上の債券評価、Zスプレッド逆算、デュレーション・コンベクシティ・BPV" },
+          { sections: "1.8", topic: "複利利回りの数値解法の比較", coverage: "対応", rmql: "ニュートン法、二分法、Brent法、多項式求根の反復・速度比較" },
         ],
         additions: [],
       },
@@ -65,10 +65,10 @@ export const TOC: Part[] = [
           "国債先物の受渡適格銘柄の Basis・Implied Repo・CTD と先物BPV を見る。利回り水準と Funding Rate を動かし、CTD の入れ替わりを見る",
         ],
         rows: [
-          { sections: "2.1", topic: "国債利回りの年限・時間方向の変化（月末のカーブ、年月スライダーと再生）", coverage: "対応", riemann: "単調対数3次補間による月末JGBカーブ構築（財務省の国債金利情報）" },
-          { sections: "2.2〜2.3", topic: "ゼロカーブ、割引係数カーブ、補間方式とフォワード金利", coverage: "対応", riemann: "ZeroCurve・DiscountCurveの構築と割引係数・ゼロ金利・フォワードの比較" },
-          { sections: "2.5", topic: "平行シフトとカーブ検証", coverage: "対応", riemann: "ゼロ金利スプレッド加算とノード再現性・グリッド検証" },
-          { sections: "2.6〜2.7", topic: "国債先物、Gross・Net Basis、CTD、先物BPV", coverage: "対応", riemann: "受渡適格銘柄バスケット評価、Basis・Implied Repo・CTD・先物BPV算出" },
+          { sections: "2.1", topic: "国債利回りの年限・時間方向の変化（月末のカーブ、年月スライダーと再生）", coverage: "対応", rmql: "単調対数3次補間による月末JGBカーブ構築（財務省の国債金利情報）" },
+          { sections: "2.2〜2.3", topic: "ゼロカーブ、割引係数カーブ、補間方式とフォワード金利", coverage: "対応", rmql: "ZeroCurve・DiscountCurveの構築と割引係数・ゼロ金利・フォワードの比較" },
+          { sections: "2.5", topic: "平行シフトとカーブ検証", coverage: "対応", rmql: "ゼロ金利スプレッド加算とノード再現性・グリッド検証" },
+          { sections: "2.6〜2.7", topic: "国債先物、Gross・Net Basis、CTD、先物BPV", coverage: "対応", rmql: "受渡適格銘柄バスケット評価、Basis・Implied Repo・CTD・先物BPV算出" },
         ],
         additions: [],
         route: "/yield-curves",
@@ -84,9 +84,9 @@ export const TOC: Part[] = [
           "OISアセットスワップ（通貨別OISカーブ、円ベーシス込みASW）を評価する",
         ],
         rows: [
-          { sections: "3.1〜3.3", topic: "TONA OIS カーブ構築、フェアレート、日次複利、キャッシュフロー", coverage: "対応", riemann: "OISカーブのブートストラップ（単調対数3次スプライン補間）、スワップ時価・明細算出" },
-          { sections: "3.4", topic: "SOFR OIS カーブ、マルチカーブ評価", coverage: "対応", riemann: "予測カーブと割引カーブを分離したOIS評価" },
-          { sections: "3.7", topic: "4通貨 OIS カーブ、OIS アセットスワップ、円ベーシス込み ASW", coverage: "対応", riemann: "通貨別OISカーブ構築とアセットスワップスプレッド算出" },
+          { sections: "3.1〜3.3", topic: "TONA OIS カーブ構築、フェアレート、日次複利、キャッシュフロー", coverage: "対応", rmql: "OISカーブのブートストラップ（単調対数3次スプライン補間）、スワップ時価・明細算出" },
+          { sections: "3.4", topic: "SOFR OIS カーブ、マルチカーブ評価", coverage: "対応", rmql: "予測カーブと割引カーブを分離したOIS評価" },
+          { sections: "3.7", topic: "4通貨 OIS カーブ、OIS アセットスワップ、円ベーシス込み ASW", coverage: "対応", rmql: "通貨別OISカーブ構築とアセットスワップスプレッド算出" },
         ],
         additions: [],
         route: "/yield-curve-ois",
@@ -104,10 +104,10 @@ export const TOC: Part[] = [
           "アメリカン put の早期行使価値（二項ツリー・近似式・Longstaff–Schwartz法）を比べる",
         ],
         rows: [
-          { sections: "4.1〜4.3", topic: "Black76、BSM の価格とグリークス、二項ツリー", coverage: "対応", riemann: "先物オプション・ヨーロピアンオプション解析解、CRR二項ツリー" },
-          { sections: "4.4", topic: "モンテカルロ評価とパス分布", coverage: "対応", riemann: "疑似乱数・Sobol列によるパス生成と価格収束" },
-          { sections: "4.5", topic: "アメリカン put の早期行使価値", coverage: "対応", riemann: "CRR二項ツリー、Barone–Adesi–Whaley近似、Bjerksund–Stensland近似" },
-          { sections: "4.6", topic: "Sobol 列、Longstaff–Schwartz 法（LSM）", coverage: "対応", riemann: "準モンテカルロと多項式回帰による早期行使境界・価格算出" },
+          { sections: "4.1〜4.3", topic: "Black76、BSM の価格とグリークス、二項ツリー", coverage: "対応", rmql: "先物オプション・ヨーロピアンオプション解析解、CRR二項ツリー" },
+          { sections: "4.4", topic: "モンテカルロ評価とパス分布", coverage: "対応", rmql: "疑似乱数・Sobol列によるパス生成と価格収束" },
+          { sections: "4.5", topic: "アメリカン put の早期行使価値", coverage: "対応", rmql: "CRR二項ツリー、Barone–Adesi–Whaley近似、Bjerksund–Stensland近似" },
+          { sections: "4.6", topic: "Sobol 列、Longstaff–Schwartz 法（LSM）", coverage: "対応", rmql: "準モンテカルロと多項式回帰による早期行使境界・価格算出" },
         ],
         additions: [],
       },
@@ -123,9 +123,9 @@ export const TOC: Part[] = [
           "支払日ごとのキャッシュフロー表から手計算し、MidPoint法・ISDA標準モデルと比べる",
         ],
         rows: [
-          { sections: "5.1〜5.4", topic: "生存確率、MidPoint法、各レグ評価、ハザードレートの推定と感応度", coverage: "対応", riemann: "ハザードカーブ構築、MidPoint評価、スプレッド・回収率感応度" },
-          { sections: "5.2.5、5.6.4", topic: "CDS の支払日ごとのキャッシュフロー表と確率表", coverage: "対応", riemann: "支払日ごとの割引係数・生存確率・中点近似明細" },
-          { sections: "5.5〜5.6", topic: "標準 CDS（CDS2015）、ISDA Engine、Fair Upfront", coverage: "対応", riemann: "IMM日付・CDS2015満期規則、ISDA標準モデル評価とUpfront算出" },
+          { sections: "5.1〜5.4", topic: "生存確率、MidPoint法、各レグ評価、ハザードレートの推定と感応度", coverage: "対応", rmql: "ハザードカーブ構築、MidPoint評価、スプレッド・回収率感応度" },
+          { sections: "5.2.5、5.6.4", topic: "CDS の支払日ごとのキャッシュフロー表と確率表", coverage: "対応", rmql: "支払日ごとの割引係数・生存確率・中点近似明細" },
+          { sections: "5.5〜5.6", topic: "標準 CDS（CDS2015）、ISDA Engine、Fair Upfront", coverage: "対応", rmql: "IMM日付・CDS2015満期規則、ISDA標準モデル評価とUpfront算出" },
         ],
         additions: [],
       },
@@ -142,8 +142,8 @@ export const TOC: Part[] = [
           "Hull–White の a と σ を校正し、適合点と検証用（面外）債券オプション価格の再現を見る",
         ],
         rows: [
-          { sections: "6.2〜6.4", topic: "Normal ボラティリティ、SABR スマイル校正、Hull–White パラメータ推定", coverage: "対応", riemann: "Bachelier評価、SABR校正、Hull–White債券オプション評価と校正" },
-          { sections: "6.5", topic: "BGM のキャップレットと相関減衰の推定（Rebonato近似）", coverage: "対応", riemann: "固定ウェイト近似・Rebonato近似によるスワップションボラと相関減衰推定" },
+          { sections: "6.2〜6.4", topic: "Normal ボラティリティ、SABR スマイル校正、Hull–White パラメータ推定", coverage: "対応", rmql: "Bachelier評価、SABR校正、Hull–White債券オプション評価と校正" },
+          { sections: "6.5", topic: "BGM のキャップレットと相関減衰の推定（Rebonato近似）", coverage: "対応", rmql: "固定ウェイト近似・Rebonato近似によるスワップションボラと相関減衰推定" },
         ],
         additions: [],
       },
@@ -159,8 +159,8 @@ export const TOC: Part[] = [
           "後決め金利（FMM）のキャップレットと日次複利の確定過程を見る",
         ],
         rows: [
-          { sections: "7.2〜7.3", topic: "Hull–White 短期金利経路、割引係数の再現確認、HJM フォワード係数", coverage: "対応", riemann: "OU過程の遷移シミュレーションと初期割引曲線の再現検証" },
-          { sections: "7.4〜7.5", topic: "LMM キャップレット、相関ショック生成、FMM と後決め複利金利", coverage: "対応", riemann: "前決め・後決めキャップレット評価、コレスキー分解による相関乱数生成" },
+          { sections: "7.2〜7.3", topic: "Hull–White 短期金利経路、割引係数の再現確認、HJM フォワード係数", coverage: "対応", rmql: "OU過程の遷移シミュレーションと初期割引曲線の再現検証" },
+          { sections: "7.4〜7.5", topic: "LMM キャップレット、相関ショック生成、FMM と後決め複利金利", coverage: "対応", rmql: "前決め・後決めキャップレット評価、コレスキー分解による相関乱数生成" },
         ],
         additions: [],
       },
@@ -176,8 +176,8 @@ export const TOC: Part[] = [
           "PSA・借換え感応度・コストを動かして、MBS の CPR・キャッシュフロー・加重平均残存年数・OAS を見る",
         ],
         rows: [
-          { sections: "8.1〜8.7", topic: "コール条項付債券、バックワード・インダクション、行使境界、格子収束", coverage: "対応", riemann: "状態格子とGauss–Hermite求積によるCallable債評価・行使境界算出" },
-          { sections: "8.8", topic: "MBS のプリペイメント（PSAモデル）と OAS", coverage: "対応", riemann: "CPR/SMMモデルによるMBSキャッシュフロー展開、金利経路評価、OAS算出" },
+          { sections: "8.1〜8.7", topic: "コール条項付債券、バックワード・インダクション、行使境界、格子収束", coverage: "対応", rmql: "状態格子とGauss–Hermite求積によるCallable債評価・行使境界算出" },
+          { sections: "8.8", topic: "MBS のプリペイメント（PSAモデル）と OAS", coverage: "対応", rmql: "CPR/SMMモデルによるMBSキャッシュフロー展開、金利経路評価、OAS算出" },
         ],
         additions: [],
       },
@@ -193,8 +193,8 @@ export const TOC: Part[] = [
           "期待クーポンの期間構造、キャップ・フロアへの到達確率、3時点のクーポン分布を横並びで比べる",
         ],
         rows: [
-          { sections: "9.1〜9.3", topic: "契約条件、FX 過程、クーポンペイオフ、閉形式とモンテカルロの現在価値", coverage: "対応", riemann: "スケジュール生成、Garman–Kohlhagen過程、PRDC現在価値評価" },
-          { sections: "9.4〜9.5", topic: "期待クーポンの期間構造、到達確率、クーポン分布、FX スポット・ボラ感応度", coverage: "対応", riemann: "各クーポン日のオプション分解評価と感応度シナリオ算出" },
+          { sections: "9.1〜9.3", topic: "契約条件、FX 過程、クーポンペイオフ、閉形式とモンテカルロの現在価値", coverage: "対応", rmql: "スケジュール生成、Garman–Kohlhagen過程、PRDC現在価値評価" },
+          { sections: "9.4〜9.5", topic: "期待クーポンの期間構造、到達確率、クーポン分布、FX スポット・ボラ感応度", coverage: "対応", rmql: "各クーポン日のオプション分解評価と感応度シナリオ算出" },
         ],
         additions: [],
       },
@@ -214,8 +214,8 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch01_computational_evolution_parallel.qmd",
         operations: ["件数とスレッド数を選んで、債券の一括評価やPRDCモンテカルロの並列計算時間をサーバーで測る"],
         rows: [
-          { sections: "1.1〜1.4", topic: "金融と情報工学の歩み、ハードウェアの限界、独立タスクへの分割", coverage: "対応", riemann: "シナリオごとの独立タスク評価と解説" },
-          { sections: "1.5〜1.6", topic: "マルチスレッドによる並列一括評価とスピードアップの計測", coverage: "対応", riemann: "スレッド数別の債券バッチ評価・モンテカルロ計測と結果一致確認" },
+          { sections: "1.1〜1.4", topic: "金融と情報工学の歩み、ハードウェアの限界、独立タスクへの分割", coverage: "対応", rmql: "シナリオごとの独立タスク評価と解説" },
+          { sections: "1.5〜1.6", topic: "マルチスレッドによる並列一括評価とスピードアップの計測", coverage: "対応", rmql: "スレッド数別の債券バッチ評価・モンテカルロ計測と結果一致確認" },
         ],
         additions: [],
       },
@@ -228,7 +228,7 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch02_distributed_computing_jobtask.qmd",
         operations: ["1ジョブのシナリオ数と同時送信数を変えて、45シナリオの格子をジョブ分割・非同期実行・集約する"],
         rows: [
-          { sections: "2.1〜2.5", topic: "タスク分割、ジョブキュー、スケジューリング、実行状態の追跡", coverage: "対応", riemann: "ブラウザスケジューラーと計算APIによる非同期ジョブ実行・レーン可視化" },
+          { sections: "2.1〜2.5", topic: "タスク分割、ジョブキュー、スケジューリング、実行状態の追跡", coverage: "対応", rmql: "ブラウザスケジューラーと計算APIによる非同期ジョブ実行・レーン可視化" },
         ],
         additions: [],
       },
@@ -241,7 +241,7 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch03_enterprise_financial_computing.qmd",
         operations: ["シナリオ格子の評価結果をリアルタイムにマトリクス集計する"],
         rows: [
-          { sections: "3.1〜3.5", topic: "取引・市場データ分離、シナリオ格子の並列評価とリスク集計", coverage: "対応", riemann: "スポット×ボラティリティ格子のジョブ評価と平均現在価値のリアルタイム集計" },
+          { sections: "3.1〜3.5", topic: "取引・市場データ分離、シナリオ格子の並列評価とリスク集計", coverage: "対応", rmql: "スポット×ボラティリティ格子のジョブ評価と平均現在価値のリアルタイム集計" },
         ],
         additions: [],
       },
@@ -254,7 +254,7 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch04_automatic_differentiation.qmd",
         operations: ["12個のリスクファクターに対する感応度を自動微分（1回）と有限差分（24回）で計算し、速度と精度を比べる"],
         rows: [
-          { sections: "4.1〜4.4", topic: "有限差分法と自動微分（AAD）の原理・計算回数の比較", coverage: "対応", riemann: "計算グラフの逆伝播による全感応度一括算出と中心差分との比較" },
+          { sections: "4.1〜4.4", topic: "有限差分法と自動微分（AAD）の原理・計算回数の比較", coverage: "対応", rmql: "計算グラフの逆伝播による全感応度一括算出と中心差分との比較" },
         ],
         additions: [],
       },
@@ -267,7 +267,7 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch05_option_greeks_autodiff.qmd",
         operations: ["パスごとの自動微分（Pathwise AAD）によるモンテカルロ感応度と閉形式の値を比較する"],
         rows: [
-          { sections: "5.1〜5.4", topic: "解析解とモンテカルロ自動微分のグリークス、非線形ペイオフの扱い", coverage: "対応", riemann: "パスごとの自動微分によるDelta・Vega算出と閉形式との比較" },
+          { sections: "5.1〜5.4", topic: "解析解とモンテカルロ自動微分のグリークス、非線形ペイオフの扱い", coverage: "対応", rmql: "パスごとの自動微分によるDelta・Vega算出と閉形式との比較" },
         ],
         additions: [],
       },
@@ -280,7 +280,7 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch06_interest_rate_risk_autodiff.qmd",
         operations: ["円金利・外貨金利カーブの各年節点に対する感応度（DV01）を棒グラフと表で確認する"],
         rows: [
-          { sections: "6.1〜6.4", topic: "カーブ節点に対する感応度（バケット DV01）の自動微分算出", coverage: "対応", riemann: "円カーブ・外貨カーブ各節点の感応度算出と可視化" },
+          { sections: "6.1〜6.4", topic: "カーブ節点に対する感応度（バケット DV01）の自動微分算出", coverage: "対応", rmql: "円カーブ・外貨カーブ各節点の感応度算出と可視化" },
         ],
         additions: [],
       },
@@ -293,7 +293,7 @@ export const TOC: Part[] = [
         source: "part3_enterprise_riemann/ch07_prdc_autodiff.qmd",
         operations: ["FXスポット・ボラティリティ・2通貨カーブ節点の感応度を自動微分で一度に求める"],
         rows: [
-          { sections: "7.1〜7.5", topic: "多因子PRDCモデル、全感応度の一括算出、非線形クーポンの自動微分", coverage: "対応", riemann: "PRDCのFX・ボラティリティ・カーブ節点感応度の自動微分評価" },
+          { sections: "7.1〜7.5", topic: "多因子PRDCモデル、全感応度の一括算出、非線形クーポンの自動微分", coverage: "対応", rmql: "PRDCのFX・ボラティリティ・カーブ節点感応度の自動微分評価" },
         ],
         additions: [],
       },

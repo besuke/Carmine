@@ -69,7 +69,7 @@ export function TocPage() {
                     <tr key={r.topic}>
                       <th scope="row" className="wrap">{r.topic}</th>
                       <td><span className={`cov ${COVERAGE_CLASS[r.coverage]}`}>{r.coverage}</span></td>
-                      <td className="wrap">{r.riemann}</td>
+                      <td className="wrap">{r.rmql}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -1,6 +1,6 @@
-# Reconcile the PRDC chapter (Coral Book II-9): the page's own model (server/R/prdc_model.R, RiemannFinMath)
+# Reconcile the PRDC chapter (Coral Book II-9): the page's own model (server/R/prdc_model.R, rmql)
 # against QuantLib (schedule, blackFormula), against the manuscript's own code run with GaussQuant (Monte Carlo with
-# QuantLib's random numbers, read from the qmd), and against the manuscript's results (Riemann baseline).
+# QuantLib's random numbers, read from the qmd), and against the manuscript's results (rmql baseline).
 #
 #   npm run reconcile:prdc
 #
@@ -9,7 +9,7 @@
 suppressPackageStartupMessages({
   library(GaussQuant)
   library(QuantLib)
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -52,7 +52,7 @@ d2 <- function(k) (log(forward / k) - deviation^2 / 2) / deviation
 ql_floor_prob <- pnorm(-d2(low)); ql_cap_prob <- pnorm(d2(high))
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))
@@ -98,6 +98,6 @@ golden <- list(
   npv_closed = ql_npv, manuscript_mc_npv = ms_npv, manuscript_mc_se = ms_se
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/prdc_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), "QuantLib 1.42, GaussQuant", paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), "QuantLib 1.42, GaussQuant", paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

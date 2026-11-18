@@ -1,4 +1,4 @@
-# PRDC note (Coral Book II-9). Calculations are RiemannFinMath: the schedule (generate_schedule), the value in
+# PRDC note (Coral Book II-9). Calculations are rmql: the schedule (generate_schedule), the value in
 # closed form (each coupon is a floor plus a call spread on the FX rate) and by Monte Carlo (compute_prdc_value), the
 # expected coupon of each date and the probabilities of the floor and the cap (compute_forward_option_value: the call
 # and its strike sensitivity), and sample FX paths (generate_black_scholes_paths). Reconciled with the manuscript's
@@ -29,8 +29,8 @@ prdc_memo <- function(name, inputs, f) {
 # Coupon schedule (6M, TARGET, modified following, backward), its remaining dates, times and accruals (Actual/360).
 PRDC_SCHEDULE <- local({
   d <- PRDC_DATES
-  full <- as.Date(RiemannFinMath::generate_schedule(d$effective, d$termination, "6M", "target", "modified_following", "modified_following", "backward")$date)
-  intro <- as.Date(RiemannFinMath::generate_schedule(d$effective, d$intro_end, "6M", "target", "modified_following", "modified_following", "backward")$date)
+  full <- as.Date(rmql::generate_schedule(d$effective, d$termination, "6M", "target", "modified_following", "modified_following", "backward")$date)
+  intro <- as.Date(rmql::generate_schedule(d$effective, d$intro_end, "6M", "target", "modified_following", "modified_following", "backward")$date)
   pos <- which(full > d$valuation)
   list(full = full, intro = intro, dates = full[pos], times = as.numeric(full[pos] - d$valuation) / 360,
        accruals = as.numeric(full[pos] - full[pos - 1L]) / 360, accrual_start = full[pos - 1L])
@@ -42,13 +42,13 @@ prdc_coupon <- function(fx, p) pmin(p$capPct / 100, pmax(p$leveragePct / 100 * f
 prdc_curves <- function(p) {
   v <- PRDC_DATES$valuation
   drift <- (p$domesticPct - p$foreignPct) / 100
-  list(domestic = RiemannFinMath::create_flat_curve(v, p$discountPct / 100, "actual_360", "continuous", index = "tonar"),
-       foreign = RiemannFinMath::create_flat_curve(v, p$discountPct / 100 - drift, "actual_360", "continuous", index = "sofr"),
+  list(domestic = rmql::create_flat_curve(v, p$discountPct / 100, "actual_360", "continuous", index = "tonar"),
+       foreign = rmql::create_flat_curve(v, p$discountPct / 100 - drift, "actual_360", "continuous", index = "sofr"),
        drift = drift)
 }
 prdc_value <- function(p, spot = p$spot, vol = p$volPct / 100, paths = 0, seed = 1) {
   cv <- prdc_curves(p); s <- PRDC_SCHEDULE
-  RiemannFinMath::compute_prdc_value(spot, vol, cv$domestic, cv$foreign, s$times, s$accruals, p$fxBase, p$leveragePct / 100,
+  rmql::compute_prdc_value(spot, vol, cv$domestic, cv$foreign, s$times, s$accruals, p$fxBase, p$leveragePct / 100,
                                      p$subtractionPct / 100, p$floorPct / 100, p$capPct / 100, notional = PRDC_NOTIONAL,
                                      paths = paths, seed = seed)$summary
 }
@@ -59,7 +59,7 @@ prdc_note <- function(p) prdc_memo("note", p, function() {
   low <- p$fxBase * (p$subtractionPct + p$floorPct) / p$leveragePct
   high <- p$fxBase * (p$subtractionPct + p$capPct) / p$leveragePct
   forward <- p$spot * exp(cv$drift * s$times)
-  call_at <- function(k) RiemannFinMath::compute_forward_option_value("black", "call", forward, k, vol, s$times, 1)
+  call_at <- function(k) rmql::compute_forward_option_value("black", "call", forward, k, vol, s$times, 1)
   c_low <- call_at(low); c_high <- call_at(high)
   expected <- p$floorPct / 100 + p$leveragePct / 100 / p$fxBase * (c_low$value - c_high$value)
   df <- exp(-r * s$times)
@@ -110,7 +110,7 @@ prdc_note <- function(p) prdc_memo("note", p, function() {
                                npv = vapply(vol_grid, \(v) prdc_value(p, vol = v)$npv, 0)),
     spot_curve = data.frame(fx_spot = spot_curve, npv = vapply(spot_curve, \(x) prdc_value(p, spot = x)$npv, 0)),
     sample_paths = {
-      paths <- RiemannFinMath::generate_black_scholes_paths(p$spot, r, r - cv$drift, vol, max(s$times), 37L, 20L, sequence = "pseudo", seed = 123)
+      paths <- rmql::generate_black_scholes_paths(p$spot, r, r - cv$drift, vol, max(s$times), 37L, 20L, sequence = "pseudo", seed = 123)
       unname(lapply(split(paths$price, paths$path_id), unname)) # unnamed, so that JSON has an array of paths
     },
     sample_times = seq(0, max(s$times), length.out = 38)
@@ -154,7 +154,7 @@ prdc_compute <- function(body = list()) {
       note = "評価日 2023-04-11、契約 2015-09-03〜2041-09-03、6か月ごと（TARGET、Modified Following、Backward）、Actual/360、想定元本 3億円、満期に元本を償還。導入期間の固定クーポンは評価日より前に終わっている",
       model = "FX は対数正規（Garman–Kohlhagen）、ドリフトは国内金利 − 外国金利、割引は割引金利のフラットな連続複利。各クーポンはフロア＋FX のコールスプレッドとして閉じた式で評価する",
       mc = "モンテカルロはクーポン日の FX を直接生成（antithetic）。パス数と seed を変えると値と標準誤差が変わる",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     note = prdc_note(n), mc = prdc_mc(n, m)
   )
 }

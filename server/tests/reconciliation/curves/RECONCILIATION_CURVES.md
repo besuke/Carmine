@@ -1,4 +1,4 @@
-# 金利カーブの章の照合：GaussQuant と RiemannFinMath
+# 金利カーブの章の照合：GaussQuant と rmql
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：LagrangeFinance II-2.2（ゼロカーブ）、II-2.3.1（補間方式）、II-2.5.2（平行シフト）、II-2.5.3（ノードの再現）
@@ -8,13 +8,13 @@
 
 評価日 2022-08-19、II-2.2.1 のゼロ金利ノード9点（例示値、連続複利）、Actual/365 Fixed。
 
-| カーブ | GaussQuant（原稿） | RiemannFinMath（API） |
+| カーブ | GaussQuant（原稿） | rmql（API） |
 |---|---|---|
 | ZeroCurve | `build_zero_curve_GQL()`（QuantLib `ZeroCurve`、ゼロ金利の線形補間） | `create_zero_curve(..., "continuous")` |
 | DiscountCurve | `build_discount_curve_GQL()`（ノードのゼロ金利を割引係数に直し、`DiscountCurve` の対数線形補間） | `create_discount_curve(..., "log_linear")` |
 | 平行シフト +50bp | `make_zero_spreaded_curve_GQL()`（`ZeroSpreadedTermStructure`、既定の単利・年1回） | `create_zero_spreaded_curve(..., "simple", 1)` |
 
-**原稿との違い**：原稿の II-2.5.2 は II-2.4.2 の預金・IBOR スワップカーブをシフトする。RiemannFinMath には IBOR スワップカーブがないため、両方とも II-2.2 のゼロカーブに同じシフトを加えて比べた。
+**原稿との違い**：原稿の II-2.5.2 は II-2.4.2 の預金・IBOR スワップカーブをシフトする。rmql には IBOR スワップカーブがないため、両方とも II-2.2 のゼロカーブに同じシフトを加えて比べた。
 
 ## 結果【実行照合済み】
 

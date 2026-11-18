@@ -1,5 +1,5 @@
 # The connection page's API (GET /api/server): what the calculation server is, where it listens, how long it
-# has run, which routes it answers, and one small RiemannFinMath calculation timed on the server, so that the
+# has run, which routes it answers, and one small rmql calculation timed on the server, so that the
 # page can tell the time on the network from the time of the calculation.
 
 SERVER_STARTED <- Sys.time()
@@ -10,7 +10,7 @@ SERVER_REQUESTS$count <- 0L
 SERVER_ROUTES <- tibble::tribble(
   ~method, ~path,                             ~page,
   "GET",  "/api/health",                     "接続の確認",
-  "GET",  "/api/server",                     "Riemann Compute Server との接続（このページ）",
+  "GET",  "/api/server",                     "rmql Compute Server との接続（このページ）",
   "POST", "/api/scenario",                   "イールドカーブと円OIS",
   "POST", "/api/curves/zero",                "金利カーブ",
   "GET",  "/api/jgb-curves",                 "金利カーブ（国債利回りの推移）",
@@ -31,13 +31,13 @@ SERVER_ROUTES <- tibble::tribble(
   "GET",  "/api/asw/report",                 "オファーシート作成 POC"
 )
 
-# One small calculation in RiemannFinMath, repeated to measure it: mean and covariance of 60 x 4 returns.
+# One small calculation in rmql, repeated to measure it: mean and covariance of 60 x 4 returns.
 server_probe <- function(repeats = 20L) {
   returns <- matrix(sin(seq_len(240)) / 50, 60, 4, dimnames = list(NULL, c("a", "b", "c", "d")))
   t0 <- as.numeric(Sys.time())
-  runs <- purrr::map(seq_len(repeats), \(k) RiemannFinMath::compute_return_moments(returns))
+  runs <- purrr::map(seq_len(repeats), \(k) rmql::compute_return_moments(returns))
   seconds <- (as.numeric(Sys.time()) - t0) / repeats
-  list(calculation = "RiemannFinMath::compute_return_moments（60期間 × 4資産）", repeats = repeats,
+  list(calculation = "rmql::compute_return_moments（60期間 × 4資産）", repeats = repeats,
        seconds_each = seconds, check_value = unname(purrr::pluck(runs, repeats, "mean", "a")))
 }
 
@@ -45,8 +45,8 @@ server_info <- function(host, port, static_dir) {
   now <- Sys.time()
   list(
     status = "ok",
-    engine = list(name = "RiemannFinMath", version = as.character(utils::packageVersion("RiemannFinMath")),
-                  library = dirname(system.file(package = "RiemannFinMath"))),
+    engine = list(name = "rmql", version = as.character(utils::packageVersion("rmql")),
+                  library = dirname(system.file(package = "rmql"))),
     runtime = list(r_version = paste(R.version$major, R.version$minor, sep = "."), platform = R.version$platform,
                    pid = Sys.getpid(), logical_processors = parallel::detectCores(logical = TRUE)),
     listen = list(host = host, port = port, lan = identical(host, "0.0.0.0"), serves_page = !is.na(static_dir)),

@@ -129,7 +129,7 @@ function Sidebar({
         <Icon name="contents" />
         <span className="sidebar-label">目次</span>
       </a>
-      <a href={href("/server")} className={route === "/server" ? "active" : undefined} title="Riemann Compute Server との接続">
+      <a href={href("/server")} className={route === "/server" ? "active" : undefined} title="rmql Compute Server との接続">
         <Icon name="server" />
         <span className="sidebar-label">サーバー接続</span>
       </a>

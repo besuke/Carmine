@@ -1,12 +1,12 @@
 # Reconcile the credit risk and CDS chapter (Coral Book II-5): GaussQuant / QuantLib 1.42 running the manuscript's
-# code against the page's own model (server/R/cds_model.R, RiemannFinMath), and that model against the manuscript's
-# own results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
+# code against the page's own model (server/R/cds_model.R, rmql), and that model against the manuscript's
+# own results (rmql comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
 #
 #   node ui/scripts/run-r.mjs server/tests/reconciliation/cds/reconcile_cds.R
 #
 # Writes server/tests/golden/cds_golden.json (GaussQuant's values) and server/tests/reconciliation/cds/results/.
 
-suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite) })
+suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(rmql); library(jsonlite) })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
 out_dir <- file.path(lab, "server/tests/reconciliation/cds/results")
@@ -96,7 +96,7 @@ isda_hand <- hand(cds_cashflow_isda_tbl, recovery_rate_isda, notional_isda, gq_i
 gq_schedule_isda <- format(GaussQuant::schedule_table_GQL(cds_schedule_isda)$schedule_date)
 
 # ---- comparisons -------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, api_value, ref, tol) {
   d <- max(abs(as.numeric(api_value) - as.numeric(ref)))
@@ -179,6 +179,6 @@ golden <- list(
   midpoint = gq_mid
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/cds_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass))

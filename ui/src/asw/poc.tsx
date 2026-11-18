@@ -6,7 +6,7 @@ import { LineChart } from "../components/LineChart";
 
 // Curie docs/A1_offer_sheet_POC.qmd as a React page. The sections and tables follow the QMD (the a1_*_table_Curie()
 // tables of R/a1_offer_sheet/report_tables.R, with the same columns, digits and labels). The numbers come from the
-// R API (RiemannFinMath); under each table, a check compares them with the old Curie demo run (2026-10-27).
+// R API (rmql); under each table, a check compares them with the old Curie demo run (2026-10-27).
 
 // ---- Formatting as Curie's report_format.R -------------------------------------------------------------
 const nf = (digits: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -148,7 +148,7 @@ function Positioning() {
     <Section id="poc-1" title="1 このPOCの位置づけ">
       <p>
         本ページは、Curieの <strong>A1 オファーシート作成</strong> の POC を、React と R の HTTP API で作り直したものである。章立てと表は原本の QMD に合わせ、
-        表の数値は R の API が <strong>RiemannFinMath</strong> で計算する。各表の下に、Curie の旧デモ（2026-10-27 実行、GaussQuant・QuantLib 1.42）との差を示す。
+        表の数値は R の API が <strong>rmql</strong> で計算する。各表の下に、Curie の旧デモ（2026-10-27 実行、GaussQuant・QuantLib 1.42）との差を示す。
       </p>
       <table className="kv">
         <tbody>
@@ -434,7 +434,7 @@ function Verification({ d }: { d: AswReport }) {
       <h3>5.2 JGB：単価から計算した複利利回りと補間</h3>
       <p>
         JGB時価の単価（クリーン）と属性から、日本式の複利利回り（利払・複利とも年2回、残存年数は満年数＋端数ACT/365、小数第7位未満を切り捨て）を計算する。
-        Curie は GaussQuant の <code>bond_compound_yield_from_price_YEN_GQL()</code>、このページは同じ規則を実装した RiemannFinMath の
+        Curie は GaussQuant の <code>bond_compound_yield_from_price_YEN_GQL()</code>、このページは同じ規則を実装した rmql の
         <code>compute_compound_yield_from_price()</code> を使う。対象JPY債の複利利回りも同じ関数・同じ受渡日で計算するため、両者は比較できる。
         JGB単価の受渡日がオファーの受渡日と違う場合（例：T+1とT+2）は比較に使わない。
       </p>
@@ -532,7 +532,7 @@ function Limits() {
         <li>JPY／ISOの独立したワークフロー。ユーロ円債はJPY側（建て通貨で分類）</li>
         <li>オファーExcelの見出し判定と共通形式への変換（Curie の変換結果を複製して使う。元ファイル・シート・行番号を保持）</li>
         <li>ISINによる銘柄属性の結合と、Curie と同じ問題コードによる入力検証</li>
-        <li>JPY OIS ASW、JGBスプレッド、自国通貨OIS ASW、円換算ASW（計算は RiemannFinMath）</li>
+        <li>JPY OIS ASW、JGBスプレッド、自国通貨OIS ASW、円換算ASW（計算は rmql）</li>
         <li>評価日と市場日の照合（別の日付のデータで補わない）、受渡日の一致確認</li>
         <li>参考：JGB対比スプレッドで提示された気配の単価への換算（Curie にはない。3.3）</li>
       </ul>

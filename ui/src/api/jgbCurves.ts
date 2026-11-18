@@ -2,7 +2,7 @@ import { ApiError, newRequestId } from "./client";
 import type { ResponseStamp } from "./asw";
 
 // The yield-curve explorer's API (server/R/jgb_curve_model.R): every month-end JGB and US Treasury curve,
-// built by RiemannFinMath on the server. The page fetches them once and reuses them while the reader moves
+// built by rmql on the server. The page fetches them once and reuses them while the reader moves
 // the slider or plays the months.
 
 export interface JgbMonth {

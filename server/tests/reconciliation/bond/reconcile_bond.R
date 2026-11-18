@@ -1,6 +1,6 @@
 # Reconcile the deterministic cash-flow chapter (Coral Book II-1): GaussQuant / QuantLib 1.42 running the
-# manuscript's code against the page's own model (server/R/bond_model.R, RiemannFinMath), and that model against the
-# manuscript's own results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's.
+# manuscript's code against the page's own model (server/R/bond_model.R, rmql), and that model against the
+# manuscript's own results (rmql comparison/baseline/lagrange_values.csv). The inputs are the manuscript's.
 #
 #   npm run reconcile:bond
 #
@@ -9,7 +9,7 @@
 suppressPackageStartupMessages({
   library(GaussQuant)
   library(QuantLib)
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -73,7 +73,7 @@ api_shapes <- api$shapes |> arrange(curve_shape, maturity)
 manuscript_shapes <- manuscript_shapes |> arrange(curve_shape, maturity)
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))
@@ -145,6 +145,6 @@ golden <- list(
   risk = as.list(yen_risk), yield_quantlib_pct = gq_yield
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/bond_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

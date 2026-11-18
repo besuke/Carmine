@@ -1,5 +1,5 @@
 # Reconcile the early redemption chapter (Coral Book II-8): the manuscript's R functions against the page's own
-# model (server/R/callable_model.R, RiemannFinMath), and that model against the manuscript's own results (Riemann
+# model (server/R/callable_model.R, rmql), and that model against the manuscript's own results (rmql
 # comparison/baseline/lagrange_values.csv).
 #
 #   npm run reconcile:callable
@@ -7,7 +7,7 @@
 # Writes server/tests/golden/callable_golden.json (the manuscript's functions' values) and server/tests/reconciliation/callable/results/.
 
 suppressPackageStartupMessages({
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -43,7 +43,7 @@ for (label in c("early-redemption-contract", "early-redemption-bullet", "hull-wh
 }
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))
@@ -52,7 +52,7 @@ cmp <- function(item, a, ref, tol, note = "") {
 info <- function(item, a, ref, note) tibble(item = item, n = length(a), max_abs_diff = max(abs(as.numeric(a) - as.numeric(ref))), tolerance = NA_real_, pass = NA, note = note)
 b <- api$bond; m <- api$mbs
 ms_dec <- ms$model_result$decisions
-api_dec <- cb_decisions(cb_flows(CB_DEFAULTS$bond), 0.15, 0.012, RiemannFinMath::create_flat_curve(CB_CURVE_DATE, 0.02, "actual_365_fixed", "continuous"))$decisions
+api_dec <- cb_decisions(cb_flows(CB_DEFAULTS$bond), 0.15, 0.012, rmql::create_flat_curve(CB_CURVE_DATE, 0.02, "actual_365_fixed", "continuous"))$decisions
 scen_ms <- ms$tbl_mbs_scenarios
 static_ms <- ms$tbl_psa_oas |> arrange(psa_percent, assumed_price)
 static_api <- api$static$table |> arrange(psa_percent, assumed_price)
@@ -100,6 +100,6 @@ golden <- list(
   path_price = ms$tbl_mbs_mc$price, path_wal = ms$tbl_mbs_mc$weighted_average_life, static_oas_bp = static_ms$oas_bp
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/callable_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), R.version.string, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), R.version.string, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

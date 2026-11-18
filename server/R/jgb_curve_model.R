@@ -1,7 +1,7 @@
 # Month-end JGB and US Treasury yield curves for the yield-curve explorer (GET /api/jgb-curves).
 # - JGB yields: Ministry of Finance, Japan, month-end compound yields (server/data/jgb_curves/jgb_month_end.csv).
 # - US Treasury yields: FRB H.15 / FRED Constant Maturity yields (server/data/jgb_curves/ust_month_end.csv).
-# Each month's curve is built by RiemannFinMath: the yields become discount factors (1 + y)^-t at their tenors,
+# Each month's curve is built by rmql: the yields become discount factors (1 + y)^-t at their tenors,
 # a monotonic log-cubic discount curve runs through them, and its annually compounded zero rates are read every half year.
 # All months are computed once, on the first request, and kept: the page fetches them together and reuses them
 # while the reader moves the slider or plays the months.
@@ -16,12 +16,12 @@ jgb_month_curve <- function(rows) {
   node_dates <- ref + round(365.25 * tenors)
   t <- as.numeric(node_dates - ref) / 365
   df <- (1 + rows$yield_pct / 100)^(-t)
-  curve <- RiemannFinMath::with_extrapolation(
-    RiemannFinMath::create_discount_curve(c(ref, node_dates), c(1, df), "actual_365_fixed", "monotonic_log_cubic")
+  curve <- rmql::with_extrapolation(
+    rmql::create_discount_curve(c(ref, node_dates), c(1, df), "actual_365_fixed", "monotonic_log_cubic")
   )
   grid <- seq(0.5, max(tenors), by = 0.5)
   grid_dates <- ref + round(365.25 * grid)
-  zero <- RiemannFinMath::compute_zero_rate(curve, grid_dates, "actual_365_fixed", "compounded", 1L)
+  zero <- rmql::compute_zero_rate(curve, grid_dates, "actual_365_fixed", "compounded", 1L)
   # columns, to keep the response small: the curve's tenors are 0.5, 1.0, ... (curve_step)
   list(month = rows$month[1], date = format(ref), node_tenor = tenors, node_yield_pct = rows$yield_pct,
        curve_yield_pct = round(100 * zero, 4))
@@ -41,8 +41,8 @@ build_market_curves <- function(csv_file, x_max, source_text, source_url, data_u
       source = source_text,
       source_url = source_url,
       data_url = data_url,
-      curve = "各年限の利回りを割引係数 (1+y)^-t にし、RiemannFinMath の単調な対数3次補間の割引カーブ（create_discount_curve）を通して、0.5年刻みの年複利のゼロ金利を読む",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))
+      curve = "各年限の利回りを割引係数 (1+y)^-t にし、rmql の単調な対数3次補間の割引カーブ（create_discount_curve）を通して、0.5年刻みの年複利のゼロ金利を読む",
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))
     )
   )
 }

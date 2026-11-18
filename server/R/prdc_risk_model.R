@@ -1,5 +1,5 @@
 # Part III in one page: the risk of a PRDC by automatic differentiation, in parallel and distributed (Coral Book
-# III-1 to III-7, on the note of III-7). All calculations are RiemannFinMath (compute_prdc_value: the value and its
+# III-1 to III-7, on the note of III-7). All calculations are rmql (compute_prdc_value: the value and its
 # derivatives by automatic differentiation, in closed form or by Monte Carlo on worker threads). Bump and revalue is the
 # same function called again with each input moved. Reconciled in server/tests/reconciliation/prdc_risk/.
 #
@@ -20,13 +20,13 @@ PR_TIMES <- as.numeric(PR_DATES - PR_REF) / 365
 pr_curve <- function(rates, index, bump_node = 0L, bump = 0) {
   df <- exp(-cumsum(rates))
   if (bump_node > 0L) df[bump_node] <- df[bump_node] * exp(-bump * PR_TIMES[bump_node]) # +bump on that node's zero rate
-  RiemannFinMath::create_discount_curve(c(PR_REF, PR_DATES), c(1, df), "actual_365_fixed", index = index)
+  rmql::create_discount_curve(c(PR_REF, PR_DATES), c(1, df), "actual_365_fixed", index = index)
 }
 PR_CURVES <- list(domestic = pr_curve(PR_NOTE$jpy, "tonar"), foreign = pr_curve(PR_NOTE$foreign, "sofr"))
 
 pr_value <- function(spot, vol, domestic = PR_CURVES$domestic, foreign = PR_CURVES$foreign, paths = 0, seed = 1, threads = 0L) {
   n <- PR_NOTE
-  RiemannFinMath::compute_prdc_value(spot, vol, domestic, foreign, PR_TIMES, rep(1, length(PR_TIMES)), n$reference_fx, n$leverage,
+  rmql::compute_prdc_value(spot, vol, domestic, foreign, PR_TIMES, rep(1, length(PR_TIMES)), n$reference_fx, n$leverage,
                                      n$leverage - n$fixed_coupon, n$floor, n$cap, notional = n$notional, paths = paths, seed = seed,
                                      threads = threads)
 }
@@ -127,7 +127,7 @@ prdc_risk_compute <- function(body = list()) {
     conventions = list(
       note = "想定元本 1億円、5年、年1回のクーポン min(8%, max(0, 2% + 80% × (S / 150 − 1)))、満期に元本を償還。各年の円金利と外貨金利は原稿 III-7.1 の値（その年のあいだ一定）",
       ad = "自動微分は1回の評価で全部の感応度を返す。Bump & Revalue は同じ評価関数を、各入力を上下に動かして呼び直す（中心差分）。カーブの感応度はその年の節点のゼロ金利 +1bp あたり",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     ad = pr_ad_vs_bump(m$spot, vol),
     mc = list(paths = mc$paths, seed = mc$seed, npv = mcv$summary$npv, standard_error = mcv$summary$standard_error,
               fx_delta = mcv$summary$fx_delta, fx_vega = mcv$summary$fx_vega,

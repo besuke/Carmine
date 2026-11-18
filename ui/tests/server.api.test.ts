@@ -1,15 +1,15 @@
 import { describe, expect, inject, it } from "vitest";
 import { fetchServerInfo } from "../src/api/server";
 
-// The connection page: GET /api/server describes the calculation server and times one RiemannFinMath call.
+// The connection page: GET /api/server describes the calculation server and times one rmql call.
 
 const baseUrl = inject("apiBaseUrl");
 
 describe("the connection to the calculation server", () => {
-  it("describes the server, its routes and one timed RiemannFinMath call", async () => {
+  it("describes the server, its routes and one timed rmql call", async () => {
     const a = await fetchServerInfo({ baseUrl });
     expect(a.info.status).toBe("ok");
-    expect(a.info.engine.name).toBe("RiemannFinMath");
+    expect(a.info.engine.name).toBe("rmql");
     expect(a.info.engine.version).toMatch(/^\d+\.\d+\.\d+/);
     expect(a.info.listen.port).toBe(Number(new URL(baseUrl).port));
     expect(a.info.probe.seconds_each).toBeGreaterThan(0);

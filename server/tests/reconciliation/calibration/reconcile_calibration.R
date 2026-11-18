@@ -1,6 +1,6 @@
 # Reconcile the calibration chapter (Coral Book II-6): GaussQuant / QuantLib running the manuscript's code
-# against the page's own model (server/R/calibration_model.R, RiemannFinMath), and that model against the manuscript's
-# own results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
+# against the page's own model (server/R/calibration_model.R, rmql), and that model against the manuscript's
+# own results (rmql comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
 #
 #   npm run reconcile:calibration
 #
@@ -8,7 +8,7 @@
 
 suppressPackageStartupMessages({
   library(GaussQuant)
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -78,7 +78,7 @@ bgm_target <- compute_bgm_swap_vol_proxy_LRL(0.45, 1:4, c(0.24, 0.22, 0.21, 0.20
 bgm_fit <- stats::optimize(\(d) (compute_bgm_swap_vol_proxy_LRL(d, 1:4, c(0.24, 0.22, 0.21, 0.20), c(0.28, 0.26, 0.24, 0.22)) - bgm_target)^2, c(0.01, 2))
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/Riemann/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))
@@ -91,10 +91,10 @@ s <- api$sabr; h <- api$hw
 sabr_keys <- paste0("sabr.volatility_pct.", format(CAL_SABR$strike_pct, trim = TRUE, drop0trailing = TRUE))
 hw_keys <- sprintf("%g.%g", CAL_HW$option_maturity, CAL_HW$bond_maturity)
 ms_par <- c(alpha = s$fits$alpha[1], nu = s$fits$nu[1], rho = s$fits$rho[1])
-at_legacy_sabr <- RiemannFinMath::compute_sabr_volatility("lognormal", CAL_SABR$strike_pct / 100, 0.0056, 2, bv("sabr.alpha"), 0.5, bv("sabr.nu"), bv("sabr.rho"))
-at_legacy_hw <- RiemannFinMath::compute_hull_white_bond_option_value("call", h$options$strike, h$options$option_maturity, h$options$bond_maturity,
+at_legacy_sabr <- rmql::compute_sabr_volatility("lognormal", CAL_SABR$strike_pct / 100, 0.0056, 2, bv("sabr.alpha"), 0.5, bv("sabr.nu"), bv("sabr.rho"))
+at_legacy_hw <- rmql::compute_hull_white_bond_option_value("call", h$options$strike, h$options$option_maturity, h$options$bond_maturity,
   bv("hw.calibration.a_pct") / 100, bv("hw.calibration.sigma_pct") / 100,
-  RiemannFinMath::create_flat_curve(CAL_CURVE_DATE, 0.03, "actual_365_fixed", "continuous"))
+  rmql::create_flat_curve(CAL_CURVE_DATE, 0.03, "actual_365_fixed", "continuous"))
 OPTIM_NOTE <- "同じ optim・同じ初期値と範囲。目的関数の値の最下位ビットの差で、止まる位置がわずかに動く"
 rows <- bind_rows(
   cmp("Normal 型の価格（原稿の R 関数 − RFM、71 行使）", api$normal$by_strike$normal, manuscript_normal, 1e-15),
@@ -130,6 +130,6 @@ golden <- list(
   bgm_proxy = bgm_target, bgm_decay = bgm_fit$minimum
 )
 write(toJSON(golden, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/calibration_golden.json"))
-writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))),
+writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), golden$engine, paste("rmql", as.character(packageVersion("rmql")))),
            file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

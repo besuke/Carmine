@@ -1,5 +1,5 @@
 # Reconcile the Part III page (Coral Book III-1 to III-7 on the PRDC of III-7): the page's own model
-# (server/R/prdc_risk_model.R, RiemannFinMath) against an independent closed form in R, against bump and revalue,
+# (server/R/prdc_risk_model.R, rmql) against an independent closed form in R, against bump and revalue,
 # against itself on several threads and in jobs, and against the manuscript's own torch code (read from the qmd).
 #
 #   npm run reconcile:prdc-risk
@@ -7,7 +7,7 @@
 # Writes server/tests/golden/prdc_risk_golden.json and server/tests/reconciliation/prdc_risk/results/.
 
 suppressPackageStartupMessages({
-  library(RiemannFinMath)
+  library(rmql)
   library(dplyr)
   library(purrr)
   library(tibble)
@@ -100,5 +100,5 @@ write(toJSON(list(engine = "an independent closed form in R; the manuscript's to
                   torch = list(npv = torch_npv, fx_delta = torch_delta, fx_vega = torch_vega, jpy_per_bp = torch_jpy, foreign_per_bp = torch_foreign)),
              auto_unbox = TRUE, digits = I(17), pretty = TRUE), file.path(lab, "server/tests/golden/prdc_risk_golden.json"))
 writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), R.version.string, paste("torch", as.character(packageVersion("torch"))),
-             paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))), file.path(out_dir, "session_info.txt"))
+             paste("rmql", as.character(packageVersion("rmql")))), file.path(out_dir, "session_info.txt"))
 stopifnot(all(rows$pass, na.rm = TRUE))

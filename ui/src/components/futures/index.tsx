@@ -5,7 +5,7 @@ import { LineChart } from "../LineChart";
 
 // Components of the JGB futures chapter (Coral Book II-2.6–2.7). The reader switches between the current
 // market (fictitious prices) and a flat yield level for every deliverable bond, and sets the funding rate; each
-// change asks the R API (RiemannFinMath).
+// change asks the R API (rmql).
 
 type Req = { mode: "current" | "flat"; yieldPct: number; fundingPct: number };
 const DEFAULT: Req = { mode: "current", yieldPct: 8, fundingPct: 1.23 };

@@ -1,5 +1,5 @@
 # The A1 offer-sheet POC (Curie docs/A1_offer_sheet_POC.qmd) as data for the React page, plus the JGB spread of
-# yen bonds and the input checks. Sourced after asw_model.R. Calculations are RiemannFinMath; every number is
+# yen bonds and the input checks. Sourced after asw_model.R. Calculations are rmql; every number is
 # returned together with the old Curie demo's value (curie_reference.json) so the page can show the difference.
 
 ASW_REFERENCE <- jsonlite::fromJSON(file.path(ASW_DATA_DIR, "curie_reference.json"), simplifyVector = TRUE)
@@ -13,11 +13,11 @@ ASW_JGB_COMPOUND_FREQUENCY <- 2L # Curie pricing_settings_Curie(jgb_compound_fre
 
 # ---- JGB yields and the JGB spread (Curie bond_yield_YEN.R, spread_inputs.R) ------------------------------
 # Compound yield in percent from a clean price: remaining years = full years + fraction on ACT/365 (Japanese
-# convention), Newton's method, truncated to 7 decimals. RiemannFinMath implements the same rules as GaussQuant
-# bond_compound_yield_from_price_YEN_GQL (Riemann docs/spec_bonds.md 5.1, reconciled).
+# convention), Newton's method, truncated to 7 decimals. rmql implements the same rules as GaussQuant
+# bond_compound_yield_from_price_YEN_GQL (rmql docs/spec_bonds.md 5.1, reconciled).
 yen_compound_yield <- function(settle, maturity, coupon_rate, price, redemption, coupon_frequency) {
-  t <- RiemannFinMath::compute_remaining_years(settle, maturity)
-  list(t = t, yield = RiemannFinMath::compute_compound_yield_from_price(t, coupon_rate * 100, price, redemption,
+  t <- rmql::compute_remaining_years(settle, maturity)
+  list(t = t, yield = rmql::compute_compound_yield_from_price(t, coupon_rate * 100, price, redemption,
                                                                          as.integer(coupon_frequency), ASW_JGB_COMPOUND_FREQUENCY))
 }
 
@@ -85,13 +85,13 @@ asw_jgb_spread <- function(attr, offer) {
 asw_price_from_jgb_spread <- function(attr, offer, spread_bp) {
   ip <- asw_jgb_interpolate(offer$offer_settlementdate, attr$maturity_date, attr$coupon_frequency)
   if (is.na(ip$value)) return(list(error = ip$message))
-  t <- RiemannFinMath::compute_remaining_years(offer$offer_settlementdate, attr$maturity_date)
+  t <- rmql::compute_remaining_years(offer$offer_settlementdate, attr$maturity_date)
   y <- ip$value + spread_bp / 100
   args <- list(t, attr$coupon_rate * 100, y, attr$redemption, as.integer(attr$coupon_frequency), ASW_JGB_COMPOUND_FREQUENCY)
-  # The help of RiemannFinMath 0.3.0 says digits = NA keeps all decimals, but the R function rejects NA
+  # The help of rmql 0.3.0 says digits = NA keeps all decimals, but the R function rejects NA
   # ("Must not be NA"). Truncating at 20 decimals leaves a price of about 100 unchanged up to its last bit.
-  price <- do.call(RiemannFinMath::compute_price_from_compound_yield, c(args, list(digits = 20L)))
-  price3 <- do.call(RiemannFinMath::compute_price_from_compound_yield, c(args, list(digits = 3L)))
+  price <- do.call(rmql::compute_price_from_compound_yield, c(args, list(digits = 20L)))
+  price3 <- do.call(rmql::compute_price_from_compound_yield, c(args, list(digits = 3L)))
   back <- yen_compound_yield(offer$offer_settlementdate, attr$maturity_date, attr$coupon_rate, price, attr$redemption, attr$coupon_frequency)
   list(spread_bp = spread_bp, jgb_interpolated_yield_pct = ip$value, compound_yield_pct = y, remaining_years = t,
        clean_price = price, clean_price_3dp = price3,
@@ -271,7 +271,7 @@ asw_jgb_spread_quote <- function(offer_id, spread_bp) {
   if (!is.null(conv$error)) return(list(status = 400L, body = list(error = conv$error)))
   # The ASW at the converted price (untruncated)
   bond <- asw_bond(r$attr)
-  v <- RiemannFinMath::compute_ois_asset_swap(bond, conv$clean_price, ASW_CURVES$JPY$curve, ASW_VALUATION_DATE,
+  v <- rmql::compute_ois_asset_swap(bond, conv$clean_price, ASW_CURVES$JPY$curve, ASW_VALUATION_DATE,
                                               payment_frequency = ASW_SETTINGS$asw_payment_frequency, payment_lag = ASW_SETTINGS$asw_payment_lag,
                                               on_error = "na")
   list(status = 200L, body = c(conv, list(offer_id = offer_id, native_asw_bp = v$fair_spread_bp,

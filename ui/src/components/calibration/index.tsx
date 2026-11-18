@@ -5,7 +5,7 @@ import { LineChart } from "../LineChart";
 
 // Components of the calibration chapter (Coral Book II-6). The reader moves the inputs of the normal/Black
 // comparison, the SABR beta, the Hull-White reference parameters and the BGM correlation decay; each change asks the
-// R API (RiemannFinMath).
+// R API (rmql).
 
 type Req = { normal: NormalInputs; sabr: SabrInputs; hw: HwInputs; bgm: BgmInputs };
 type Section = keyof Req;
@@ -153,7 +153,7 @@ export function SabrPanel() {
     <Need>
       {(d) => {
         const s = d.sabr;
-        const line = (k: "manuscript_fit" | "riemann_fit") => s.smile.map((r) => ({ x: r.strike * 100, y: r[k] * 100, date: `行使金利 ${f(r.strike * 100, 2)}%` }));
+        const line = (k: "manuscript_fit" | "rmql_fit") => s.smile.map((r) => ({ x: r.strike * 100, y: r[k] * 100, date: `行使金利 ${f(r.strike * 100, 2)}%` }));
         const market = s.quotes.map((r) => ({ x: r.strike * 100, y: r.market * 100, date: `市場 ${f(r.strike * 100, 2)}%` }));
         return (
           <div className="two-col">
@@ -161,7 +161,7 @@ export function SabrPanel() {
               xMin={0} xMax={3} xTicks={pctTicks(0, 3, 0.5)} xLabel="行使金利" yLabel="Black ボラティリティ（%）"
               series={[
                 { key: "m", label: "準ニュートン法（L-BFGS-B）", color: "var(--series-1)", points: line("manuscript_fit") },
-                { key: "r", label: "Levenberg–Marquardt法", color: "var(--series-2)", dashed: true, points: line("riemann_fit") },
+                { key: "r", label: "Levenberg–Marquardt法", color: "var(--series-2)", dashed: true, points: line("rmql_fit") },
                 { key: "q", label: "市場クォート（説明用）", color: "var(--series-3)", points: [], dots: market },
               ]}
               markers={[{ x: s.forward * 100, label: "F" }]} formatY={(y) => `${y.toFixed(3)}%`} formatTick={(y) => `${y.toFixed(0)}%`} footer={<Tag d={d} />} />
@@ -184,7 +184,7 @@ export function SabrPanel() {
                     <th scope="col" className="num">LM法</th><th scope="col" className="num">残差</th></tr></thead>
                   <tbody>{s.quotes.map((r) => (
                     <tr key={r.strike}><th scope="row" className="num">{pct(r.strike, 2)}</th><td className="num">{pct(r.market, 2)}</td><td className="num">{pct(r.manuscript_fit, 4)}</td>
-                      <td className="num">{f(1e4 * (r.manuscript_fit - r.market), 2)}</td><td className="num">{pct(r.riemann_fit, 4)}</td><td className="num">{f(1e4 * (r.riemann_fit - r.market), 2)}</td></tr>
+                      <td className="num">{f(1e4 * (r.manuscript_fit - r.market), 2)}</td><td className="num">{pct(r.rmql_fit, 4)}</td><td className="num">{f(1e4 * (r.rmql_fit - r.market), 2)}</td></tr>
                   ))}</tbody>
                 </table>
               </div>
@@ -226,7 +226,7 @@ export function HullWhitePanel() {
                     <tr key={`${r.option_maturity}-${r.bond_maturity}`} className={r.sample === "validation" ? "changed" : undefined}>
                       <th scope="row">{r.option_maturity}年／{r.bond_maturity}年</th><td>{r.sample === "fit" ? "適合" : "検証（未使用）"}</td><td className="num">{f(r.strike, 6)}</td>
                       <td className="num">{f(1e4 * r.market_price, 4)}</td><td className="num">{f(1e4 * r.manuscript_price, 4)}</td><td className="num">{f(1e4 * (r.manuscript_price - r.market_price), 4)}</td>
-                      <td className="num">{f(1e4 * r.riemann_price, 4)}</td><td className="num">{sci(1e4 * (r.riemann_price - r.market_price))}</td></tr>
+                      <td className="num">{f(1e4 * r.rmql_price, 4)}</td><td className="num">{sci(1e4 * (r.rmql_price - r.market_price))}</td></tr>
                   ))}</tbody>
                 </table>
               </div>

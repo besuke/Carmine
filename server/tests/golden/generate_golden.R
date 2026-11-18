@@ -1,14 +1,14 @@
-# Generate the expected values for Carmine Studio's API regression test from RiemannFinMath (R, native build).
+# Generate the expected values for Carmine Studio's API regression test from rmql (R, native build).
 # This script is independent of server/R/tona_ois_model.R, so the test compares two code paths on the same engine.
 #
 #   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/carmine-studio/server/tests/golden/generate_golden.R
 #
 # Writes server/tests/golden/tona_ois_golden.json (the expected values of the API regression test, tests/api.regression.test.ts). Numbers are written with 17 significant digits and the script checks
-# that reading the file back gives the same doubles. RiemannFinMath was reconciled with GaussQuant (QuantLib 1.42)
+# that reading the file back gives the same doubles. rmql was reconciled with GaussQuant (QuantLib 1.42)
 # under the same conditions in server/tests/reconciliation/RECONCILIATION.md.
 
 suppressPackageStartupMessages({
-  library(RiemannFinMath)
+  library(rmql)
   library(GaussQuant) # only for the sample quotes (bluegamma_tonar_quotes_GQL)
   library(jsonlite)
   library(dplyr)
@@ -46,28 +46,28 @@ cases <- list(
 )
 
 build <- function(q) {
-  instruments <- RiemannFinMath::create_ois_instruments(
+  instruments <- rmql::create_ois_instruments(
     q$tenor, q$rate, conventions$settlement_days, conventions$payment_frequency, conventions$payment_lag
   )
-  RiemannFinMath::bootstrap_ois_curve(
+  rmql::bootstrap_ois_curve(
     evaluation_date, evaluation_date, conventions$index, conventions$curve_day_count, instruments,
     interpolation = conventions$interpolation, accuracy = conventions$accuracy
   )
 }
 
-# 7Y OIS dates with MakeOIS's rule, on Riemann's calendar functions (as in the reconciliation)
-spot <- RiemannFinMath::compute_advanced_date("japan", RiemannFinMath::compute_adjusted_date("japan", evaluation_date), "2D")
-stopifnot(RiemannFinMath::compute_end_of_month("japan", spot) != spot) # end-of-month start is not covered
+# 7Y OIS dates with MakeOIS's rule, on rmql's calendar functions (as in the reconciliation)
+spot <- rmql::compute_advanced_date("japan", rmql::compute_adjusted_date("japan", evaluation_date), "2D")
+stopifnot(rmql::compute_end_of_month("japan", spot) != spot) # end-of-month start is not covered
 termination <- seq(spot, by = paste(swap_years, "years"), length.out = 2L)[2L]
 
 make_swap <- function(fixed_rate) {
-  RiemannFinMath::create_ois_swap("payer", notional, spot, termination, "tonar", fixed_rate,
+  rmql::create_ois_swap("payer", notional, spot, termination, "tonar", fixed_rate,
                                   fixed_frequency = 1L, overnight_frequency = 1L, payment_lag = 0L)
 }
 
 # Fixed rate: the unrounded 7Y par rate of the base curve
 base_curve <- build(cases$base)
-fixed_rate <- RiemannFinMath::compute_ois_swap_value(make_swap(0), base_curve, evaluation_date)$fair_rate
+fixed_rate <- rmql::compute_ois_swap_value(make_swap(0), base_curve, evaluation_date)$fair_rate
 
 # Dates for discount factors and forwards: the monthly grid to 30Y, key anniversaries, pillars and their
 # neighbours (where log-linear forwards step), and the swap's dates.
@@ -82,19 +82,19 @@ iso <- function(d) format(as.Date(d), "%Y-%m-%d")
 # Continuously compounded zero rate (Actual/365 Fixed); undefined at the evaluation date, written as null.
 zero_or_na <- function(curve, d) {
   if (as.Date(d) == evaluation_date) return(NA_real_)
-  RiemannFinMath::compute_zero_rate(curve, d, "actual_365_fixed", "continuous")
+  rmql::compute_zero_rate(curve, d, "actual_365_fixed", "continuous")
 }
 
 case_values <- purrr::imap(cases, function(q, case) {
   curve <- if (case == "base") base_curve else build(q)
-  rep <- RiemannFinMath::get_quote_repricing(curve)
-  nodes <- RiemannFinMath::get_discount_nodes(curve)
+  rep <- rmql::get_quote_repricing(curve)
+  nodes <- rmql::get_discount_nodes(curve)
   pillars <- rep$pillar_date
   dates <- sort(unique(c(grid, key, pillars, pillars - 1L, pillars + 1L, spot, termination)))
   dates <- dates[dates + 1L <= max(pillars)] # no extrapolation: the 1-day forward must end on or before the last pillar
   swap <- make_swap(fixed_rate)
-  value <- RiemannFinMath::compute_ois_swap_value(swap, curve, evaluation_date)
-  flows <- RiemannFinMath::compute_ois_swap_cashflows(swap, curve, evaluation_date)
+  value <- rmql::compute_ois_swap_value(swap, curve, evaluation_date)
+  flows <- rmql::compute_ois_swap_cashflows(swap, curve, evaluation_date)
   stopifnot(all(is.na(flows$error)))
   list(
     quotes = lapply(seq_len(nrow(q)), function(i) list(quote_id = q$quote_id[i], tenor = q$tenor[i], rate = q$rate[i])),
@@ -106,9 +106,9 @@ case_values <- purrr::imap(cases, function(q, case) {
                                                          zero_continuous = zero_or_na(curve, nodes$date[i]))),
     curve_points = lapply(seq_along(dates), function(i) list(
       date = iso(dates[i]),
-      discount = RiemannFinMath::compute_discount(curve, dates[i]),
+      discount = rmql::compute_discount(curve, dates[i]),
       zero_continuous = zero_or_na(curve, dates[i]),
-      forward_1d_simple = RiemannFinMath::compute_forward_rate(curve, dates[i], dates[i] + 1L, "actual_365_fixed", "simple")
+      forward_1d_simple = rmql::compute_forward_rate(curve, dates[i], dates[i] + 1L, "actual_365_fixed", "simple")
     )),
     swap = list(
       npv = value$npv, fixed_leg_npv = value$fixed_leg_npv, overnight_leg_npv = value$overnight_leg_npv,
@@ -126,7 +126,7 @@ golden <- list(
     description = "Expected values for the JPY TONA OIS demo (13 quotes without 7Y, monotonic log-cubic discount, payment lag 0)",
     generated_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
     generator = "server/tests/golden/generate_golden.R",
-    engine = paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")), "built", packageDescription("RiemannFinMath")$Built),
+    engine = paste("rmql", as.character(packageVersion("rmql")), "built", packageDescription("rmql")$Built),
     quote_source = "GaussQuant::bluegamma_tonar_quotes_GQL() without TONAR-7Y (sample data)",
     r_version = R.version.string
   ),
@@ -136,7 +136,7 @@ golden <- list(
   swap_terms = list(
     tenor = paste0(swap_years, "Y"), side = "payer", notional = notional, fixed_rate = fixed_rate,
     effective_date = iso(spot), termination_date = iso(termination),
-    fixed_rate_source = "unrounded 7Y par rate of the base curve (RiemannFinMath compute_ois_swap_value()$fair_rate)"
+    fixed_rate_source = "unrounded 7Y par rate of the base curve (rmql compute_ois_swap_value()$fair_rate)"
   ),
   cases = case_values,
   pv_change = case_values$bump_5y$swap$npv - case_values$base$swap$npv

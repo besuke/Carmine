@@ -1,11 +1,11 @@
-# JPY TONA OIS model for the Carmine Studio API. All calculations are RiemannFinMath (R, native build).
+# JPY TONA OIS model for the Carmine Studio API. All calculations are rmql (R, native build).
 # Inputs (13 quotes, evaluation date, conventions, 7Y OIS terms) are held here, on the R side.
 #
 # The conditions are those reconciled against GaussQuant (QuantLib 1.42) in server/tests/reconciliation/RECONCILIATION.md:
 # set `without_7y`, interpolation `monotonic_log_cubic`.
 
 suppressPackageStartupMessages({
-  library(RiemannFinMath)
+  library(rmql)
   library(GaussQuant) # only for the sample quotes
 })
 
@@ -38,25 +38,25 @@ TONA_MODEL <- local({
 
 tona_build_curve <- function(rates) {
   cv <- TONA_MODEL$conventions
-  instruments <- RiemannFinMath::create_ois_instruments(
+  instruments <- rmql::create_ois_instruments(
     TONA_MODEL$quotes$tenor, rates, cv$settlement_days, cv$payment_frequency, cv$payment_lag
   )
-  RiemannFinMath::bootstrap_ois_curve(
+  rmql::bootstrap_ois_curve(
     TONA_MODEL$evaluation_date, TONA_MODEL$evaluation_date, cv$index, cv$curve_day_count, instruments,
     interpolation = cv$interpolation, accuracy = cv$accuracy
   )
 }
 
-# 7Y OIS dates with QuantLib MakeOIS's rule on Riemann's calendar functions (see RECONCILIATION.md 6 #1).
+# 7Y OIS dates with QuantLib MakeOIS's rule on rmql's calendar functions (see RECONCILIATION.md 6 #1).
 TONA_SWAP_DATES <- local({
   ev <- TONA_MODEL$evaluation_date
-  spot <- RiemannFinMath::compute_advanced_date("japan", RiemannFinMath::compute_adjusted_date("japan", ev), "2D")
-  if (RiemannFinMath::compute_end_of_month("japan", spot) == spot) stop("An end-of-month start is not supported.")
+  spot <- rmql::compute_advanced_date("japan", rmql::compute_adjusted_date("japan", ev), "2D")
+  if (rmql::compute_end_of_month("japan", spot) == spot) stop("An end-of-month start is not supported.")
   list(effective = spot, termination = seq(spot, by = paste(TONA_MODEL$swap$years, "years"), length.out = 2L)[2L])
 })
 
 tona_make_swap <- function(fixed_rate) {
-  RiemannFinMath::create_ois_swap(
+  rmql::create_ois_swap(
     TONA_MODEL$swap$side, TONA_MODEL$swap$notional, TONA_SWAP_DATES$effective, TONA_SWAP_DATES$termination,
     "tonar", fixed_rate, fixed_frequency = 1L, overnight_frequency = 1L, payment_lag = 0L
   )
@@ -64,7 +64,7 @@ tona_make_swap <- function(fixed_rate) {
 
 TONA_BASE_CURVE <- tona_build_curve(TONA_MODEL$quotes$rate)
 # Fixed rate: the unrounded 7Y par rate of the base curve, used for both cases.
-TONA_FIXED_RATE <- RiemannFinMath::compute_ois_swap_value(tona_make_swap(0), TONA_BASE_CURVE, TONA_MODEL$evaluation_date)$fair_rate
+TONA_FIXED_RATE <- rmql::compute_ois_swap_value(tona_make_swap(0), TONA_BASE_CURVE, TONA_MODEL$evaluation_date)$fair_rate
 
 # Dates for the curve: weekly to 30Y for the charts, plus the dates of the regression values
 # (monthly grid, key anniversaries, pillars and their neighbours, swap dates).
@@ -82,24 +82,24 @@ iso <- function(d) format(as.Date(d), "%Y-%m-%d")
 tona_case <- function(rates) {
   ev <- TONA_MODEL$evaluation_date
   curve <- if (identical(rates, TONA_MODEL$quotes$rate)) TONA_BASE_CURVE else tona_build_curve(rates)
-  rep <- RiemannFinMath::get_quote_repricing(curve)
-  nodes <- RiemannFinMath::get_discount_nodes(curve)
+  rep <- rmql::get_quote_repricing(curve)
+  nodes <- rmql::get_discount_nodes(curve)
   dates <- tona_curve_dates(rep$pillar_date)
-  disc <- RiemannFinMath::compute_discount(curve, dates)
-  fwd <- RiemannFinMath::compute_forward_rate(curve, dates, dates + 1L, "actual_365_fixed", "simple")
+  disc <- rmql::compute_discount(curve, dates)
+  fwd <- rmql::compute_forward_rate(curve, dates, dates + 1L, "actual_365_fixed", "simple")
   node_t <- as.numeric(nodes$date - ev) / 365
   # Continuously compounded zero rate, Actual/365 Fixed. Undefined at the reference date (t = 0): NA -> null.
   zero_at <- function(d) {
-    z <- RiemannFinMath::compute_zero_rate(curve, d, "actual_365_fixed", "continuous")
+    z <- rmql::compute_zero_rate(curve, d, "actual_365_fixed", "continuous")
     z[d == ev] <- NA_real_
     z
   }
   seg_fwd <- log(nodes$discount[-nrow(nodes)] / nodes$discount[-1L]) / diff(node_t)
   swap <- tona_make_swap(TONA_FIXED_RATE)
-  value <- RiemannFinMath::compute_ois_swap_value(swap, curve, ev)
-  flows <- RiemannFinMath::compute_ois_swap_cashflows(swap, curve, ev)
+  value <- rmql::compute_ois_swap_value(swap, curve, ev)
+  flows <- rmql::compute_ois_swap_cashflows(swap, curve, ev)
   if (any(!is.na(flows$error))) stop("A cash flow could not be computed.")
-  flow_df <- RiemannFinMath::compute_discount(curve, flows$payment_date)
+  flow_df <- rmql::compute_discount(curve, flows$payment_date)
   list(
     # data frames serialise as arrays of row objects
     instruments = data.frame(
@@ -139,8 +139,8 @@ tona_compute_scenario <- function(bump_tenor, bump_bp) {
   scenario <- if (identical(scenario_rates, q$rate)) TONA_BASE_CASE else tona_case(scenario_rates)
   list(
     api_version = 1L,
-    engine = list(name = "RiemannFinMath", version = as.character(utils::packageVersion("RiemannFinMath")),
-                  built = utils::packageDescription("RiemannFinMath")$Built),
+    engine = list(name = "rmql", version = as.character(utils::packageVersion("rmql")),
+                  built = utils::packageDescription("rmql")$Built),
     request = list(bumpTenor = bump_tenor, bumpBp = bump_bp),
     evaluation_date = iso(TONA_MODEL$evaluation_date),
     quote_unit = "decimal rate (0.0224 = 2.24%)",

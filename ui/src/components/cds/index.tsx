@@ -5,7 +5,7 @@ import { LineChart } from "../LineChart";
 
 // Components of the credit risk and CDS chapter (Coral Book II-5). The reader moves the market spread, the
 // contract coupon, the recovery rate and the discount rate of the one-year swap and of the standard five-year swap;
-// each change asks the R API (RiemannFinMath).
+// each change asks the R API (rmql).
 
 type Section = "flat" | "isda";
 const DEFAULT: Record<Section, CdsInputs> = {

@@ -1,6 +1,6 @@
 # Interest-rate models (Coral Book II-7). The manuscript draws its random numbers with R (set.seed, rnorm); the
-# same numbers are used here and passed to RiemannFinMath where it takes normals (caplet, correlated shocks). The
-# Hull-White paths are the manuscript's exact OU transition in R, next to RiemannFinMath's monthly Hull-White rates
+# same numbers are used here and passed to rmql where it takes normals (caplet, correlated shocks). The
+# Hull-White paths are the manuscript's exact OU transition in R, next to rmql's monthly Hull-White rates
 # (its own random numbers). Reconciled with the manuscript's code and its own results in server/tests/reconciliation/rate_models/.
 #
 # POST /api/rate-models
@@ -56,17 +56,17 @@ rm_hw <- function(p) rm_memo("hw", p, function() {
   # left-end sums of the rates, as the manuscript
   cum <- t(apply(sim$rates[, -ncol(sim$rates), drop = FALSE] * sim$step, 1, cumsum))
   manuscript <- rm_discount_check(exp(-cum[, as.integer(round(maturities / sim$step)), drop = FALSE]), maturities, r, "原稿の手順（R、半月刻み、seed 617）")
-  monthly <- RiemannFinMath::generate_hull_white_monthly_rates(8000L, 60L, r, a, sigma, seed = RM_SEEDS$hw)
+  monthly <- rmql::generate_hull_white_monthly_rates(8000L, 60L, r, a, sigma, seed = RM_SEEDS$hw)
   monthly_cum <- t(apply(monthly / 12, 1, cumsum))
-  riemann <- rm_discount_check(exp(-monthly_cum[, maturities * 12L, drop = FALSE]), maturities, r, "RiemannFinMath（月次、antithetic）")
+  rmql <- rm_discount_check(exp(-monthly_cum[, maturities * 12L, drop = FALSE]), maturities, r, "rmql（月次、antithetic）")
   q <- apply(sim$rates, 2, stats::quantile, probs = c(0.05, 0.5, 0.95))
   list(
     flat_rate = r, a = a, sigma = sigma, steps_per_year = 24L, paths = nrow(sim$rates), seed = RM_SEEDS$hw,
     times = sim$times, sample_paths = lapply(1:8, \(i) sim$rates[i, ]),
     mean_path = colMeans(sim$rates), quantile_05 = q[1, ], quantile_95 = q[3, ],
     shift = rm_hw_shift(sim$times, r, a, sigma),
-    riemann_sample_paths = lapply(1:8, \(i) c(NA, monthly[i, ])), riemann_times = (0:60) / 12,
-    discount_check = rbind(manuscript, riemann),
+    rmql_sample_paths = lapply(1:8, \(i) c(NA, monthly[i, ])), rmql_times = (0:60) / 12,
+    discount_check = rbind(manuscript, rmql),
     # II-7.3: the forward-rate loading of one-factor Hull-White, sigma exp(-a (T - t))
     hjm_loading = data.frame(time_to_maturity = seq(0, 15, by = 0.1), forward_volatility = sigma * exp(-a * seq(0, 15, by = 0.1)))
   )
@@ -77,11 +77,11 @@ rm_caplet <- function(p) rm_memo("caplet", p, function() {
   F <- p$forwardPct / 100; K <- p$strikePct / 100; v <- p$volPct / 100; T <- p$expiry; tau <- p$accrual
   df <- exp(-p$ratePct / 100 * (T + tau))
   z <- rm_rnorm(50000L, RM_SEEDS$caplet)
-  black <- RiemannFinMath::compute_caplet_value(F, K, v, T, tau, df)
-  mc <- RiemannFinMath::compute_caplet_from_normals(z, F, K, v, T, tau, df)
+  black <- rmql::compute_caplet_value(F, K, v, T, tau, df)
+  mc <- rmql::compute_caplet_from_normals(z, F, K, v, T, tau, df)
   terminal <- F * exp(-v^2 * T / 2 + v * sqrt(T) * z)
   hist <- ggplot2::layer_data(ggplot2::ggplot(data.frame(x = 100 * terminal), ggplot2::aes(x = x)) + ggplot2::geom_histogram(bins = 40))
-  backward <- RiemannFinMath::compute_backward_caplet_value(F, K, v, T, T + tau, tau, df)
+  backward <- rmql::compute_backward_caplet_value(F, K, v, T, T + tau, tau, df)
   list(
     forward = F, strike = K, volatility = v, expiry = T, accrual = tau, discount_factor = df, paths = length(z), seed = RM_SEEDS$caplet,
     black_price = black, simulated_price = mc$value, mc_standard_error = mc$standard_error,
@@ -95,7 +95,7 @@ rm_caplet <- function(p) rm_memo("caplet", p, function() {
 rm_shocks <- function(p) rm_memo("shocks", p, function() {
   target <- matrix(c(1, p$ab, p$ac, p$ab, 1, p$bc, p$ac, p$bc, 1), 3, byrow = TRUE)
   independent <- matrix(rm_rnorm(90000L, RM_SEEDS$shocks), ncol = 3)
-  correlated <- RiemannFinMath::compute_correlated_normals(independent, target)
+  correlated <- rmql::compute_correlated_normals(independent, target)
   sample <- stats::cor(correlated)
   names3 <- c("A", "B", "C")
   grid <- expand.grid(forward_1 = names3, forward_2 = names3, stringsAsFactors = FALSE)
@@ -144,11 +144,11 @@ rate_models_compute <- function(body = list()) {
   list(
     inputs = list(hw = hw, caplet = cap, shocks = sh, fixings = fx),
     conventions = list(
-      hw = "フラットな連続複利の初期曲線。原稿の手順は OU 状態の厳密な遷移（半月刻み、5年、8000本、R の seed 617）、割引は左端の値の和。RiemannFinMath は月次の短期金利（antithetic、パッケージの乱数）",
-      caplet = "割引係数 exp(−r (T + τ))。モンテカルロは R の seed 618 の 50000 個の正規乱数を RiemannFinMath に渡す。後決めキャップレットは RiemannFinMath（期間中にボラが減衰）",
-      shocks = "R の seed 619 の独立な正規乱数（30000 × 3）に、目標相関のコレスキー因子を掛ける（RiemannFinMath compute_correlated_normals）",
+      hw = "フラットな連続複利の初期曲線。原稿の手順は OU 状態の厳密な遷移（半月刻み、5年、8000本、R の seed 617）、割引は左端の値の和。rmql は月次の短期金利（antithetic、パッケージの乱数）",
+      caplet = "割引係数 exp(−r (T + τ))。モンテカルロは R の seed 618 の 50000 個の正規乱数を rmql に渡す。後決めキャップレットは rmql（期間中にボラが減衰）",
+      shocks = "R の seed 619 の独立な正規乱数（30000 × 3）に、目標相関のコレスキー因子を掛ける（rmql compute_correlated_normals）",
       fixings = "架空の翌日物金利（水準 ＋ 振幅 × sin）、各日 1/365",
-      engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath")))),
+      engine = paste("rmql", as.character(utils::packageVersion("rmql")))),
     hw = rm_hw(hw), caplet = rm_caplet(cap), shocks = rm_shocks(sh), fixings = rm_fixings(fx)
   )
 }

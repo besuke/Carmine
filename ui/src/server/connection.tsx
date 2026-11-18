@@ -4,7 +4,7 @@ import { fetchServerInfo, type ServerInfo } from "../api/server";
 import { LineChart, type SeriesPoint } from "../components/LineChart";
 import { href } from "../book/router";
 
-// The connection to the calculation server (R + RiemannFinMath, server/server.R). One provider for the whole
+// The connection to the calculation server (R + rmql, server/server.R). One provider for the whole
 // page: the header shows the state everywhere, and the connection page shows the details and the history.
 
 const HISTORY = 60;
@@ -103,7 +103,7 @@ export function ServerIndicator() {
   return (
     <a className={`server-indicator server-${st}`} href={href("/server")} aria-live="polite"
       title={s.last?.ok ? `往復 ${s.last.roundTripMs?.toFixed(0)} ms` : s.last?.error ?? "確認中"}>
-      <span aria-hidden="true">{STATUS_ICON[st]}</span> Riemann Compute Server：{STATUS_LABEL[st]}
+      <span aria-hidden="true">{STATUS_ICON[st]}</span> rmql Compute Server：{STATUS_LABEL[st]}
     </a>
   );
 }
@@ -130,7 +130,7 @@ function StatusPanel() {
       <h2 id="server-status-h"><span aria-hidden="true">{STATUS_ICON[st]}</span> {STATUS_LABEL[st]}</h2>
       {st === "disconnected" && (
         <div className="banner error" role="alert">
-          <strong>Riemann Compute Server に接続できません。</strong> {s.last?.error}
+          <strong>rmql Compute Server に接続できません。</strong> {s.last?.error}
           <div className="banner-cmd">起動のしかた：プロジェクトのフォルダーで <code>npm run api</code>、またはプロジェクトの <code>CarmineStudio.ps1</code>（デスクトップのショートカット「Carmine Studio」）で「1」。サーバーは <code>127.0.0.1:8787</code> で待ち受けます。</div>
         </div>
       )}
@@ -185,7 +185,7 @@ function ServerFacts() {
     ["計算エンジン", `${info.engine.name} ${info.engine.version}`],
     ["R", `${info.runtime.r_version}（${info.runtime.platform}）`],
     ["待ち受け", `${info.listen.host}:${info.listen.port}${info.listen.lan ? "（社内LANのすべてのインターフェース）" : "（このPCだけ）"}`],
-    ["画面の配信", info.listen.serves_page ? "Riemann Compute Server が画面も配信（npm run lan）" : "画面は開発サーバー（Vite）から。/api だけ Riemann Compute Server へ転送"],
+    ["画面の配信", info.listen.serves_page ? "rmql Compute Server が画面も配信（npm run lan）" : "画面は開発サーバー（Vite）から。/api だけ rmql Compute Server へ転送"],
     ["起動した時刻", `${info.started_at}（稼働 ${duration(info.uptime_seconds)}）`],
     ["受け付けた要求", `${info.requests_served.toLocaleString("ja-JP")} 件（起動から）`],
     ["論理プロセッサ", `${info.runtime.logical_processors}`],
@@ -196,7 +196,7 @@ function ServerFacts() {
   return (
     <div className="table-wrap">
       <table className="data">
-        <caption>Riemann Compute Server の情報（<code>GET /api/server</code>、応答 <code>{info.response.request_id}</code>）</caption>
+        <caption>rmql Compute Server の情報（<code>GET /api/server</code>、応答 <code>{info.response.request_id}</code>）</caption>
         <tbody>{rows.map(([k, v]) => <tr key={k}><th scope="row">{k}</th><td className="wrap">{v}</td></tr>)}</tbody>
       </table>
     </div>
@@ -209,7 +209,7 @@ function RouteTable() {
   return (
     <div className="table-wrap">
       <table className="data">
-        <caption>Riemann Compute Server が受け付ける API（{info.routes.length} 本）</caption>
+        <caption>rmql Compute Server が受け付ける API（{info.routes.length} 本）</caption>
         <thead><tr><th scope="col">方法</th><th scope="col">パス</th><th scope="col">使うページ</th></tr></thead>
         <tbody>{info.routes.map((r) => <tr key={`${r.method} ${r.path}`}><td>{r.method}</td><td><code>{r.path}</code></td><td className="wrap">{r.page}</td></tr>)}</tbody>
       </table>
@@ -259,19 +259,19 @@ function PublicUrls() {
 export function ServerPage() {
   return (
     <article className="prose">
-      <h1>Riemann Compute Server との接続</h1>
+      <h1>rmql Compute Server との接続</h1>
       <StatusPanel />
       <PublicUrls />
       <h2>時間の推移</h2>
       <p>
-        往復の時間は、ブラウザが要求を送ってから応答を受け取るまでです。サーバー内の計算時間は、サーバーが RiemannFinMath の小さな計算を
+        往復の時間は、ブラウザが要求を送ってから応答を受け取るまでです。サーバー内の計算時間は、サーバーが rmql の小さな計算を
         決まった回数くり返した時間で、往復との差はおもに通信と JSON の変換です。
       </p>
       <HistoryChart />
       <CheckLog />
       <h2>サーバーの情報</h2>
       <p>
-        各章の計算は、すべて Riemann Compute Server（R の HTTP API、<code>server/server.R</code>）が <strong>RiemannFinMath</strong> で行います。画面は
+        各章の計算は、すべて rmql Compute Server（R の HTTP API、<code>server/server.R</code>）が <strong>rmql</strong> で行います。画面は
         <code> /api</code> に要求を送り、返ってきた JSON を表とグラフにします。
       </p>
       <ServerFacts />

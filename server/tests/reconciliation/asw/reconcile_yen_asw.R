@@ -5,8 +5,8 @@
 # A. Old demo result: Curie output/offer_results_ISO_demo_20261006.xlsx (2026-10-27, GaussQuant 2026.9.12.1, QuantLib 1.42).
 # B. Curie's functions re-run now: compute_asset_swap_basis_JPY() with the basis interpolated by Curie's
 #    spline_by_maturity_Curie() (stats::splinefun natural), installed GaussQuant and QuantLib 1.42.
-# C. Carmine Studio's API path: basis interpolation in server/R/asw_model.R and RiemannFinMath compute_yen_asset_swap().
-# Nothing in Curie, GaussQuant or Riemann is modified.
+# C. Carmine Studio's API path: basis interpolation in server/R/asw_model.R and rmql compute_yen_asset_swap().
+# Nothing in Curie, GaussQuant or rmql is modified.
 
 suppressPackageStartupMessages({ library(dplyr); library(readxl) })
 
@@ -49,7 +49,7 @@ yb <- compute_asset_swap_basis_JPY(bond_b, old$offer_price, usd_curve, jpy_curve
 # ---- Compare ------------------------------------------------------------------------------------
 tol <- list(bp = 1e-6, yen_per_100 = 1e-7, residual = 1e-6)
 rows <- tibble::tribble(
-  ~item, ~old_excel, ~curie_rerun, ~api_riemann, ~tolerance,
+  ~item, ~old_excel, ~curie_rerun, ~api_rmql, ~tolerance,
   "FX スポット（円/USD）", old$fx_spot, fx$fx_spot, yc$fx_spot, 0,
   "ベーシス（補間後、bp）", old$basis_bp, basis_b, yc$basis_bp, tol$bp,
   "発行通貨建て ASW（bp）", old$native_asw_bp, yb$native_asw_bp, priced$summary$fair_spread_bp, tol$bp,
@@ -61,19 +61,19 @@ rows <- tibble::tribble(
   "価格調整PV（円、額面100）", NA, yb$upfront_pv_jpy, yc$upfront_pv_yen, tol$yen_per_100,
   "円のスプレッド・アニュイティ（円、額面100）", NA, yb$spread_annuity_jpy, yc$spread_annuity_yen, tol$yen_per_100
 ) |>
-  mutate(api_minus_old = api_riemann - old_excel, api_minus_curie_rerun = api_riemann - curie_rerun,
+  mutate(api_minus_old = api_rmql - old_excel, api_minus_curie_rerun = api_rmql - curie_rerun,
          pass = (is.na(api_minus_old) | abs(api_minus_old) <= tolerance) & abs(api_minus_curie_rerun) <= tolerance)
 
 residuals <- tibble::tibble(
   item = c("CCS 校正の残差（円、額面100）", "フェアスプレッドでの NPV（円、額面100）"),
   old_excel = c(old$ccs_repricing_npv_jpy, old$fair_spread_npv_jpy),
   curie_rerun = c(yb$ccs_repricing_npv_jpy, yb$fair_spread_npv_jpy),
-  api_riemann = c(yc$detail$checks$ccs_residual_yen, yc$detail$checks$npv_at_fair_spread_yen),
+  api_rmql = c(yc$detail$checks$ccs_residual_yen, yc$detail$checks$npv_at_fair_spread_yen),
   tolerance = tol$residual
-) |> mutate(pass = abs(api_riemann) <= tolerance)
+) |> mutate(pass = abs(api_rmql) <= tolerance)
 
 options(width = 220, pillar.sigfig = 14)
-print(rows |> select(item, old_excel, curie_rerun, api_riemann, api_minus_old, api_minus_curie_rerun, tolerance, pass), n = 20)
+print(rows |> select(item, old_excel, curie_rerun, api_rmql, api_minus_old, api_minus_curie_rerun, tolerance, pass), n = 20)
 print(residuals)
 utils::write.csv(rows, file.path(out_dir, "yen_asw_USTEST000016.csv"), row.names = FALSE)
 utils::write.csv(residuals, file.path(out_dir, "yen_asw_USTEST000016_residuals.csv"), row.names = FALSE)

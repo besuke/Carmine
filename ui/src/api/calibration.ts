@@ -19,14 +19,14 @@ export interface CalibrationResponse {
   };
   sabr: {
     forward: number; expiry: number; beta: number;
-    quotes: { strike: number; market: number; manuscript_fit: number; riemann_fit: number }[];
+    quotes: { strike: number; market: number; manuscript_fit: number; rmql_fit: number }[];
     fits: { method: string; alpha: number; nu: number; rho: number; rmse: number; iterations: number; convergence: number }[];
-    smile: { strike: number; manuscript_fit: number; riemann_fit: number }[];
+    smile: { strike: number; manuscript_fit: number; rmql_fit: number }[];
   };
   hw: {
     zero_rate: number; reference: { a: number; sigma: number };
     options: { option_maturity: number; bond_maturity: number; strike_multiplier: number; sample: string; strike: number;
-      market_price: number; manuscript_price: number; riemann_price: number }[];
+      market_price: number; manuscript_price: number; rmql_price: number }[];
     fits: { method: string; a: number; sigma: number; objective: number; evaluations: number | null; convergence: number }[];
     objective_slice: { a: number; objective: number }[];
   };

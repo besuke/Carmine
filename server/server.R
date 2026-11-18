@@ -6,8 +6,8 @@
 #   --static DIR    also serve the built page (npm run build) from DIR, so page and API share one port
 #
 #   GET  /api/health    -> {"status":"ok", ...}
-#   GET  /api/jgb-curves -> month-end JGB yield curves built by RiemannFinMath (the yield-curve slider)
-#   GET  /api/server    -> engine and R versions, address, uptime, routes, one timed RiemannFinMath call (connection page)
+#   GET  /api/jgb-curves -> month-end JGB yield curves built by rmql (the yield-curve slider)
+#   GET  /api/server    -> engine and R versions, address, uptime, routes, one timed rmql call (connection page)
 #   POST /api/scenario  {"bumpTenor":"5Y","bumpBp":1} -> curves, 7Y OIS par rate and PVs (see README.md)
 #   POST /api/curves/zero         {"zeroRatesPct":[...], "shiftBp":50, "bump":{"tenor":"10Y","bp":100}} -> zero / discount / shifted curves (II-2)
 #   POST /api/futures/basket      {"mode":"current"} | {"mode":"flat","yieldPct":8,"fundingPct":9} -> CTD, basis, futures BPV
@@ -108,7 +108,7 @@ handle <- function(req) {
   if (identical(path, "/api/health")) {
     if (method != "GET") return(json_response(405, list(error = "Use GET.")))
     return(json_response(200, list(
-      status = "ok", engine = paste("RiemannFinMath", as.character(utils::packageVersion("RiemannFinMath"))),
+      status = "ok", engine = paste("rmql", as.character(utils::packageVersion("rmql"))),
       evaluation_date = format(TONA_MODEL$evaluation_date), fixed_rate = TONA_FIXED_RATE
     )))
   }
@@ -390,8 +390,8 @@ public_info <- function(host, port, static_dir) {
 }
 SERVER_PUBLIC <- public_info(host, port, static_dir)
 
-cat(sprintf("Carmine Studio API on http://%s:%d (RiemannFinMath %s, fixed rate %.17g)\n",
-            host, port, as.character(utils::packageVersion("RiemannFinMath")), TONA_FIXED_RATE))
+cat(sprintf("Carmine Studio API on http://%s:%d (rmql %s, fixed rate %.17g)\n",
+            host, port, as.character(utils::packageVersion("rmql")), TONA_FIXED_RATE))
 if (!is.na(static_dir)) cat("Serving the page from", static_dir, "\n")
 if (host == "0.0.0.0") {
   cat("Listening on every network interface. People on the LAN open:\n")

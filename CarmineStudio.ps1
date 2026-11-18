@@ -1,4 +1,4 @@
-﻿# CarmineStudio.ps1 - start Riemann Compute Server (R + RiemannFinMath) and the Carmine Studio page, then open it.
+﻿# CarmineStudio.ps1 - start rmql Compute Server (R + rmql) and the Carmine Studio page, then open it.
 #
 #   powershell -ExecutionPolicy Bypass -File CarmineStudio.ps1          menu
 #   powershell -ExecutionPolicy Bypass -File CarmineStudio.ps1 dev      this PC: API 127.0.0.1:8787, page http://127.0.0.1:8081/
@@ -60,12 +60,12 @@ function Get-PublicHosts {
 function Start-Dev {
   Write-Host ""
   if (Test-Url $LocalApi) {
-    Write-Host "[1/3] Riemann Compute Server はすでに起動しています（127.0.0.1:8787）。そのまま使います。"
+    Write-Host "[1/3] rmql Compute Server はすでに起動しています（127.0.0.1:8787）。そのまま使います。"
   } else {
     Assert-PortFree 8787
-    Write-Host "[1/3] Riemann Compute Server を別のウィンドウで起動します（127.0.0.1:8787）..."
-    Start-Window "Carmine Studio - Riemann Compute Server (8787)" "api"
-    Wait-Url $LocalApi 120 "Riemann Compute Server"
+    Write-Host "[1/3] rmql Compute Server を別のウィンドウで起動します（127.0.0.1:8787）..."
+    Start-Window "Carmine Studio - rmql Compute Server (8787)" "api"
+    Wait-Url $LocalApi 120 "rmql Compute Server"
   }
   if (Test-Url $LocalPage) {
     Write-Host "[2/3] 画面はすでに起動しています（$LocalPage）。そのまま使います。"
@@ -78,7 +78,7 @@ function Start-Dev {
   Write-Host "[3/3] ブラウザで $LocalPage を開きます（このPCでの開発用）。"
   Start-Process $LocalPage
   Write-Host ""
-  Write-Host "止めるときは「Carmine Studio - Riemann Compute Server (8787)」と「Carmine Studio - page (8081)」のウィンドウを閉じてください。"
+  Write-Host "止めるときは「Carmine Studio - rmql Compute Server (8787)」と「Carmine Studio - page (8081)」のウィンドウを閉じてください。"
 }
 
 function Start-Lan {
@@ -116,9 +116,9 @@ if ($Mode -eq "lan") { Invoke-Safely { Start-Lan }; exit }
 while ($true) {
   Write-Host ""
   Write-Host "=============================================================="
-  Write-Host " Carmine Studio『エンタープライズ金融モデル』（計算は Riemann Compute Server）"
+  Write-Host " Carmine Studio『エンタープライズ金融モデル』（計算は rmql Compute Server）"
   Write-Host "=============================================================="
-  Write-Host " 1  起動する：Riemann Compute Server（8787）と画面（8081）をこのPCで開く"
+  Write-Host " 1  起動する：rmql Compute Server（8787）と画面（8081）をこのPCで開く"
   Write-Host " 2  社内LANで起動する：画面と計算を 8081 でまとめて公開し、LAN のアドレスで開く"
   Write-Host " 3  ブラウザで画面を開く（起動済みのとき）"
   Write-Host " 4  Claude Code でこの作業の続きを開く"

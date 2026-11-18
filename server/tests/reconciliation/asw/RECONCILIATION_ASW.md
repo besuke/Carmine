@@ -1,4 +1,4 @@
-# ASW の照合：Curie の旧デモと RiemannFinMath
+# ASW の照合：Curie の旧デモと rmql
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：Curie の A1 オファーシートのデモ（架空データ、評価日 2026-10-06）の OIS アセットスワップ・スプレッド（発行通貨建て ASW）
@@ -16,9 +16,9 @@
 
 ## 2. 結果【実行照合済み】
 
-A＝旧デモの結果（Curie `output/offer_results_JPY_demo_20261006.xlsx`、2026-10-27、GaussQuant 2026.9.12.1・QuantLib 1.42）、B＝Curie の関数を今の GaussQuant（2026.6.18.1）・QuantLib 1.42 で再実行、C＝RiemannFinMath 0.3.0。
+A＝旧デモの結果（Curie `output/offer_results_JPY_demo_20261006.xlsx`、2026-10-27、GaussQuant 2026.9.12.1・QuantLib 1.42）、B＝Curie の関数を今の GaussQuant（2026.6.18.1）・QuantLib 1.42 で再実行、C＝rmql 0.3.0。
 
-| 項目 | A 旧デモ | C RiemannFinMath | C − A | C − B | 許容誤差 |
+| 項目 | A 旧デモ | C rmql | C − A | C − B | 許容誤差 |
 |---|---|---|---|---|---|
 | ASW 開始日・満期日 | 2026-10-08・2031-03-15 | 同じ | 一致 | 一致 | 完全一致 |
 | 経過利子（額面100） | 0.056712328767116738 | 同じ | 0 | 0 | 1e-10 |
@@ -43,7 +43,7 @@ A＝旧デモの結果（Curie `output/offer_results_JPY_demo_20261006.xlsx`、2
 | 校正 | 満期のベーシス1点で、外貨割引の一定スプレッド z を校正（Curie は `uniroot`、許容誤差 1e-12） |
 | 両レグ | 年2回、支払ラグ0。外貨は SOFR カーブ、円は TONA カーブ |
 
-A＝旧デモ（`offer_results_ISO_demo_20261006.xlsx`）、B＝Curie の `compute_asset_swap_basis_JPY` を今の GaussQuant・QuantLib 1.42 で再実行、C＝API（ベーシスの補間は `server/R/asw_model.R`、計算は RiemannFinMath の `compute_yen_asset_swap`）。
+A＝旧デモ（`offer_results_ISO_demo_20261006.xlsx`）、B＝Curie の `compute_asset_swap_basis_JPY` を今の GaussQuant・QuantLib 1.42 で再実行、C＝API（ベーシスの補間は `server/R/asw_model.R`、計算は rmql の `compute_yen_asset_swap`）。
 
 | 項目 | A 旧デモ | C API | C − A | C − B | 許容誤差 |
 |---|---|---|---|---|---|
@@ -59,7 +59,7 @@ A＝旧デモ（`offer_results_ISO_demo_20261006.xlsx`）、B＝Curie の `compu
 
 全5件（USD 3、EUR 2。`npm test`）：円換算 ASW の差は最大 1.1e-9 bp、補間したベーシスは 3.6e-15 bp。コール条項付き債は、発行通貨建て ASW と同じく対象外。
 
-**円換算 ASW の差（1e-10 bp 程度）の原因【実行確認】**：差は z の差（7.5e-11 bp）と同じ大きさで、旧デモと Curie の再実行は一致している。z を求める解法の停止条件（Curie は `uniroot` の許容誤差 1e-12、RiemannFinMath は自前の解法）による差で、許容誤差の 1e-6 bp より十分小さい。
+**円換算 ASW の差（1e-10 bp 程度）の原因【実行確認】**：差は z の差（7.5e-11 bp）と同じ大きさで、旧デモと Curie の再実行は一致している。z を求める解法の停止条件（Curie は `uniroot` の許容誤差 1e-12、rmql は自前の解法）による差で、許容誤差の 1e-6 bp より十分小さい。
 
 ## 4. JGBスプレッドと A1 POC の表【実行照合済み】
 
@@ -77,11 +77,11 @@ A＝旧デモ（`offer_results_ISO_demo_20261006.xlsx`）、B＝Curie の `compu
 | ベーシスの平均（mtm_reset を含む全条件） | 15 | 1e-12 bp | 0 |
 | 円換算 ASW の校正スプレッド z | 5 | 1e-6 bp | 1.1e-9 bp |
 
-複利利回りは、Curie が GaussQuant の `bond_compound_yield_from_price_YEN_GQL()`、API が RiemannFinMath の `compute_compound_yield_from_price()` で、同じ規則（Riemann `docs/spec_bonds.md` 5.1）による。
+複利利回りは、Curie が GaussQuant の `bond_compound_yield_from_price_YEN_GQL()`、API が rmql の `compute_compound_yield_from_price()` で、同じ規則（rmql `docs/spec_bonds.md` 5.1）による。
 
 **JGB対比スプレッドで提示された気配**：Curie の A1 は扱わない（オファーシートの必須項目は単価 `offer_price` で、列の対応にスプレッドの列はない。JGBスプレッドは単価から計算する出力）。API の `POST /api/asw/offers/<id>/jgb-spread` は、Curie の定義を逆に解いて単価に換算する参考機能である。照合の相手がないので、戻し確認で確かめた：5銘柄で、単価から求めた JGBスプレッドを換算し直すと、単価（切り捨てなし）の差は最大 5.3e-7、小数第3位で切り捨てた単価はオファー単価と一致、戻したスプレッドの差は最大 1.0e-5 bp（利回りを小数第7位で切り捨てるため）。
 
-**RiemannFinMath について気づいた点**：`compute_price_from_compound_yield()` のヘルプは「`digits = NA` で切り捨てなし」と書くが、R の関数は NA を受け付けない（`Must not be NA.`）。API は `digits = 20` を使う（額面100前後の価格で最下位ビット程度の差）。
+**rmql について気づいた点**：`compute_price_from_compound_yield()` のヘルプは「`digits = NA` で切り捨てなし」と書くが、R の関数は NA を受け付けない（`Must not be NA.`）。API は `digits = 20` を使う（額面100前後の価格で最下位ビット程度の差）。
 
 ## 5. 注意
 

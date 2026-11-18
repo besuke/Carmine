@@ -6,14 +6,14 @@
 #    GaussQuant 2026.9.12.1 from GitHub fa721b2, QuantLib 1.42).
 # B. Curie's function re-run now: compute_asset_swap_ISO() and instance_swap_curve() from Curie
 #    (R/z0_utility/lagrange/), with the installed GaussQuant and QuantLib 1.42. Gives the component PVs.
-# C. RiemannFinMath: bootstrap_ois_curve() + create_fixed_rate_bond() + compute_ois_asset_swap(),
+# C. rmql: bootstrap_ois_curve() + create_fixed_rate_bond() + compute_ois_asset_swap(),
 #    the path Carmine Studio's API uses.
-# Nothing in Curie, GaussQuant or Riemann is modified. Results go to server/tests/reconciliation/asw/results/.
+# Nothing in Curie, GaussQuant or rmql is modified. Results go to server/tests/reconciliation/asw/results/.
 
 suppressPackageStartupMessages({
   library(dplyr)
   library(readxl)
-  library(RiemannFinMath)
+  library(rmql)
 })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
@@ -45,7 +45,7 @@ bond_b <- build_fixed_rate_bond_Curie(row)
 asw_b <- compute_asset_swap_ISO(bond_b, clean_price, curve_b, payment_frequency = "Semiannual", payment_lag = asw_lag)
 vb <- asw_b$valuation
 
-# ---- C. RiemannFinMath -------------------------------------------------------------------------
+# ---- C. rmql -------------------------------------------------------------------------
 instruments <- create_ois_instruments(ois$tenor, ois$rate_pct / 100, 2L, 1L, 0L)
 curve_c <- bootstrap_ois_curve(valuation_date, valuation_date, "tonar", "actual_365_fixed", instruments,
                                interpolation = "monotonic_log_cubic")
@@ -60,7 +60,7 @@ vc <- compute_ois_asset_swap(bond_c, clean_price, curve_c, valuation_date, payme
 # ---- Compare -----------------------------------------------------------------------------------
 tol <- list(rate_bp = 1e-6, price = 1e-10, pv_per_100 = 1e-9)
 rows <- tibble::tribble(
-  ~item, ~unit, ~old_excel, ~curie_rerun, ~riemann, ~tolerance,
+  ~item, ~unit, ~old_excel, ~curie_rerun, ~rmql, ~tolerance,
   "ASW 開始日", "date", as.numeric(old$asw_effective_date |> as.Date()), as.numeric(asw_b$effective_date), as.numeric(vc$effective_date), 0,
   "ASW 満期日", "date", as.numeric(old$asw_maturity_date |> as.Date()), as.numeric(asw_b$maturity_date), as.numeric(vc$maturity_date), 0,
   "経過利子（額面100あたり）", "price", old$accrued_per_100, vb$accrued_per_100, vc$accrued, tol$price,
@@ -73,21 +73,21 @@ rows <- tibble::tribble(
   "受渡日の価格調整PV", "per 100", NA, vb$upfront_pv, vc$upfront_pv, tol$pv_per_100
 ) |>
   mutate(
-    riemann_minus_old = riemann - old_excel,
-    riemann_minus_curie_rerun = riemann - curie_rerun,
+    rmql_minus_old = rmql - old_excel,
+    rmql_minus_curie_rerun = rmql - curie_rerun,
     curie_rerun_minus_old = curie_rerun - old_excel,
-    pass = (is.na(riemann_minus_old) | abs(riemann_minus_old) <= tolerance) & abs(riemann_minus_curie_rerun) <= tolerance
+    pass = (is.na(rmql_minus_old) | abs(rmql_minus_old) <= tolerance) & abs(rmql_minus_curie_rerun) <= tolerance
   )
 
 options(width = 220, pillar.sigfig = 12)
-print(rows |> select(item, unit, old_excel, curie_rerun, riemann, riemann_minus_old, riemann_minus_curie_rerun, tolerance, pass), n = 20)
+print(rows |> select(item, unit, old_excel, curie_rerun, rmql, rmql_minus_old, rmql_minus_curie_rerun, tolerance, pass), n = 20)
 utils::write.csv(rows, file.path(out_dir, "asw_JPTEST000022.csv"), row.names = FALSE)
 writeLines(c(
   paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
   paste("R:", R.version.string),
   paste("QuantLib (R):", as.character(packageVersion("QuantLib"))),
   paste("GaussQuant (installed, for B):", as.character(packageVersion("GaussQuant"))),
-  paste("RiemannFinMath:", as.character(packageVersion("RiemannFinMath")), "built", packageDescription("RiemannFinMath")$Built),
+  paste("rmql:", as.character(packageVersion("rmql")), "built", packageDescription("rmql")$Built),
   paste("Curie commit:", tryCatch(system2("git", c("-C", curie, "rev-parse", "--short", "HEAD"), stdout = TRUE), error = function(e) NA)),
   paste("old Excel modified:", format(file.info(file.path(curie, "output/offer_results_JPY_demo_20261006.xlsx"))$mtime)),
   paste("max quote error of curve B (bp):", max(abs(curve_b$quote_repricing$quote_error_bp))),

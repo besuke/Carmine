@@ -1,5 +1,5 @@
 # Supplementary: GaussQuant flat_forward (PiecewiseFlatForward) vs log_linear_discount (PiecewiseLogLinearDiscount).
-# RiemannFinMath has no flat-forward bootstrap, so this checks whether log_linear can stand in for it.
+# rmql has no flat-forward bootstrap, so this checks whether log_linear can stand in for it.
 #   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" C:/AnalyticFin/Projects/carmine-studio/server/tests/reconciliation/check_flat_forward_vs_log_linear.R
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(dplyr); library(purrr) })

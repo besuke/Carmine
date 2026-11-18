@@ -1,20 +1,20 @@
 # Reconcile the curves of Coral Book II-2.2, II-2.3.1, II-2.5.2 and II-2.5.3 (yield-curve chapter):
-# GaussQuant / QuantLib 1.42 (the manuscript's code) against RiemannFinMath (Carmine Studio's API path).
+# GaussQuant / QuantLib 1.42 (the manuscript's code) against rmql (Carmine Studio's API path).
 #
 #   node ui/scripts/run-r.mjs server/tests/reconciliation/curves/reconcile_yield_curve.R
 #
 # Writes server/tests/golden/yield_curve_golden.json (GaussQuant's values, the reference of the API test) and
-# server/tests/reconciliation/curves/results/yield_curve_diffs.csv. Nothing in GaussQuant, Coral Book or Riemann is modified.
+# server/tests/reconciliation/curves/results/yield_curve_diffs.csv. Nothing in GaussQuant, Coral Book or rmql is modified.
 #
 # Inputs as in the manuscript: evaluation date 2022-08-19, the zero-rate nodes of II-2.2.1 (illustrative values),
-# Actual/365 Fixed. II-2.5.2 shifts the deposit + IBOR-swap curve of II-2.4.2 in the manuscript; RiemannFinMath
+# Actual/365 Fixed. II-2.5.2 shifts the deposit + IBOR-swap curve of II-2.4.2 in the manuscript; rmql
 # has no IBOR swap curve, so here the same +50bp shift (simple, annual: GaussQuant's default) is applied to the
 # zero curve of II-2.2, on both sides.
 
 suppressPackageStartupMessages({
   library(GaussQuant)
   library(QuantLib)
-  library(RiemannFinMath)
+  library(rmql)
   library(jsonlite)
 })
 
@@ -56,12 +56,12 @@ ref <- list(
   engine = paste("GaussQuant", as.character(packageVersion("GaussQuant")), "QuantLib", as.character(packageVersion("QuantLib")))
 )
 
-# ---- RiemannFinMath on the same dates -------------------------------------------------------------------
-rz <- RiemannFinMath::with_extrapolation(RiemannFinMath::create_zero_curve(nodes$date, nodes$zero_rate, "actual_365_fixed", "continuous"))
-rd <- RiemannFinMath::with_extrapolation(RiemannFinMath::create_discount_curve(
+# ---- rmql on the same dates -------------------------------------------------------------------
+rz <- rmql::with_extrapolation(rmql::create_zero_curve(nodes$date, nodes$zero_rate, "actual_365_fixed", "continuous"))
+rd <- rmql::with_extrapolation(rmql::create_discount_curve(
   nodes$date, c(1, exp(-nodes$zero_rate[-1] * as.numeric(nodes$date[-1] - nodes$date[1]) / 365)), "actual_365_fixed", "log_linear"))
-rs <- RiemannFinMath::create_zero_spreaded_curve(rz, shift, "simple", 1L)
-rdf <- function(curve, dates) RiemannFinMath::compute_discount(curve, as.Date(dates))
+rs <- rmql::create_zero_spreaded_curve(rz, shift, "simple", 1L)
+rdf <- function(curve, dates) rmql::compute_discount(curve, as.Date(dates))
 
 diffs <- rbind(
   data.frame(item = "ZeroCurve 割引係数（年限表）", diff = rdf(rz, ref$tenor_table$date) - ref$tenor_table$discount),
@@ -79,5 +79,5 @@ print(summary, digits = 3)
 utils::write.csv(summary, file.path(out_dir, "yield_curve_diffs.csv"), row.names = FALSE)
 write(toJSON(ref, auto_unbox = TRUE, digits = I(17), pretty = TRUE, na = "null"), file.path(lab, "server/tests/golden/yield_curve_golden.json"))
 writeLines(c(paste("run_at:", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")), ref$engine,
-             paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")))), file.path(out_dir, "session_info.txt"))
+             paste("rmql", as.character(packageVersion("rmql")))), file.path(out_dir, "session_info.txt"))
 stopifnot(all(summary$pass))

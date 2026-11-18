@@ -4,7 +4,7 @@ import { fetchZeroCurves, type CurvePointRow, type ZeroCurvesResponse } from "..
 import { LineChart, type Series } from "../LineChart";
 
 // Components of the yield-curve chapter (Coral Book II-2). The reader edits the zero-rate nodes and the
-// parallel shift; every change asks the R API (RiemannFinMath) for the curves. Figures follow the manuscript's
+// parallel shift; every change asks the R API (rmql) for the curves. Figures follow the manuscript's
 // ggplot2 figures: date on the x-axis, rates in percent, line type for the interpolation target.
 
 const DEFAULT_RATES_PCT = [0.05, 0.06, 0.08, 0.11, 0.18, 0.32, 0.48, 0.75, 1.15];
@@ -228,7 +228,7 @@ export function ShiftSection() {
 }
 
 /**
- * Single-node simulation: move one node's zero rate by bp, rebuild the ZeroCurve (RiemannFinMath), and compare the discount
+ * Single-node simulation: move one node's zero rate by bp, rebuild the ZeroCurve (rmql), and compare the discount
  * factors, the zero-coupon bond prices (100 x DF) and the zero rates with the base, node by node.
  */
 export function NodeSimulation() {

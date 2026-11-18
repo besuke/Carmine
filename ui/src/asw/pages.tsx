@@ -7,7 +7,7 @@ import { FlowChart, type FlowBar } from "../components/FlowChart";
 import { LineChart } from "../components/LineChart";
 
 // OIS asset swap offer sheet: the list of offers and the detail of one offer.
-// Every number is computed by the R API with RiemannFinMath; the page only lays it out.
+// Every number is computed by the R API with rmql; the page only lays it out.
 
 function useApi<T>(load: (signal: AbortSignal) => Promise<T>, key: string) {
   const [state, setState] = useState<{ data: T | null; error: string | null; loading: boolean }>({ data: null, error: null, loading: true });
@@ -299,7 +299,7 @@ function YenSection({ d }: { d: AswDetailResponse }) {
           <tr><th scope="row">発行通貨建て ASW ＋ ベーシス（単純和、参考値）</th><td>{y.simple_sum_bp !== undefined ? bpText(y.simple_sum_bp, 4) : "—"}（PV・支払日・アニュイティが違うので、円換算ASWとは一致しない）</td></tr>
           <tr><th scope="row">CCS 校正の残差 Q_f(z) − Q_j − b·A_j</th><td>{k.ccs_residual_yen.toExponential(2)} 円</td></tr>
           <tr><th scope="row">s_j* を戻したときの NPV</th><td>{k.npv_at_fair_spread_yen.toExponential(2)} 円</td></tr>
-          <tr><th scope="row">内訳から組み立てた s_j* と RiemannFinMath の compute_yen_asset_swap の差</th><td>{k.rebuilt_minus_engine_bp.toExponential(2)} bp</td></tr>
+          <tr><th scope="row">内訳から組み立てた s_j* と rmql の compute_yen_asset_swap の差</th><td>{k.rebuilt_minus_engine_bp.toExponential(2)} bp</td></tr>
           <tr><th scope="row">ヘッジ後の債券PV・円の基準レグPV のエンジンとの差</th><td>{k.hedged_bond_pv_minus_engine.toExponential(2)} 円・{k.yen_base_leg_pv_minus_engine.toExponential(2)} 円</td></tr>
         </tbody>
       </table>
@@ -514,7 +514,7 @@ function Computed({ d }: { d: AswDetailResponse }) {
       <table className="kv">
         <caption>確かめ</caption>
         <tbody>
-          <tr><th scope="row">キャッシュフローから組み立てた s* と、RiemannFinMath の compute_ois_asset_swap の差</th><td>{x.checks.rebuilt_minus_engine_bp.toExponential(2)} bp</td></tr>
+          <tr><th scope="row">キャッシュフローから組み立てた s* と、rmql の compute_ois_asset_swap の差</th><td>{x.checks.rebuilt_minus_engine_bp.toExponential(2)} bp</td></tr>
           <tr><th scope="row">s* を戻したときの NPV（額面100）</th><td>{x.checks.npv_at_fair_spread.toExponential(2)}</td></tr>
         </tbody>
       </table>
