@@ -1,7 +1,7 @@
 # Calibration of interest-rate derivatives (Coral Book II-6). The model prices and volatilities are RiemannFinMath.
 # The manuscript's own fitting procedure (R's optim, L-BFGS-B, its starts, bounds and objectives) is run on the
 # RiemannFinMath functions, next to RiemannFinMath's own calibrators. Reconciled with GaussQuant running the
-# manuscript's code, and with the manuscript's own results, in tests/reconciliation/calibration/.
+# manuscript's code, and with the manuscript's own results, in server/tests/reconciliation/calibration/.
 #
 # POST /api/calibration
 #   {"normal": {"forwardPct": 0.56, "blackVolPct": 40, "normalVolBp": 40, "expiry": 2},

@@ -1,10 +1,12 @@
 # Zero-rate nodes to curves, for the yield-curve chapter (Coral Book II-2.2, II-2.3.1, II-2.5.2, II-2.5.3).
-# All calculations are RiemannFinMath; reconciled with GaussQuant in tests/reconciliation/curves/ (difference 0).
+# All calculations are RiemannFinMath; reconciled with GaussQuant in server/tests/reconciliation/curves/ (difference 0).
 #
 # POST /api/curves/zero  {"zeroRatesPct": [9 numbers, or omitted for the manuscript's], "shiftBp": 50}
 #   ZeroCurve      : zero rates linear in time (QuantLib ZeroCurve), continuous, Actual/365 Fixed
 #   DiscountCurve  : the nodes' zero rates turned into discount factors, log-linear (QuantLib DiscountCurve)
 #   shifted curve  : ZeroCurve + shift, the spread compounding simple and annual (GaussQuant's default in II-2.5.2)
+#   bump (optional): {"bump":{"tenor":"10Y","bp":100}} moves one node's zero rate and rebuilds the ZeroCurve; returns the discount
+#                    factors, zero-coupon bond prices (100 x discount factor) and zero rates against the base, per node and table tenor
 
 CURVE_MODEL <- list(
   evaluation_date = as.Date("2022-08-19"),
@@ -37,7 +39,7 @@ curve_points <- function(curve, dates, ev) {
   data.frame(date = format(dates), time = t, discount = df, zero_continuous = zero, forward_step = fwd)
 }
 
-curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50) {
+curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50, bump = NULL) {
   bad <- function(msg) stop(structure(class = c("tona_bad_request", "error", "condition"), list(message = msg, call = NULL)))
   m <- CURVE_MODEL
   rates <- if (is.null(zero_rates_pct)) m$zero_rates else {
@@ -47,6 +49,14 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50) {
   }
   if (!is.numeric(shift_bp) || length(shift_bp) != 1L || !is.finite(shift_bp) || abs(shift_bp) > m$max_abs_shift_bp) {
     bad(paste0("shiftBp must be a finite number with |shiftBp| <= ", m$max_abs_shift_bp))
+  }
+  bump_i <- NA_integer_; bump_bp <- 0
+  if (!is.null(bump)) {
+    if (!is.list(bump) || !is.character(bump$tenor) || length(bump$tenor) != 1L) bad("bump must be {\"tenor\":\"10Y\",\"bp\":100}")
+    bump_i <- match(toupper(bump$tenor), m$tenors)
+    if (is.na(bump_i)) bad(paste0("bump.tenor must be one of: ", paste(m$tenors, collapse = ", ")))
+    bump_bp <- if (is.null(bump$bp)) 0 else bump$bp
+    if (!is.numeric(bump_bp) || length(bump_bp) != 1L || !is.finite(bump_bp) || abs(bump_bp) > 1000) bad("bump.bp must be a finite number with |bp| <= 1000")
   }
   ev <- m$evaluation_date
   t_nodes <- as.numeric(m$dates - ev) / 365
@@ -70,7 +80,7 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50) {
          nonpositive_discount_count = sum(p$discount <= 0), missing_discount_count = sum(is.na(p$discount)),
          missing_zero_rate_count = sum(is.na(p$zero_continuous[-1])))
   }
-  list(
+  out <- list(
     evaluation_date = format(ev),
     conventions = list(day_count = "Actual/365 Fixed", zero_curve = "ゼロ金利を時間について線形補間（QuantLib ZeroCurve、連続複利）",
                        discount_curve = "ノードのゼロ金利を割引係数に直し、対数線形補間（QuantLib DiscountCurve）",
@@ -86,4 +96,22 @@ curve_compute <- function(zero_rates_pct = NULL, shift_bp = 50) {
                                zero_curve_error = recovered(zc_nodes) - rates, discount_curve_error = recovered(dc_nodes) - rates),
     validation = list(validation("ZeroCurve", zc), validation("DiscountCurve", dcv), validation(sprintf("ZeroCurve %+gbp", shift_bp), shifted))
   )
+  if (!is.na(bump_i)) {
+    rates_b <- rates; rates_b[bump_i] <- rates_b[bump_i] + bump_bp / 1e4
+    zcb <- RiemannFinMath::with_extrapolation(RiemannFinMath::create_zero_curve(m$dates, rates_b, "actual_365_fixed", "continuous"))
+    # nodes and table tenors in date order (a date that is both keeps the node's name)
+    all_dates <- c(m$dates, tdates); all_tenors <- c(m$tenors, m$table_tenors); is_node <- c(rep(TRUE, length(m$dates)), rep(FALSE, length(tdates)))
+    ord <- order(all_dates); all_dates <- all_dates[ord]; all_tenors <- all_tenors[ord]; is_node <- is_node[ord]
+    dup <- duplicated(all_dates); all_dates <- all_dates[!dup]; all_tenors <- all_tenors[!dup]; is_node <- is_node[!dup]
+    t <- as.numeric(all_dates - ev) / 365
+    d0 <- RiemannFinMath::compute_discount(zc, all_dates); d1 <- RiemannFinMath::compute_discount(zcb, all_dates)
+    z <- function(d) ifelse(t > 0, -log(d) / t, NA_real_)
+    out$bump <- list(
+      tenor = m$tenors[bump_i], bp = bump_bp, node_date = format(m$dates[bump_i]),
+      table = data.frame(tenor = all_tenors, date = format(all_dates), time = t, is_node = is_node, is_bumped = all_dates == m$dates[bump_i],
+                         discount_base = d0, discount_bumped = d1, price_base = 100 * d0, price_bumped = 100 * d1,
+                         price_change = 100 * (d1 - d0), price_change_pct = 100 * (d1 / d0 - 1), zero_base = z(d0), zero_bumped = z(d1)),
+      points = curve_points(zcb, grid, ev))
+  }
+  out
 }

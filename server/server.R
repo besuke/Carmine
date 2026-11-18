@@ -9,7 +9,7 @@
 #   GET  /api/jgb-curves -> month-end JGB yield curves built by RiemannFinMath (the yield-curve slider)
 #   GET  /api/server    -> engine and R versions, address, uptime, routes, one timed RiemannFinMath call (connection page)
 #   POST /api/scenario  {"bumpTenor":"5Y","bumpBp":1} -> curves, 7Y OIS par rate and PVs (see README.md)
-#   POST /api/curves/zero         {"zeroRatesPct":[...], "shiftBp":50} -> zero / discount / shifted curves (II-2)
+#   POST /api/curves/zero         {"zeroRatesPct":[...], "shiftBp":50, "bump":{"tenor":"10Y","bp":100}} -> zero / discount / shifted curves (II-2)
 #   POST /api/futures/basket      {"mode":"current"} | {"mode":"flat","yieldPct":8,"fundingPct":9} -> CTD, basis, futures BPV
 #   POST /api/cds                 {"flat":{"spreadBp":130,...},"isda":{"spreadBp":30.426,...}} -> CDS legs, hazard, ISDA (II-5)
 #   POST /api/black               {"black":{...},"mc":{"sequence":"pseudo","paths":200},"bsm":{...},"lsm":{"paths":2048}} -> II-4
@@ -136,9 +136,9 @@ handle <- function(req) {
     if (method != "POST") return(json_response(405, list(error = "Use POST with a JSON body such as {\"shiftBp\":50}.")))
     body <- tryCatch(jsonlite::fromJSON(read_body(req), simplifyVector = TRUE), error = function(e) NULL)
     if (!is.list(body)) return(json_response(400, list(error = "The body must be a JSON object.")))
-    unknown <- setdiff(names(body), c("zeroRatesPct", "shiftBp"))
+    unknown <- setdiff(names(body), c("zeroRatesPct", "shiftBp", "bump"))
     if (length(unknown)) return(json_response(400, list(error = paste("Unknown fields:", paste(unknown, collapse = ", ")))))
-    result <- tryCatch(curve_compute(body$zeroRatesPct, if (is.null(body$shiftBp)) 50 else body$shiftBp),
+    result <- tryCatch(curve_compute(body$zeroRatesPct, if (is.null(body$shiftBp)) 50 else body$shiftBp, body$bump),
                        tona_bad_request = function(e) structure(list(error = conditionMessage(e)), class = "bad"),
                        error = function(e) structure(list(error = paste("Calculation failed:", conditionMessage(e))), class = "failed"))
     if (inherits(result, "bad")) return(json_response(400, unclass(result)))

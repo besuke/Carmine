@@ -14,6 +14,7 @@ param([ValidateSet("", "dev", "lan")][string]$Mode = "")
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $Project = $PSScriptRoot
+$UI = Join-Path $Project "ui"   # React・Vite 一式と npm の実行場所
 $Node = "C:\Program Files\nodejs\node.exe"
 $Npm = "C:\Program Files\nodejs\npm.cmd"
 $LocalPage = "http://127.0.0.1:8081/"
@@ -33,12 +34,12 @@ function Wait-Url([string]$Url, [int]$Seconds, [string]$Name) {
 }
 
 function Assert-PortFree([int]$Port, [string]$BindHost = "127.0.0.1") {
-  & $Node (Join-Path $Project "scripts\check-port.mjs") $Port $BindHost
+  & $Node (Join-Path $UI "scripts\check-port.mjs") $Port $BindHost
   if ($LASTEXITCODE -ne 0) { throw "ポート $Port が使えません（上の理由を確認してください）。" }
 }
 
 function Start-Window([string]$Title, [string]$NpmScript) {
-  Start-Process -FilePath "cmd.exe" -WorkingDirectory $Project -ArgumentList "/k", "title $Title && `"$Npm`" run $NpmScript" | Out-Null
+  Start-Process -FilePath "cmd.exe" -WorkingDirectory $UI -ArgumentList "/k", "title $Title && `"$Npm`" run $NpmScript" | Out-Null
 }
 
 # The addresses people on the LAN use: the configured host name first, then this PC's LAN IPv4 addresses.
@@ -105,7 +106,7 @@ function Invoke-Safely([scriptblock]$Action) {
   try { & $Action } catch { Write-Host ""; Write-Host "停止しました：$($_.Exception.Message)" -ForegroundColor Red }
 }
 
-if (-not (Test-Path (Join-Path $Project "package.json"))) { throw "プロジェクトが見つかりません: $Project" }
+if (-not (Test-Path (Join-Path $UI "package.json"))) { throw "プロジェクトが見つかりません: $Project" }
 if (-not (Test-Path $Node)) { throw "Node.js が見つかりません: $Node" }
 Set-Location $Project
 

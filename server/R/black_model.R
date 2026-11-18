@@ -1,5 +1,5 @@
 # Black model (Coral Book II-4). All calculations are RiemannFinMath; reconciled with GaussQuant running the
-# manuscript's code, and with the manuscript's own results, in tests/reconciliation/black/.
+# manuscript's code, and with the manuscript's own results, in server/tests/reconciliation/black/.
 #
 # POST /api/black
 #   {"black": {"forward": 107.2109375, "strike": 107.5, "volPct": 5.2, "ratePct": 5},

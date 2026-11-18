@@ -2,7 +2,7 @@
 # closed form (each coupon is a floor plus a call spread on the FX rate) and by Monte Carlo (compute_prdc_value), the
 # expected coupon of each date and the probabilities of the floor and the cap (compute_forward_option_value: the call
 # and its strike sensitivity), and sample FX paths (generate_black_scholes_paths). Reconciled with the manuscript's
-# Monte Carlo (GaussQuant) and with QuantLib's blackFormula in tests/reconciliation/prdc/.
+# Monte Carlo (GaussQuant) and with QuantLib's blackFormula in server/tests/reconciliation/prdc/.
 #
 # POST /api/prdc
 #   {"note": {"spot": 133.2681, "volPct": 10, "domesticPct": 1, "foreignPct": 3, "discountPct": 0.5,

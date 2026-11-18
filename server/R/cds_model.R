@@ -1,5 +1,5 @@
 # Credit risk and CDS (Coral Book II-5). All calculations are RiemannFinMath; reconciled with GaussQuant running
-# the manuscript's code, and with the manuscript's own results, in tests/reconciliation/cds/ (difference 0).
+# the manuscript's code, and with the manuscript's own results, in server/tests/reconciliation/cds/ (difference 0).
 #
 # POST /api/cds
 #   {"flat": {"spreadBp": 130, "couponBp": 100, "recoveryPct": 40, "ratePct": 10},

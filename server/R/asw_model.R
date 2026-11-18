@@ -1,7 +1,7 @@
 # OIS asset swap offer sheet for the Carmine Studio API. All calculations are RiemannFinMath.
 # Inputs: Curie's demo (fictitious) offers, bond attributes and OIS quotes, copied into server/data/asw_demo.
 #
-# Conventions follow Curie's A1 demo (reconciled in tests/reconciliation/asw/): OIS curves MonotonicLogCubic,
+# Conventions follow Curie's A1 demo (reconciled in server/tests/reconciliation/asw/): OIS curves MonotonicLogCubic,
 # annual, payment lag 0, no extrapolation; the ASW overnight leg semiannual, lag 0 (a demo assumption in
 # Curie); the swap starts on the bond's settlement date; spread day count = the index's.
 #

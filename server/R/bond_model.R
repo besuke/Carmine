@@ -1,18 +1,20 @@
 # Deterministic cash flows (Coral Book II-1). All calculations are RiemannFinMath, except the manuscript's own
 # teaching formulas (the closed-form price of a regular semiannual bond, its derivatives, and the root finders of
 # II-1.8), which are written here in R as in the manuscript and compared with RiemannFinMath. Reconciled with
-# GaussQuant running the manuscript's code, and with the manuscript's own results, in tests/reconciliation/bond/.
+# GaussQuant running the manuscript's code, and with the manuscript's own results, in server/tests/reconciliation/bond/.
 #
 # POST /api/bond
 #   {"shapes": {"normalLevelPct": 1, "normalSlopePct": 0.2, "invertedLevelPct": 3.5, "invertedSlopePct": -0.15},
-#    "bond":   {"simpleYieldPct": 6.515, "couponPct": 7.5, "zSpreadBp": 50}}
+#    "bond":   {"simpleYieldPct": 6.515, "couponPct": 7.5, "zSpreadBp": 50,
+#               "tradeDate": "2022-03-30", "issueDate": "2022-04-01", "maturityDate": "2062-04-01"}}
 # Every field is optional; the defaults are the manuscript's examples. The TONAR quotes are GaussQuant's sample
 # quotes (BlueGamma TONAR OIS as of 2026-09-10), as in the OIS chapter.
 
 BOND_DATES <- list(trade = "2022-03-30", issue = "2022-04-01", maturity = "2062-04-01")
 BOND_DEFAULTS <- list(
   shapes = list(normalLevelPct = 1, normalSlopePct = 0.2, invertedLevelPct = 3.5, invertedSlopePct = -0.15),
-  bond = list(simpleYieldPct = 6.515, couponPct = 7.5, zSpreadBp = 50)
+  bond = list(simpleYieldPct = 6.515, couponPct = 7.5, zSpreadBp = 50,
+              tradeDate = BOND_DATES$trade, issueDate = BOND_DATES$issue, maturityDate = BOND_DATES$maturity)
 )
 BOND_DC <- "thirty_360_bond_basis"
 
@@ -112,7 +114,7 @@ bond_time_us <- function(fun, reps = 8L) {
 }
 
 bond_value <- function(p) {
-  d <- BOND_DATES
+  d <- list(trade = p$tradeDate, issue = p$issueDate, maturity = p$maturityDate)
   bond <- RiemannFinMath::create_fixed_rate_bond(
     settlement_days = 2L, face_amount = 100, effective_date = d$issue, termination_date = d$maturity, tenor = "6M", calendar = "japan",
     convention = "unadjusted", termination_convention = "unadjusted", rule = "backward", end_of_month = FALSE,
@@ -205,6 +207,14 @@ bond_compute <- function(body = list()) {
     for (k in names(ranges[[section]])) {
       x <- p[[k]]; lim <- ranges[[section]][[k]]
       if (!(is.numeric(x) && length(x) == 1L && is.finite(x) && x >= lim[1] && x <= lim[2])) bad(sprintf("%s.%s must be within %s and %s", section, k, lim[1], lim[2]))
+    }
+    if (section == "bond") {
+      dt <- lapply(p[c("tradeDate", "issueDate", "maturityDate")], function(x)
+        if (is.character(x) && length(x) == 1L && grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", x)) as.Date(x, format = "%Y-%m-%d") else as.Date(NA))
+      for (k in names(dt)) if (is.na(dt[[k]])) bad(sprintf("bond.%s must be a date as YYYY-MM-DD", k))
+      if (abs(as.numeric(dt$tradeDate - dt$issueDate)) > 366) bad("bond.tradeDate must be within a year of bond.issueDate")
+      years <- as.numeric(dt$maturityDate - dt$issueDate) / 365.25
+      if (years < 1 || years > 60) bad("bond.maturityDate must be 1 to 60 years after bond.issueDate")
     }
     p
   }
