@@ -52,7 +52,7 @@ cmp <- function(item, a, ref, tol, note = "") {
 info <- function(item, a, ref, note) tibble(item = item, n = length(a), max_abs_diff = max(abs(as.numeric(a) - as.numeric(ref))), tolerance = NA_real_, pass = NA, note = note)
 b <- api$bond; m <- api$mbs
 ms_dec <- ms$model_result$decisions
-api_dec <- cb_decisions(cb_flows(CB_DEFAULTS$bond), 0.02, 0.15, 0.012)
+api_dec <- cb_decisions(cb_flows(CB_DEFAULTS$bond), 0.15, 0.012, RiemannFinMath::create_flat_curve(CB_CURVE_DATE, 0.02, "actual_365_fixed", "continuous"))$decisions
 scen_ms <- ms$tbl_mbs_scenarios
 static_ms <- ms$tbl_psa_oas |> arrange(psa_percent, assumed_price)
 static_api <- api$static$table |> arrange(psa_percent, assumed_price)

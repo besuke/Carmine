@@ -1,6 +1,6 @@
-# Early redemption models (Coral Book II-8). The callable bond and the mortgage pool are RiemannFinMath. The
-# issuer's exercise decisions (II-8.4.3), which RiemannFinMath does not return, come from the manuscript's own R function
-# with the same grid and quadrature; its prices equal RiemannFinMath's (server/tests/reconciliation/callable/). The 20 Hull-White
+# Early redemption models (Coral Book II-8). The callable bond and the mortgage pool are RiemannFinMath, and so are the
+# issuer's exercise decisions (II-8.4.3: compute_hull_white_callable_bond_decisions, from RiemannFinMath 0.3.5; reconciled with the
+# manuscript's decisions in Riemann's tests, and here in server/tests/reconciliation/callable/). The 20 Hull-White
 # paths of II-8.8 are the manuscript's (R's set.seed 48, antithetic) and are valued with RiemannFinMath.
 #
 # POST /api/callable
@@ -23,51 +23,10 @@ cb_memo <- function(name, inputs, f) {
   cb_memo_env[[key]]
 }
 
-# ---- the manuscript's R functions (II-8.4.1–8.4.2), for the exercise decisions only ----------------------------------
-cb_quadrature <- function(n = 24L) {
-  off <- sqrt(seq_len(n - 1L))
-  j <- matrix(0, n, n)
-  j[cbind(seq_len(n - 1L), seq_len(n - 1L) + 1L)] <- off
-  j[cbind(seq_len(n - 1L) + 1L, seq_len(n - 1L))] <- off
-  e <- eigen(j, symmetric = TRUE)
-  list(nodes = e$values, weights = e$vectors[1, ]^2)
-}
-cb_shift_integral <- function(t0, t1, r, a, sigma) {
-  h <- t1 - t0
-  r * h + sigma^2 / (2 * a^2) * (h - 2 * (exp(-a * t0) - exp(-a * t1)) / a + (exp(-2 * a * t0) - exp(-2 * a * t1)) / (2 * a))
-}
-cb_step <- function(next_values, grid, states, t0, t1, r, a, sigma, q) {
-  h <- t1 - t0; b <- exp(-a * h); B <- -expm1(-a * h) / a
-  det <- cb_shift_integral(t0, t1, r, a, sigma)
-  if (sigma == 0) return(exp(-det - B * states) * stats::approx(grid, next_values, xout = b * states, rule = 2)$y)
-  vx <- sigma^2 * (-expm1(-2 * a * h)) / (2 * a)
-  vi <- sigma^2 / a^2 * (h - 2 * B + (-expm1(-2 * a * h)) / (2 * a))
-  cxi <- sigma^2 * (-expm1(-a * h))^2 / (2 * a^2)
-  resid <- max(vi - cxi^2 / vx, 0)
-  sx <- sqrt(vx)
-  nxt <- outer(states, q$nodes, function(s, z) b * s + sx * z)
-  vals <- matrix(stats::approx(grid, next_values, xout = as.vector(nxt), rule = 2)$y, nrow = length(states))
-  w <- q$weights * exp(-cxi / sx * q$nodes)
-  as.vector(exp(-det - B * states + resid / 2) * (vals %*% w))
-}
-cb_decisions <- function(flows, r, a, sigma, points = 321L, limit = 0.13, nodes = 24L) {
-  grid <- seq(-limit, limit, length.out = points)
-  q <- cb_quadrature(nodes)
-  n <- nrow(flows)
-  callable <- rep(flows$coupon[n] + flows$principal[n], points)
-  out <- list()
-  for (i in rev(seq_len(n - 1L))) {
-    cont <- cb_step(callable, grid, grid, flows$time[i], flows$time[i + 1L], r, a, sigma, q)
-    can <- !is.na(flows$call_price[i])
-    if (can) {
-      phi <- r + sigma^2 / (2 * a^2) * (1 - exp(-a * flows$time[i]))^2
-      out[[length(out) + 1L]] <- data.frame(payment_time = flows$time[i], state = grid, short_rate = phi + grid,
-                                            continuation_ex_coupon = cont, call_price = flows$call_price[i], exercise_now = cont > flows$call_price[i])
-      cont <- pmin(flows$call_price[i], cont)
-    }
-    callable <- flows$coupon[i] + cont
-  }
-  do.call(rbind, rev(out))
+# ---- II-8.4.3: the issuer's decisions, from RiemannFinMath (the same grid and quadrature as the price) -------------------
+cb_decisions <- function(flows, a, sigma, curve, points = 321L, limit = 0.13, nodes = 24L) {
+  RiemannFinMath::compute_hull_white_callable_bond_decisions(flows$time, flows$coupon, flows$principal, flows$call_price,
+                                                              a, sigma, curve, points = points, limit = limit, nodes = nodes)
 }
 
 # ---- II-8.1–8.6: the callable bond ----------------------------------------------------------------------------------
@@ -96,13 +55,10 @@ cb_bond <- function(p) cb_memo("bond", p, function() {
   grids$callable <- mapply(\(pt, nd) cb_value(flows, r, a, sigma, curve, pt, nd)$callable, grids$points, grids$nodes)
   grids$bullet_grid_error <- mapply(\(pt, nd) cb_value(flows, r, a, sigma, curve, pt, nd)$bullet, grids$points, grids$nodes) - bullet_curve
   grids$change_from_previous <- c(NA, diff(grids$callable))
-  dec <- cb_decisions(flows, r, a, sigma)
+  dc <- cb_decisions(flows, a, sigma, curve)
+  dec <- dc$decisions
   # the highest short rate at which the issuer calls, on each call date (calls when rates are low)
-  boundary <- do.call(rbind, lapply(split(dec, dec$payment_time), \(d) {
-    called <- d$short_rate[d$exercise_now]
-    data.frame(payment_time = d$payment_time[1], call_below_short_rate = if (length(called)) max(called) else NA_real_,
-               share_of_grid_called = mean(d$exercise_now))
-  }))
+  boundary <- as.data.frame(dc$boundary)
   at2 <- dec[abs(dec$payment_time - 2) < 1e-10 & dec$short_rate >= -0.02 & dec$short_rate <= 0.08, ]
   list(
     flows = flows, rate = r, a = a, sigma = sigma,
