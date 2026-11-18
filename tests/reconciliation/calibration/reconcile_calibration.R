@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:calibration
 #
-# Writes tests/golden/calibration_golden.json (GaussQuant's values) and reconciliation/calibration/results/.
+# Writes tests/golden/calibration_golden.json (GaussQuant's values) and tests/reconciliation/calibration/results/.
 
 suppressPackageStartupMessages({
   library(GaussQuant)
@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/calibration/results")
+out_dir <- file.path(lab, "tests/reconciliation/calibration/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/calibration_model.R"))
 api <- calibration_compute(list())

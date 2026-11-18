@@ -18,7 +18,7 @@
 | 第III-6章 自動微分応用：金利リスク | `#/enterprise/interest-rate-risk`（計算：`#/yield-curve-ois`、`#/deterministic-cashflow`、`#/prdc-risk`） | スワップのスケジュール・割引係数・各レグの現在価値から、自動微分の DV01 と有限差分を比べ、カーブの節点ごとの感応度（バケット DV01）を見る | スワップの現在価値と、金利・カーブ節点に対する自動微分の感応度、上下のバンプの有限差分を返す API（RiemannFinMath の curve_node_sensitivity・quote_sensitivity）<br>節点ごとの DV01 の棒グラフ | `swap-market-input`, `swap-payment-schedule`, `swap-risk-tensors`, `swap-discount-factors`, `swap-fixed-leg-present-value`, `swap-floating-leg-present-value`, `swap-present-value`, `swap-autodiff-rate-gradient`, `swap-autodiff-dv01-summary`, `swap-flat-rate-pricing-function`, `swap-finite-difference-up-bump`, `swap-finite-difference-down-bump`, `yield-curve-node-data`, `yield-curve-risk-tensors`, `yield-curve-cash-flows`, `yield-curve-present-value`, `yield-curve-autodiff-gradient`, `yield-curve-bucketed-dv01`, `yield-curve-gps`, `yield-curve-total-dv01` |
 | 第III-7章 自動微分応用：多因子モデル | `#/enterprise/prdc`（計算：`#/prdc-risk`、`#/prdc`） | PRDC の現在価値と FX デルタ・ベガ、円・外貨カーブの DV01 を自動微分で一度に求め、有限差分と比べる | なし。計算は「PRDC のリスク計算」（/prdc-risk）にあり、原稿の torch の結果と標本誤差の範囲で照合済み | `prdc-market-input`, `prdc-jpy-foreign-curves`, `prdc-mc-common-random-numbers`, `prdc-market-risk-tensors`, `prdc-contract-tensors`, `prdc-mc-pricing-function`, `prdc-mc-present-value`, `prdc-autodiff-risk-gradient`, `prdc-fx-delta`, `prdc-jpy-curve-dv01`, `prdc-foreign-curve-dv01`, `prdc-fx-vega`, `prdc-fx-vega01`, `prdc-risk-summary`, `prdc-curve-risk-summary`, `prdc-finite-difference-fx-delta` |
 
-今回は本文の移植を優先し、上の API と図表は作っていない。作るときは、原稿のチャンクと同じ入力で RiemannFinMath の結果を照合し、`reconciliation/` に記録する。
+今回は本文の移植を優先し、上の API と図表は作っていない。作るときは、原稿のチャンクと同じ入力で RiemannFinMath の結果を照合し、`tests/reconciliation/` に記録する。
 
 ## 3 章への再編（2026-11-15）
 

@@ -12,7 +12,7 @@ Carmine Studio『エンタープライズ金融モデル』：Coral Book『金�
 
 - **RiemannFinMath の入れ方・更新・呼び方**は `../Riemann/docs/client_guide.md`。Windows では Rust なしで、`install.packages("RiemannFinMath", repos = c("https://besuke.github.io/Riemann", "https://cloud.r-project.org"))`。入れ替える前に R API（8787）を止める。足りない計算は Riemann の会話に頼む（共通のきまりは `../Riemann/CLAUDE.md`）。
 
-- 新しい計算は、原稿（Coral Book）または独立な計算と照合し、`reconciliation/` に記録してから画面に出す。回帰テストは `tests/`（Vitest、API を 8788 で起動）。
+- 新しい計算は、原稿（Coral Book）または独立な計算と照合し、`tests/reconciliation/` に記録してから画面に出す。回帰テストは `tests/`（Vitest、API を 8788 で起動）。
 - ポート：画面は 8081（使用中なら止める、別ポートへ移らない）、開発用の R API は 8787。
 - 並列：一台では Rust のスレッド（`compute_bond_values_batch` など）か `furrr::future_map()`。Slurm（`future.batchtools`）は構想で、未導入。
 - ページの本文は原稿の内容に沿わせ、原稿と RiemannFinMath の違いを前面に出さない（違いは照合記録へ）。

@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:prdc-risk
 #
-# Writes tests/golden/prdc_risk_golden.json and reconciliation/prdc_risk/results/.
+# Writes tests/golden/prdc_risk_golden.json and tests/reconciliation/prdc_risk/results/.
 
 suppressPackageStartupMessages({
   library(RiemannFinMath)
@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/prdc_risk/results")
+out_dir <- file.path(lab, "tests/reconciliation/prdc_risk/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/prdc_risk_model.R"))
 api <- prdc_risk_compute(list())

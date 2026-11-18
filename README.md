@@ -21,7 +21,7 @@
 | 金利モデルと早期償還 | 第II部 第6〜8章 | `#/irs-calibration`、`#/rate-models`、`#/early-redemption` | — |
 | PRDC | 第II部 第9章 | 「PRDC」（`#/prdc`）、「11. 自動微分」の PRDC の節 | PRDC のクーポンの分解（`lean/LagrangeAcademy/PrdcCoupon.lean`） |
 | 並列・分散・自動微分 | — | 「 9. 並列計算」（`#/enterprise/parallel-computing`）、「10. 分散計算」（`#/enterprise/distributed-jobs`）、「11. 自動微分」（`#/enterprise/automatic-differentiation`） | — |
-| 計算の保証 | 各章の計算例 | 照合の記録（`reconciliation/`） | 第1章 計算と証明、第7章 実数と数値計算 |
+| 計算の保証 | 各章の計算例 | 照合の記録（`tests/reconciliation/`） | 第1章 計算と証明、第7章 実数と数値計算 |
 
 画面のパスは <http://127.0.0.1:8081/> に続けて開きます（例：<http://127.0.0.1:8081/#/yield-curve-ois>）。目次ページにも同じ表があり、Coral Book と Crimson Proof の章へリンクしています。
 
@@ -65,7 +65,7 @@
 | 画面（MDXの本文と数式、表、グラフ、操作） | React＋TypeScript（Vite） | `src/` |
 | APIの回帰テスト | Vitest。照合済みJSONと比べる | `tests/` |
 | 照合済みJSONの生成 | R の RiemannFinMath | `golden/` |
-| GaussQuant（QuantLib）との照合記録 | R | `reconciliation/` |
+| GaussQuant（QuantLib）との照合記録 | R | `tests/reconciliation/` |
 
 TypeScript は金融計算をしません。APIへの送信と、返ってきた値の表示だけを担当します。表示のために、2本のカーブの差（変更後 − 初期）を引き算することはあります。
 
@@ -174,7 +174,7 @@ New-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)" -Direction Inbound 
 
 ## 計算条件
 
-照合（`reconciliation/RECONCILIATION.md`）の気配セット `without_7y`、補間 `log_linear` と同じ条件です。画面の「1. 計算条件」にも表示しています。
+照合（`tests/reconciliation/RECONCILIATION.md`）の気配セット `without_7y`、補間 `log_linear` と同じ条件です。画面の「1. 計算条件」にも表示しています。
 
 | 項目 | 値 |
 |---|---|
@@ -221,7 +221,7 @@ Coral Book の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW を、C
 - **規約**（Curie の旧デモと同じ）：OIS カーブは MonotonicLogCubic・年1回払い・支払ラグ0・外挿なし（JPY は TONA、USD は SOFR、EUR は €STR、受渡2営業日）。ASW の翌日物レグは年2回・支払ラグ0（Curie のデモの仮定）。銘柄属性は ISIN とオファー日で結合（exact）。
 - **計算しない行**：変動利付債、期限前償還条項付き債、償還額が100でない債券、カーブの最後のピラーより後に満期がある債券、受渡日が合わないオファーなど。理由を表示し、行は残します。
 - **データの更新**：`npm run snapshot:asw`（`scripts/asw/snapshot_curie_demo.R`）が Curie から `server/data/asw_demo/`（入力データ、オファーExcelの列の対応 `offer_columns.csv`、旧デモの結果 `curie_reference.json`）を作ります。出所は `server/data/asw_demo/PROVENANCE.md`。
-- **照合**：`npm run reconcile:asw` と `reconciliation/asw/RECONCILIATION_ASW.md`。テスト円債B（JPTEST000022）の ASW は旧デモ 10.484125871669359 bp との差 5.3e-15 bp（全10件で最大 2.8e-14 bp）。TEST USD BOND F（USTEST000016）の円換算 ASW は旧デモ 86.349380112377887 bp との差 7.3e-11 bp（全5件で最大 1.1e-9 bp）。
+- **照合**：`npm run reconcile:asw` と `tests/reconciliation/asw/RECONCILIATION_ASW.md`。テスト円債B（JPTEST000022）の ASW は旧デモ 10.484125871669359 bp との差 5.3e-15 bp（全10件で最大 2.8e-14 bp）。TEST USD BOND F（USTEST000016）の円換算 ASW は旧デモ 86.349380112377887 bp との差 7.3e-11 bp（全5件で最大 1.1e-9 bp）。
 - **円換算 ASW**（外貨建て債券）：円担保・元本一定の通貨スワップ（外貨翌日物フラット支払、円TONAR＋ベーシス受取）で円にヘッジしたときの、円TONAR に対するフェア・スプレッド $s_j^* = (B_j - Q_j - U_j)/A_j$。満期のベーシス1点で外貨割引の一定スプレッド $z$ を $Q_f(z) - Q_j - bA_j = 0$ から校正する（CCS の期間構造の校正ではない）。計算は RiemannFinMath の `compute_yen_asset_swap`。ベーシスは、元本一定・円担保の気配だけを同じ満期で平均し、評価日からの年数で自然3次スプライン補間（外挿なし、R の `stats::splinefun`）。FX スポットの受渡日が ASW の開始日と違う行は計算しない。データは `server/data/asw_demo/fx.txt`・`basis.txt`。
 - **JGBスプレッド**（円建て債券）：（複利利回り − 同じ償還日に補間したJGB複利利回り）× 100 bp。複利利回りは日本式（利払・複利とも年2回、残存年数は満年数＋端数ACT/365、小数第7位で切り捨て）で RiemannFinMath の `compute_compound_yield_from_price`。JGB 時価は `server/data/asw_demo/jgb.txt`。同じ受渡日の JGB を償還日ごとに平均し、受渡日からの年数で自然3次スプライン補間（外挿なし）。
 - **入力項目と入力検証**：オファーExcelの見出しと共通形式の列の対応（`offer_columns.csv`、Curie の `convert_offer_sheet_Curie()` で作成）を詳細画面と POC に表示。入力検証は Curie と同じ問題コード（`unsupported_product` など）。
@@ -244,7 +244,7 @@ npm run golden
 # = Rscript golden/generate_golden.R（scripts/run-r.mjs が C:/Program Files/R/R-4.6.0/bin/Rscript.exe を呼ぶ。別の場所なら環境変数 RSCRIPT で指定）
 ```
 
-スクリプトは17桁で書き出し、読み戻した値が元の倍精度と同じであることを確かめます。RiemannFinMath を入れ替えたり、条件を変えたりした場合は、先に `npm run reconcile`（GaussQuant との照合、`reconciliation/reconcile_tona_ois.R`）で照合し直し、その結果を確かめてから再生成してください。
+スクリプトは17桁で書き出し、読み戻した値が元の倍精度と同じであることを確かめます。RiemannFinMath を入れ替えたり、条件を変えたりした場合は、先に `npm run reconcile`（GaussQuant との照合、`tests/reconciliation/reconcile_tona_ois.R`）で照合し直し、その結果を確かめてから再生成してください。
 
 ## テスト
 
@@ -271,7 +271,7 @@ npm test
 | PV差 | 1 | 絶対 0.2円 | 0（PV差 1,512,212.8199円、丸めると +1,512,213円） |
 | 初期カーブでの7年パーと固定レートの差 | 1 | 絶対 1e-10 | 6.2e-17 |
 
-許容誤差は GaussQuant と RiemannFinMath の照合（`reconciliation/RECONCILIATION.md` 4章）と同じです。根拠も同じで、割引係数はブートストラップの精度 1e-12、金利は 1e-6 bp、PVは想定元本あたり 1e-11（100億円で0.1円）です。今回は、APIと照合済みJSONが同じ RiemannFinMath のビルドで計算されているため、差はすべて0でした。許容誤差は、RiemannFinMath のビルドや実行環境が変わったときの最下位ビットの差を許すためのものです。
+許容誤差は GaussQuant と RiemannFinMath の照合（`tests/reconciliation/RECONCILIATION.md` 4章）と同じです。根拠も同じで、割引係数はブートストラップの精度 1e-12、金利は 1e-6 bp、PVは想定元本あたり 1e-11（100億円で0.1円）です。今回は、APIと照合済みJSONが同じ RiemannFinMath のビルドで計算されているため、差はすべて0でした。許容誤差は、RiemannFinMath のビルドや実行環境が変わったときの最下位ビットの差を許すためのものです。
 
 最後の行の 6.2e-17 は誤差ではありません。固定レートは「固定レート0のスワップのパーレート」として求め、テストでは「固定レートKのスワップのパーレート（K − NPV／年金現価）」と比べるため、最下位の桁が違います。
 
@@ -291,12 +291,12 @@ src/asw/                     オファー一覧と詳細の画面
 scripts/asw/                 Curie のデモデータの複製
 golden/generate_golden.R     照合済みJSONの生成
 tests/                       APIの回帰テスト、照合済みJSON
-reconciliation/              GaussQuant と RiemannFinMath の照合（asw/ は Curie の旧デモとの照合）
+tests/reconciliation/              GaussQuant と RiemannFinMath の照合（asw/ は Curie の旧デモとの照合）
 ```
 
 ## 制約
 
 - 照合と期待値は「QuantLib の既定の規約（支払ラグ0、年1回払い）」によるもので、市場で標準とされる規約ではありません。
 - 7年OISの日付は、QuantLib の `MakeOIS` と同じ規則でR側で作ります（RiemannFinMath には期間からスワップを作る関数がないため）。開始日が月末営業日の場合には対応していません。
-- RiemannFinMath 0.3.0 の導入版のビルド元コミットは未確認です（`reconciliation/RECONCILIATION.md` 6章）。
+- RiemannFinMath 0.3.0 の導入版のビルド元コミットは未確認です（`tests/reconciliation/RECONCILIATION.md` 6章）。
 - 計算にはR APIが必要です。ブラウザだけでは動きません。

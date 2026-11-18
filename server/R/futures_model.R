@@ -1,5 +1,5 @@
 # JGB futures, CTD and futures BPV (Coral Book II-2.6–2.7). All calculations are RiemannFinMath; reconciled
-# with GaussQuant and the manuscript's own results in reconciliation/futures/ (difference 0).
+# with GaussQuant and the manuscript's own results in tests/reconciliation/futures/ (difference 0).
 #
 # POST /api/futures/basket
 #   {"mode": "current"}                                  fictitious prices and futures price (inputs.json)

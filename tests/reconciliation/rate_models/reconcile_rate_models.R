@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:rate-models
 #
-# Writes tests/golden/rate_models_golden.json (the manuscript's code's values) and reconciliation/rate_models/results/.
+# Writes tests/golden/rate_models_golden.json (the manuscript's code's values) and tests/reconciliation/rate_models/results/.
 
 suppressPackageStartupMessages({
   library(RiemannFinMath)
@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/rate_models/results")
+out_dir <- file.path(lab, "tests/reconciliation/rate_models/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/rate_models_model.R"))
 api <- rate_models_compute(list())

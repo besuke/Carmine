@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchCds, type CdsValue } from "../src/api/cds";
 
 // The credit risk and CDS chapter's API against GaussQuant running the manuscript's code on the same inputs
-// (tests/golden/cds_golden.json, written by reconciliation/cds/reconcile_cds.R). Those inputs are the manuscript's,
+// (tests/golden/cds_golden.json, written by tests/reconciliation/cds/reconcile_cds.R). Those inputs are the manuscript's,
 // and reconcile_cds.R also checks them against the manuscript's own results (difference 0).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

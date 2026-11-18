@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchBond } from "../src/api/bond";
 
 // The deterministic cash-flow chapter's API against GaussQuant running the manuscript's code on the same inputs
-// (tests/golden/bond_golden.json, written by reconciliation/bond/reconcile_bond.R, which also checks the model
+// (tests/golden/bond_golden.json, written by tests/reconciliation/bond/reconcile_bond.R, which also checks the model
 // against the manuscript's own results).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

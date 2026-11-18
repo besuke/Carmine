@@ -1,6 +1,6 @@
 # Reconcile the OIS asset swap spread of one Curie demo offer: テスト円債B (JPTEST000022).
 #
-#   node scripts/run-r.mjs reconciliation/asw/reconcile_asw_jpy.R
+#   node scripts/run-r.mjs tests/reconciliation/asw/reconcile_asw_jpy.R
 #
 # A. The old demo result: Curie output/offer_results_JPY_demo_20261006.xlsx (written 2026-10-27,
 #    GaussQuant 2026.9.12.1 from GitHub fa721b2, QuantLib 1.42).
@@ -8,7 +8,7 @@
 #    (R/z0_utility/lagrange/), with the installed GaussQuant and QuantLib 1.42. Gives the component PVs.
 # C. RiemannFinMath: bootstrap_ois_curve() + create_fixed_rate_bond() + compute_ois_asset_swap(),
 #    the path Carmine Studio's API uses.
-# Nothing in Curie, GaussQuant or Riemann is modified. Results go to reconciliation/asw/results/.
+# Nothing in Curie, GaussQuant or Riemann is modified. Results go to tests/reconciliation/asw/results/.
 
 suppressPackageStartupMessages({
   library(dplyr)
@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
 })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
-out_dir <- "C:/AnalyticFin/Projects/carmine-studio/reconciliation/asw/results"
+out_dir <- "C:/AnalyticFin/Projects/carmine-studio/tests/reconciliation/asw/results"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 isin <- "JPTEST000022"

@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:bond
 #
-# Writes tests/golden/bond_golden.json (GaussQuant's values) and reconciliation/bond/results/.
+# Writes tests/golden/bond_golden.json (GaussQuant's values) and tests/reconciliation/bond/results/.
 
 suppressPackageStartupMessages({
   library(GaussQuant)
@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/bond/results")
+out_dir <- file.path(lab, "tests/reconciliation/bond/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/bond_model.R"))
 api <- bond_compute(list())

@@ -1,10 +1,10 @@
 # Reconcile the curves of Coral Book II-2.2, II-2.3.1, II-2.5.2 and II-2.5.3 (yield-curve chapter):
 # GaussQuant / QuantLib 1.42 (the manuscript's code) against RiemannFinMath (Carmine Studio's API path).
 #
-#   node scripts/run-r.mjs reconciliation/curves/reconcile_yield_curve.R
+#   node scripts/run-r.mjs tests/reconciliation/curves/reconcile_yield_curve.R
 #
 # Writes tests/golden/yield_curve_golden.json (GaussQuant's values, the reference of the API test) and
-# reconciliation/curves/results/yield_curve_diffs.csv. Nothing in GaussQuant, Coral Book or Riemann is modified.
+# tests/reconciliation/curves/results/yield_curve_diffs.csv. Nothing in GaussQuant, Coral Book or Riemann is modified.
 #
 # Inputs as in the manuscript: evaluation date 2022-08-19, the zero-rate nodes of II-2.2.1 (illustrative values),
 # Actual/365 Fixed. II-2.5.2 shifts the deposit + IBOR-swap curve of II-2.4.2 in the manuscript; RiemannFinMath
@@ -19,7 +19,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/curves/results")
+out_dir <- file.path(lab, "tests/reconciliation/curves/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 evaluation_date <- "2022-08-19"

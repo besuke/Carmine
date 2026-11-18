@@ -5,7 +5,7 @@ import { describe, expect, inject, it } from "vitest";
 import { fetchPrdcRisk, runPrdcJob } from "../src/api/prdcRisk";
 
 // Part III's page: the PRDC of III-7 against an independent closed form in R and its central differences
-// (tests/golden/prdc_risk_golden.json, written by reconciliation/prdc_risk/reconcile_prdc_risk.R), against bump and
+// (tests/golden/prdc_risk_golden.json, written by tests/reconciliation/prdc_risk/reconcile_prdc_risk.R), against bump and
 // revalue, on several threads and in jobs.
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

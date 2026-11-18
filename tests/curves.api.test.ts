@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
 import { fetchZeroCurves, type ZeroCurvesResponse } from "../src/api/curves";
 
 // The yield-curve chapter's API against GaussQuant / QuantLib 1.42 running the manuscript's code
-// (tests/golden/yield_curve_golden.json, written by reconciliation/curves/reconcile_yield_curve.R).
+// (tests/golden/yield_curve_golden.json, written by tests/reconciliation/curves/reconcile_yield_curve.R).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const golden = JSON.parse(readFileSync(path.join(root, "tests", "golden", "yield_curve_golden.json"), "utf8")) as {

@@ -5,7 +5,7 @@
 #
 # Writes tests/golden/tona_ois_golden.json (the expected values of the API regression test, tests/api.regression.test.ts). Numbers are written with 17 significant digits and the script checks
 # that reading the file back gives the same doubles. RiemannFinMath was reconciled with GaussQuant (QuantLib 1.42)
-# under the same conditions in reconciliation/RECONCILIATION.md.
+# under the same conditions in tests/reconciliation/RECONCILIATION.md.
 
 suppressPackageStartupMessages({
   library(RiemannFinMath)

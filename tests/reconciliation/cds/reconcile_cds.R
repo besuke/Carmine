@@ -2,14 +2,14 @@
 # code against the page's own model (server/R/cds_model.R, RiemannFinMath), and that model against the manuscript's
 # own results (Riemann comparison/baseline/lagrange_values.csv). The inputs are the manuscript's illustrative values.
 #
-#   node scripts/run-r.mjs reconciliation/cds/reconcile_cds.R
+#   node scripts/run-r.mjs tests/reconciliation/cds/reconcile_cds.R
 #
-# Writes tests/golden/cds_golden.json (GaussQuant's values) and reconciliation/cds/results/.
+# Writes tests/golden/cds_golden.json (GaussQuant's values) and tests/reconciliation/cds/results/.
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite) })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/cds/results")
+out_dir <- file.path(lab, "tests/reconciliation/cds/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/cds_model.R"))
 api <- cds_compute(list())

@@ -1,7 +1,7 @@
 # Interest-rate models (Coral Book II-7). The manuscript draws its random numbers with R (set.seed, rnorm); the
 # same numbers are used here and passed to RiemannFinMath where it takes normals (caplet, correlated shocks). The
 # Hull-White paths are the manuscript's exact OU transition in R, next to RiemannFinMath's monthly Hull-White rates
-# (its own random numbers). Reconciled with the manuscript's code and its own results in reconciliation/rate_models/.
+# (its own random numbers). Reconciled with the manuscript's code and its own results in tests/reconciliation/rate_models/.
 #
 # POST /api/rate-models
 #   {"hw":      {"ratePct": 2, "aPct": 12, "sigmaPct": 1},

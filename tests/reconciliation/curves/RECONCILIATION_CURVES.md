@@ -2,7 +2,7 @@
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：LagrangeFinance II-2.2（ゼロカーブ）、II-2.3.1（補間方式）、II-2.5.2（平行シフト）、II-2.5.3（ノードの再現）
-- 再実行：`node scripts/run-r.mjs reconciliation/curves/reconcile_yield_curve.R`（参照値 `tests/golden/yield_curve_golden.json` も書き直す）、`npm test`（`tests/curves.api.test.ts`）
+- 再実行：`node scripts/run-r.mjs tests/reconciliation/curves/reconcile_yield_curve.R`（参照値 `tests/golden/yield_curve_golden.json` も書き直す）、`npm test`（`tests/curves.api.test.ts`）
 
 ## 条件（原稿と同じ）
 

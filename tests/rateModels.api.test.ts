@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchRateModels } from "../src/api/rateModels";
 
 // The interest-rate models chapter's API against the manuscript's code with its seeds (tests/golden/rate_models_golden.json,
-// written by reconciliation/rate_models/reconcile_rate_models.R, which also checks the manuscript's own results).
+// written by tests/reconciliation/rate_models/reconcile_rate_models.R, which also checks the manuscript's own results).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const golden = JSON.parse(readFileSync(path.join(root, "tests", "golden", "rate_models_golden.json"), "utf8")) as {

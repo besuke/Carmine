@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchPrdc } from "../src/api/prdc";
 
 // The PRDC chapter's API against QuantLib (schedule, blackFormula) and the manuscript's Monte Carlo
-// (tests/golden/prdc_golden.json, written by reconciliation/prdc/reconcile_prdc.R).
+// (tests/golden/prdc_golden.json, written by tests/reconciliation/prdc/reconcile_prdc.R).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const golden = JSON.parse(readFileSync(path.join(root, "tests", "golden", "prdc_golden.json"), "utf8")) as {

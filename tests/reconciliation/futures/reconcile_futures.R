@@ -3,14 +3,14 @@
 # (server/data/futures_demo/inputs.json), plus the values that do not depend on the market prices and the stress
 # scenario against the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
 #
-#   node scripts/run-r.mjs reconciliation/futures/reconcile_futures.R
+#   node scripts/run-r.mjs tests/reconciliation/futures/reconcile_futures.R
 #
-# Writes tests/golden/futures_golden.json (GaussQuant's values) and reconciliation/futures/results/.
+# Writes tests/golden/futures_golden.json (GaussQuant's values) and tests/reconciliation/futures/results/.
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite); library(dplyr); library(purrr) })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/futures/results")
+out_dir <- file.path(lab, "tests/reconciliation/futures/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 inp <- fromJSON(file.path(lab, "server/data/futures_demo/inputs.json"))
 b <- inp$basket

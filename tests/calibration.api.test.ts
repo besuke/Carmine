@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchCalibration } from "../src/api/calibration";
 
 // The calibration chapter's API against the manuscript's code run with GaussQuant (tests/golden/calibration_golden.json,
-// written by reconciliation/calibration/reconcile_calibration.R, which also checks the model against the manuscript's
+// written by tests/reconciliation/calibration/reconcile_calibration.R, which also checks the model against the manuscript's
 // own results).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

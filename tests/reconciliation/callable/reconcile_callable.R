@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:callable
 #
-# Writes tests/golden/callable_golden.json (the manuscript's functions' values) and reconciliation/callable/results/.
+# Writes tests/golden/callable_golden.json (the manuscript's functions' values) and tests/reconciliation/callable/results/.
 
 suppressPackageStartupMessages({
   library(RiemannFinMath)
@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/callable/results")
+out_dir <- file.path(lab, "tests/reconciliation/callable/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/callable_model.R"))
 api <- callable_compute(list())

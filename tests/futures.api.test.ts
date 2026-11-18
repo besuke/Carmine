@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchFutures } from "../src/api/futures";
 
 // The JGB futures chapter's API against GaussQuant running the manuscript's code on the same fictitious inputs
-// (tests/golden/futures_golden.json, written by reconciliation/futures/reconcile_futures.R). The stress scenario
+// (tests/golden/futures_golden.json, written by tests/reconciliation/futures/reconcile_futures.R). The stress scenario
 // there also matches the manuscript's own results (Riemann comparison/baseline/lagrange_values.csv).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

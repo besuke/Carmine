@@ -1,6 +1,6 @@
 # Reconcile the yen-converted ASW of one Curie demo offer: TEST USD BOND F 4.25% 2029 (USTEST000016).
 #
-#   node scripts/run-r.mjs reconciliation/asw/reconcile_yen_asw.R
+#   node scripts/run-r.mjs tests/reconciliation/asw/reconcile_yen_asw.R
 #
 # A. Old demo result: Curie output/offer_results_ISO_demo_20261006.xlsx (2026-10-27, GaussQuant 2026.9.12.1, QuantLib 1.42).
 # B. Curie's functions re-run now: compute_asset_swap_basis_JPY() with the basis interpolated by Curie's
@@ -12,7 +12,7 @@ suppressPackageStartupMessages({ library(dplyr); library(readxl) })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/asw/results")
+out_dir <- file.path(lab, "tests/reconciliation/asw/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 isin <- "USTEST000016"
 valuation_date <- as.Date("2026-10-06")

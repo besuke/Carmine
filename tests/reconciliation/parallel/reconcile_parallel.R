@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:parallel
 #
-# Writes tests/golden/parallel_golden.json and reconciliation/parallel/results/.
+# Writes tests/golden/parallel_golden.json and tests/reconciliation/parallel/results/.
 
 suppressPackageStartupMessages({
   library(RiemannFinMath)
@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/parallel/results")
+out_dir <- file.path(lab, "tests/reconciliation/parallel/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/parallel_model.R"))
 api <- parallel_compute(list(batch = list(count = 2000, maxThreads = 8)))

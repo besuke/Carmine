@@ -4,12 +4,12 @@
 #
 #   npm run reconcile:black
 #
-# Writes tests/golden/black_golden.json (GaussQuant's values) and reconciliation/black/results/.
+# Writes tests/golden/black_golden.json (GaussQuant's values) and tests/reconciliation/black/results/.
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(RiemannFinMath); library(jsonlite) })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/black/results")
+out_dir <- file.path(lab, "tests/reconciliation/black/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/black_model.R"))
 t0 <- Sys.time()

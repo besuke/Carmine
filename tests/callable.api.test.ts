@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchCallable } from "../src/api/callable";
 
 // The early redemption chapter's API against the manuscript's own R functions (tests/golden/callable_golden.json,
-// written by reconciliation/callable/reconcile_callable.R, which also checks the manuscript's results).
+// written by tests/reconciliation/callable/reconcile_callable.R, which also checks the manuscript's results).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const golden = JSON.parse(readFileSync(path.join(root, "tests", "golden", "callable_golden.json"), "utf8")) as {

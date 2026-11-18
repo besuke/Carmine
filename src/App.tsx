@@ -1,4 +1,5 @@
 import YieldCurveOis from "./content/yield-curve-ois.mdx";
+import { BrandLogo } from "./components/BrandLogo";
 import YieldCurves from "./content/yield-curves.mdx";
 import JgbFutures from "./content/jgb-futures.mdx";
 import CreditCds from "./content/credit-cds.mdx";
@@ -194,7 +195,7 @@ export function App() {
     <ServerConnectionProvider>
       <header className="site-header">
         <div className="brand-block">
-          <a className="brand" href={href("/")}>Carmine Studio</a>
+          <a className="brand" href={href("/")}><BrandLogo />Carmine Studio</a>
           <span className="brand-title">エンタープライズ金融モデル</span>
         </div>
         <ServerIndicator />

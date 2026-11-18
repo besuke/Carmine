@@ -2,7 +2,7 @@
 
 - 照合日：2026-11-14（`results/session_info.txt`）
 - 対象：LagrangeFinance II-2.6（受渡適格銘柄、複利利回りと Duration、Gross Basis・Carry・Net Basis・Implied Repo・CTD）、II-2.7（8%・9% のストレスシナリオ）、先物BPV（GaussQuant `futures_bpv_GQL()`：CTD の DV01 ÷ CF）
-- 再実行：`node scripts/run-r.mjs reconciliation/futures/reconcile_futures.R`（参照値 `tests/golden/futures_golden.json` も書き直す）、`npm test`（`tests/futures.api.test.ts`）
+- 再実行：`node scripts/run-r.mjs tests/reconciliation/futures/reconcile_futures.R`（参照値 `tests/golden/futures_golden.json` も書き直す）、`npm test`（`tests/futures.api.test.ts`）
 
 ## 入力
 

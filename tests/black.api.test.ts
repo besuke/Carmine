@@ -5,7 +5,7 @@ import { afterAll, describe, expect, inject, it } from "vitest";
 import { fetchBlack } from "../src/api/black";
 
 // The Black model chapter's API against GaussQuant running the manuscript's code on the same inputs
-// (tests/golden/black_golden.json, written by reconciliation/black/reconcile_black.R, which also checks the model
+// (tests/golden/black_golden.json, written by tests/reconciliation/black/reconcile_black.R, which also checks the model
 // against the manuscript's own results). Pseudo-random Monte Carlo is not compared: the random numbers differ.
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

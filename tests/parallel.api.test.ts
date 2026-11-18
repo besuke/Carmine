@@ -5,7 +5,7 @@ import { describe, expect, inject, it } from "vitest";
 import { fetchParallel } from "../src/api/parallel";
 
 // The parallel computing chapter's API: the manuscript's example (tests/golden/parallel_golden.json, written by
-// reconciliation/parallel/reconcile_parallel.R from the manuscript's purrr and furrr code), and the batch of bonds,
+// tests/reconciliation/parallel/reconcile_parallel.R from the manuscript's purrr and furrr code), and the batch of bonds,
 // whose results must not depend on the number of threads. Times are not tested.
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

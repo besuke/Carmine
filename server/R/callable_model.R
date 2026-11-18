@@ -1,6 +1,6 @@
 # Early redemption models (Coral Book II-8). The callable bond and the mortgage pool are RiemannFinMath. The
 # issuer's exercise decisions (II-8.4.3), which RiemannFinMath does not return, come from the manuscript's own R function
-# with the same grid and quadrature; its prices equal RiemannFinMath's (reconciliation/callable/). The 20 Hull-White
+# with the same grid and quadrature; its prices equal RiemannFinMath's (tests/reconciliation/callable/). The 20 Hull-White
 # paths of II-8.8 are the manuscript's (R's set.seed 48, antithetic) and are valued with RiemannFinMath.
 #
 # POST /api/callable

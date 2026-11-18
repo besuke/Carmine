@@ -4,7 +4,7 @@
 #
 #   npm run reconcile:prdc
 #
-# Writes tests/golden/prdc_golden.json and reconciliation/prdc/results/.
+# Writes tests/golden/prdc_golden.json and tests/reconciliation/prdc/results/.
 
 suppressPackageStartupMessages({
   library(GaussQuant)
@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
 })
 
 lab <- "C:/AnalyticFin/Projects/carmine-studio"
-out_dir <- file.path(lab, "reconciliation/prdc/results")
+out_dir <- file.path(lab, "tests/reconciliation/prdc/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/prdc_model.R"))
 api <- prdc_compute(list())
