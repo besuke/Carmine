@@ -11,7 +11,7 @@
     "preview": "node scripts/check-port.mjs 8081 && vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
-    "golden": "node scripts/run-r.mjs golden/generate_golden.R",
+    "golden": "node scripts/run-r.mjs tests/golden/generate_golden.R",
     "reconcile": "node scripts/run-r.mjs tests/reconciliation/reconcile_tona_ois.R",
     "lan": "npm run build && node scripts/check-port.mjs 8081 0.0.0.0 && node scripts/run-r.mjs server/server.R --host 0.0.0.0 --port 8081 --static dist",
     "reconcile:prdc-risk": "node scripts/run-r.mjs tests/reconciliation/prdc_risk/reconcile_prdc_risk.R",

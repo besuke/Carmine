@@ -230,7 +230,7 @@ Coral Book の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW を、C
 
 ## 照合済みJSON（回帰テストの期待値）
 
-`tests/golden/tona_ois_golden.json` は、`golden/generate_golden.R` が RiemannFinMath で作ります。このスクリプトは API のコード（`server/R/tona_ois_model.R`）とは別に書いてあり、同じ条件を独立に組み立てます。記録している内容は次のとおりです。
+`tests/golden/tona_ois_golden.json` は、`tests/golden/generate_golden.R` が RiemannFinMath で作ります。このスクリプトは API のコード（`server/R/tona_ois_model.R`）とは別に書いてあり、同じ条件を独立に組み立てます。記録している内容は次のとおりです。
 
 - クォート（初期・5年＋1 bp）、評価日、計算規約、5年＋1 bp の指定
 - 7年OISの条件：想定元本、丸め前の固定レート、開始日・満期日、両レグの支払日程（計算期間、支払日、金額）
@@ -241,7 +241,7 @@ Coral Book の `docs/asw_offer_sheet_spec.qmd` の発行通貨建て ASW を、C
 
 ```powershell
 npm run golden
-# = Rscript golden/generate_golden.R（scripts/run-r.mjs が C:/Program Files/R/R-4.6.0/bin/Rscript.exe を呼ぶ。別の場所なら環境変数 RSCRIPT で指定）
+# = Rscript tests/golden/generate_golden.R（scripts/run-r.mjs が C:/Program Files/R/R-4.6.0/bin/Rscript.exe を呼ぶ。別の場所なら環境変数 RSCRIPT で指定）
 ```
 
 スクリプトは17桁で書き出し、読み戻した値が元の倍精度と同じであることを確かめます。RiemannFinMath を入れ替えたり、条件を変えたりした場合は、先に `npm run reconcile`（GaussQuant との照合、`tests/reconciliation/reconcile_tona_ois.R`）で照合し直し、その結果を確かめてから再生成してください。
@@ -288,9 +288,8 @@ src/state/ScenarioContext.tsx  円OIS章の操作の状態とAPI呼び出し
 src/components/              グラフ（LineChart、FlowChart）と円OIS章の部品（表示のみ）
 src/content/           章の本文と数式（MDX）
 src/asw/                     オファー一覧と詳細の画面
-scripts/asw/                 Curie のデモデータの複製
-golden/generate_golden.R     照合済みJSONの生成
-tests/                       APIの回帰テスト、照合済みJSON
+scripts/                     データ取得・複製・移植のスクリプト（asw/・futures/・jgb/・capm/・port/）
+tests/                       APIの回帰テスト、照合済みJSON（tests/golden/、生成は generate_golden.R）
 tests/reconciliation/              GaussQuant と RiemannFinMath の照合（asw/ は Curie の旧デモとの照合）
 ```
 

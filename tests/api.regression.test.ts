@@ -6,7 +6,7 @@ import { ApiError, fetchScenario } from "../src/api/client";
 import type { CaseResult, ScenarioResponse } from "../src/api/types";
 
 // Regression test of the R API against the reconciled expected values (tests/golden/tona_ois_golden.json,
-// written by golden/generate_golden.R from RiemannFinMath). All comparisons use unrounded values.
+// written by tests/golden/generate_golden.R from RiemannFinMath). All comparisons use unrounded values.
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 

@@ -1,6 +1,6 @@
 # The universe of Part I: banks and securities companies in TOPIX100, with their EDINET codes.
 #
-#   Rscript tools/capm/01_universe.R
+#   Rscript scripts/capm/01_universe.R
 #
 # Sources (public, fetched now): JPX's list of TOPIX constituents with the New Index Series class, and EDINET's
 # code list. Writes market_data/universe/ (ignored by git): the two files as fetched, and universe.csv.

@@ -125,7 +125,7 @@ golden <- list(
   meta = list(
     description = "Expected values for the JPY TONA OIS demo (13 quotes without 7Y, monotonic log-cubic discount, payment lag 0)",
     generated_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
-    generator = "golden/generate_golden.R",
+    generator = "tests/golden/generate_golden.R",
     engine = paste("RiemannFinMath", as.character(packageVersion("RiemannFinMath")), "built", packageDescription("RiemannFinMath")$Built),
     quote_source = "GaussQuant::bluegamma_tonar_quotes_GQL() without TONAR-7Y (sample data)",
     r_version = R.version.string

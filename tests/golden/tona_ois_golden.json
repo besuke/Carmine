@@ -2,7 +2,7 @@
   "meta": {
     "description": "Expected values for the JPY TONA OIS demo (13 quotes without 7Y, monotonic log-cubic discount, payment lag 0)",
     "generated_at": "2026-11-16 23:05:19 JST",
-    "generator": "golden/generate_golden.R",
+    "generator": "tests/golden/generate_golden.R",
     "engine": "RiemannFinMath 0.3.0 built R 4.6.0; x86_64-w64-mingw32; 2026-11-15 12:27:15 UTC; windows",
     "quote_source": "GaussQuant::bluegamma_tonar_quotes_GQL() without TONAR-7Y (sample data)",
     "r_version": "R version 4.6.0 (2026-04-24 ucrt)"

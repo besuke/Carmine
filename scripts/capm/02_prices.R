@@ -1,6 +1,6 @@
 # Monthly stock prices and returns of the universe, with tidyquant (Yahoo Finance, tickers such as 8306.T).
 #
-#   Rscript tools/capm/02_prices.R
+#   Rscript scripts/capm/02_prices.R
 #
 # Reads market_data/universe/universe.csv; writes market_data/prices/ (ignored by git: prices from Yahoo Finance
 # are not redistributed): daily.csv as fetched, and monthly.csv with the month-end adjusted price and the monthly
