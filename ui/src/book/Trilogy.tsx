@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { href } from "./router";
 
 export const CORAL_BOOK_REPO = "https://github.com/besuke/coral-book";
-export const CRIMSON_PROOF_REPO = "https://github.com/besuke/crimson-proof";
-export const CARMINE_STUDIO_REPO = "https://github.com/besuke/carmine-studio";
+export const CRIMSON_PROOF_REPO = "https://github.com/besuke/Crimson";
+export const CARMINE_STUDIO_REPO = "https://github.com/besuke/Carmine";
 
 export const coralChapter = (source: string) => `${CORAL_BOOK_REPO}/blob/main/${source}`;
 const crimsonChapter = (file: string) => `${CRIMSON_PROOF_REPO}/blob/main/${file}`;
@@ -83,12 +83,12 @@ export function Trilogy() {
               <tr>
                 <th scope="row">Carmine Studio『エンタープライズ金融モデル』</th>
                 <td className="wrap">ブラウザから条件を操作し、計算サーバーでモデルとリスクを評価する</td>
-                <td><Ext to={CARMINE_STUDIO_REPO}>besuke/carmine-studio</Ext></td>
+                <td><Ext to={CARMINE_STUDIO_REPO}>besuke/Carmine</Ext></td>
               </tr>
               <tr>
                 <th scope="row">Crimson Proof『Leanから見た金融数学』</th>
                 <td className="wrap">金融モデルの仮定を Lean で定義し、成り立つ定理を形式証明する</td>
-                <td><Ext to={CRIMSON_PROOF_REPO}>besuke/crimson-proof</Ext></td>
+                <td><Ext to={CRIMSON_PROOF_REPO}>besuke/Crimson</Ext></td>
               </tr>
             </tbody>
           </table>

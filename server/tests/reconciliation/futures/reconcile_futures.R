@@ -9,7 +9,7 @@
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(rmql); library(jsonlite); library(dplyr); library(purrr) })
 
-lab <- "C:/AnalyticFin/Projects/carmine-studio"
+lab <- "C:/AnalyticFin/Projects/Carmine"
 out_dir <- file.path(lab, "server/tests/reconciliation/futures/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 inp <- fromJSON(file.path(lab, "server/data/futures_demo/inputs.json"))

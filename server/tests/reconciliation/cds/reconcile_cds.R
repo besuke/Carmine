@@ -8,7 +8,7 @@
 
 suppressPackageStartupMessages({ library(GaussQuant); library(QuantLib); library(rmql); library(jsonlite) })
 
-lab <- "C:/AnalyticFin/Projects/carmine-studio"
+lab <- "C:/AnalyticFin/Projects/Carmine"
 out_dir <- file.path(lab, "server/tests/reconciliation/cds/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 source(file.path(lab, "server/R/cds_model.R"))

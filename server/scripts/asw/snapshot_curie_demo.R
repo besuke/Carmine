@@ -17,7 +17,7 @@
 suppressPackageStartupMessages({ library(dplyr); library(readxl); library(jsonlite) })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
-root <- "C:/AnalyticFin/Projects/carmine-studio"
+root <- "C:/AnalyticFin/Projects/Carmine"
 data_dir <- file.path(root, "server/data/asw_demo")
 dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
 

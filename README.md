@@ -7,7 +7,7 @@
 | | Coral Book『金融工学の応用基礎』 | Carmine Studio『エンタープライズ金融モデル』 | Crimson Proof『Leanから見た金融数学』 |
 |---|---|---|---|
 | 学び方 | **手元で計算する**：理論を読み、手元の R で計算を再現する Quarto の本 | **サーバーで動かす**：React で条件を操作し、R サーバー上の rmql でモデルを評価する Web アプリ | **証明する**：金融モデルの仮定を Lean で定義し、どの仮定のもとで何が成り立つかを証明する本 |
-| リポジトリ | <https://github.com/besuke/coral-book> | <https://github.com/besuke/carmine-studio> | <https://github.com/besuke/crimson-proof> |
+| リポジトリ | <https://github.com/besuke/coral-book> | <https://github.com/besuke/Carmine> | <https://github.com/besuke/Crimson> |
 | 始め方 | `quarto render`（または RStudio で各章を実行） | R API（`npm run api`、127.0.0.1:8787）と画面（`npm run dev`）を起動し、<http://127.0.0.1:8081/> を開く | `lean/` で `lake build`、本は `quarto render` |
 
 ## 同じテーマを三つの入口で
@@ -83,14 +83,14 @@ TypeScript は金融計算をしません。APIへの送信と、返ってきた
 起動はプロジェクトの `CarmineStudio.ps1`（デスクトップのショートカット「Carmine Studio」）でできます。メニューの「1」でこのPCの開発用（rmql Compute Server 127.0.0.1:8787 と画面 http://127.0.0.1:8081/）、「2」で社内LANへの公開です（次の「社内LANで使う」）。引数でも選べます：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 dev
-powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 lan
+powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\Carmine\CarmineStudio.ps1 dev
+powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\Carmine\CarmineStudio.ps1 lan
 ```
 
 npm で直接起動する場合：
 
 ```powershell
-cd C:\AnalyticFin\Projects\carmine-studio\ui   # npm は ui/ で実行する
+cd C:\AnalyticFin\Projects\Carmine\ui   # npm は ui/ で実行する
 npm install          # 初回のみ
 
 # ターミナル1：R API（127.0.0.1:8787）
@@ -126,7 +126,7 @@ npm run dev
 このPCをサーバーにして、同じ社内LANの他のPCやスマートフォンのブラウザから使います。ログインはありません。LANに届く人なら誰でも使えます。
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\carmine-studio\CarmineStudio.ps1 lan
+powershell -ExecutionPolicy Bypass -File C:\AnalyticFin\Projects\Carmine\CarmineStudio.ps1 lan
 ```
 
 （メニューの「2」と同じです。`npm run lan` を直接実行してもかまいません。）画面をビルドしてから rmql Compute Server を起動し、全てのネットワークインターフェース（`0.0.0.0`）の 8081 番で画面（`dist/`）と API を同じポートで返します。止めるときは「Carmine Studio - LAN (8081)」のウィンドウを閉じます（`npm run lan` なら Ctrl+C）。

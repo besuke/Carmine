@@ -11,7 +11,7 @@
 suppressPackageStartupMessages({ library(dplyr); library(readxl) })
 
 curie <- "C:/AnalyticFin/Projects/Curie"
-lab <- "C:/AnalyticFin/Projects/carmine-studio"
+lab <- "C:/AnalyticFin/Projects/Carmine"
 out_dir <- file.path(lab, "server/tests/reconciliation/asw/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 isin <- "USTEST000016"

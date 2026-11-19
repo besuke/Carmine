@@ -18,7 +18,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 
-lab <- "C:/AnalyticFin/Projects/carmine-studio"
+lab <- "C:/AnalyticFin/Projects/Carmine"
 out_dir <- file.path(lab, "server/tests/reconciliation/curves/results")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
