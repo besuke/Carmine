@@ -10,7 +10,7 @@ Carmine Studio『エンタープライズ金融モデル』：Coral Book『金�
 | API | `server/`（R、httpuv） | 入力の検査（不正は 400 と日本語のメッセージ）、`rmql` の呼び出し、JSON と `response.request_id` | 計算ロジックの実装。足りない計算は rmql に関数を足す |
 | 計算エンジン | rmql リポジトリの `rmql`（Rust） | カーブ、評価、感応度、モンテカルロ、並列の一括評価 | — |
 
-- **rmql の入れ方・更新・呼び方**は `../rmql/docs/client_guide.md`。Windows では Rust なしで、`install.packages("rmql", repos = c("https://besuke.github.io/RiemannQL", "https://cloud.r-project.org"))`。入れ替える前に R API（8787）を止める。足りない計算は rmql の会話に頼む（共通のきまりは `../rmql/CLAUDE.md`）。
+- **rmql の入れ方・更新・呼び方**は `../RiemannQL/docs/client_guide.md`。Windows では Rust なしで、`install.packages("rmql", repos = c("https://besuke.github.io/RiemannQL", "https://cloud.r-project.org"))`。入れ替える前に R API（8787）を止める。足りない計算は rmql の会話に頼む（共通のきまりは `../RiemannQL/CLAUDE.md`）。
 
 - 新しい計算は、原稿（Coral Book）または独立な計算と照合し、`server/tests/reconciliation/` に記録してから画面に出す。回帰テストは `ui/tests/`（Vitest、API を 8788 で起動）。
 - ポート：画面は 8081（使用中なら止める、別ポートへ移らない）、開発用の R API は 8787。
