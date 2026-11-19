@@ -78,7 +78,7 @@ bgm_target <- compute_bgm_swap_vol_proxy_LRL(0.45, 1:4, c(0.24, 0.22, 0.21, 0.20
 bgm_fit <- stats::optimize(\(d) (compute_bgm_swap_vol_proxy_LRL(d, 1:4, c(0.24, 0.22, 0.21, 0.20), c(0.28, 0.26, 0.24, 0.22)) - bgm_target)^2, c(0.01, 2))
 
 # ---- comparisons -----------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/RiemannQL/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))

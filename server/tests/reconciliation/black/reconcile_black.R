@@ -63,7 +63,7 @@ gq_exercise <- as.data.frame(dplyr::count(lsm_result$exercise, exercise_step, na
 gq_diag <- as.data.frame(lsm_result$diagnostics)
 
 # ---- comparisons -------------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/RiemannQL/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, a, ref, tol, note = "") {
   d <- max(abs(as.numeric(a) - as.numeric(ref)))

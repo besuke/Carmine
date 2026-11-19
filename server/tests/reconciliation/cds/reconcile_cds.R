@@ -96,7 +96,7 @@ isda_hand <- hand(cds_cashflow_isda_tbl, recovery_rate_isda, notional_isda, gq_i
 gq_schedule_isda <- format(GaussQuant::schedule_table_GQL(cds_schedule_isda)$schedule_date)
 
 # ---- comparisons -------------------------------------------------------------------------------------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/RiemannQL/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 cmp <- function(item, api_value, ref, tol) {
   d <- max(abs(as.numeric(api_value) - as.numeric(ref)))

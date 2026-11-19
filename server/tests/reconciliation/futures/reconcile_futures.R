@@ -83,7 +83,7 @@ r_str_dv01 <- map_dbl(r_bonds, \(x) (rmql::compute_clean_price(x, stress_y - 1e-
                                        rmql::compute_clean_price(x, stress_y + 1e-4, "actual_365_fixed", "compounded", 2L, valuation)) / 2)
 
 # ---- Baseline: the manuscript's own results (price-independent values and the stress scenario) ----------------
-base <- utils::read.csv("C:/AnalyticFin/Projects/rmql/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
+base <- utils::read.csv("C:/AnalyticFin/Projects/RiemannQL/comparison/baseline/lagrange_values.csv", stringsAsFactors = FALSE)
 bv <- function(key) base$value[match(key, base$key)]
 
 cmp <- function(item, api, ref, tol) data.frame(item = item, n = length(api), max_abs_diff = max(abs(api - ref)), tolerance = tol, pass = max(abs(api - ref)) <= tol)

@@ -48,14 +48,14 @@
 |  5. 信用リスクとCDS | 1年物（MidPoint）と標準5年物（CDS2015、ISDA）の各レグ・NPV・Fair Spread・Fair Upfront・Accrual Rebate、ゼロ NPV の Hazard Rate、支払日ごとの表と手計算。市場 Spread・契約 Coupon・Recovery・割引率を動かす（II-5.1〜5.6。GaussQuant・原稿の結果と差 0） | `#/credit-cds` |
 |  6. キャリブレーション | Normal・Black ボラの比較、SABR のスマイル（原稿の optim と calibrate_sabr）、Hull–White の債券オプションへの適合と未使用商品の検証、BGM の相関の減衰（II-6.1〜6.6。GaussQuant・原稿の結果に照合） | `#/irs-calibration` |
 |  7. 金利モデル | Hull–White の短期金利の経路と割引の検証、HJM のフォワードの変動係数、キャップレットの公式とモンテカルロ・満期のフォワードの分布、相関ショック、後決め金利の複利（II-7.1〜7.6。原稿のコードと原稿の結果に照合） | `#/rate-models` |
-|  8. 早期償還モデル | Hull–White のコール債（Bullet・Callable・コール権の価値、コール日ごとの判断、ボラティリティと格子の検証）、MBS のプリペイメント（シナリオ別の CPR と加重平均残存年数、金利経路、PSA 別の静的 OAS）（II-8.1〜8.8。原稿の結果に照合） | `#/early-redemption` |
+|  8. 早期償還モデル | Hull–White のコール債（Bullet・Callable・コール権の価値、コール日ごとの判断、ボラティリティと格子の検証）、MBS のプリペイメント（シナリオ別の CPR と加重平均残存年数、金利経路、PSA 別の静的 OAS）（II-8.1〜8.8。原稿の結果に照合）。コール判断（各コール日の、継続価値とコール価格の比べと境界）は rmql の `compute_hull_white_callable_bond_decisions`（0.4.0 から。以前は原稿の独自の R 関数で求めていたが、同じ結果を rmql が返す）で計算する | `#/early-redemption` |
 |  9. 並列計算 | Coral Book III-1 の本文に、6シナリオの逐次・並列の例、債券の件数とスレッド数を選んだ一括評価の測定、PRDC のモンテカルロのスレッド比較を組み込んだ章（結果はスレッド数によらず同じ） | `#/enterprise/parallel-computing` |
 | 10. 分散計算 | Coral Book III-2・III-3 の本文に、45シナリオをジョブに分けてブラウザから R API へ送り、集約する画面を組み込んだ章 | `#/enterprise/distributed-jobs` |
 | 11. 自動微分 | Coral Book III-4〜III-7 の本文（III-1.7 を導入に）に、PRDC の12の感応度を自動微分で一度に求めて Bump & Revalue（24回の評価）と比べる画面と、パスごとの自動微分のモンテカルロを組み込んだ章。旧ページ（`#/parallel`、`#/prdc-risk`、`#/enterprise/...`）からは、統合先の節へ移る。統合は `docs/port/merge_part3.py` | `#/enterprise/automatic-differentiation` |
 | 11.1 PRDC | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
 | サーバー接続 | rmql Compute Server（R の HTTP API）との接続の状態、往復の時間、利用者が開くアドレス、API の一覧。右上の「rmql Compute Server：接続中／未接続」からも開く | `#/server` |
 
-メニューと目次の番号は、主章が 1.〜11.、章の下のページが「2.1」「11.1」です（序論とサーバー接続は番号なし）。本文の見出しも同じ番号です。オファーシート（POC と ASW）は QuantLet に移したので、メニューと目次から外しました（`ui/src/asw/` のコードと API は残してあります）。
+メニューと目次の番号は、主章が 1.〜11.、章の下のページが「2.1」「11.1」です（序論とサーバー接続は番号なし）。本文の見出しも同じ番号です。上の帯は、左に EH マーク（淡いカーマイン、`ui/src/assets/eh-mark.svg`）、右に二段の文字「Carmine Studio」「エンタープライズ金融モデル」です。オファーシート（POC と ASW）は Infrago Quant に移したので、メニューと目次から外しました（`ui/src/asw/` のコードと API は残してあります）。
 
 ## 構成
 
@@ -63,8 +63,8 @@
 |---|---|---|
 | 計算（カーブ構築、割引係数、フォワード、7年OISのパーレートとPV） | R の **rmql**（ローカルHTTP API） | `server/` |
 | 画面（MDXの本文と数式、表、グラフ、操作） | React＋TypeScript（Vite） | `ui/src/` |
-| APIの回帰テスト | Vitest。照合済みJSONと比べる | `tests/` |
-| 照合済みJSONの生成 | R の rmql | `golden/` |
+| APIの回帰テスト | Vitest。照合済みJSONと比べる | `ui/tests/` |
+| 照合済みJSONの生成 | R の rmql | `server/tests/golden/` |
 | GaussQuant（QuantLib）との照合記録 | R | `server/tests/reconciliation/` |
 
 TypeScript は金融計算をしません。APIへの送信と、返ってきた値の表示だけを担当します。表示のために、2本のカーブの差（変更後 − 初期）を引き算することはあります。
@@ -78,7 +78,11 @@ TypeScript は金融計算をしません。APIへの送信と、返ってきた
 
 ## 起動（Windows）
 
-前提：R 4.6.0（`C:/Program Files/R/R-4.6.0`）に rmql 0.3.0、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。Node.js 26（npm 11）で確認しています。
+前提：R に **rmql 0.4.0 以上**、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。確認は R 4.6.0（`C:/Program Files/R/R-4.6.0`）、Node.js 26（npm 11）です。rmql（旧 RiemannFinMath。<https://github.com/besuke/RiemannQL>）は、Windows ではバイナリで入ります（R 4.4・4.5・4.6 用。Rust も Rtools も不要）。
+
+```r
+install.packages("rmql", repos = c("https://besuke.github.io/RiemannQL", "https://cloud.r-project.org"))
+```
 
 起動はプロジェクトの `CarmineStudio.ps1`（デスクトップのショートカット「Carmine Studio」）でできます。メニューの「1」でこのPCの開発用（rmql Compute Server 127.0.0.1:8787 と画面 http://127.0.0.1:8081/）、「2」で社内LANへの公開です（次の「社内LANで使う」）。引数でも選べます：
 
@@ -207,6 +211,8 @@ New-NetFirewallRule -DisplayName "Carmine Studio (TCP 8081)" -Direction Inbound 
 - 応答（`ui/src/api/types.ts`）：`conventions`、`quotes`（初期と変更後）、`swap_terms`（固定レート、日程）、`cases.base` と `cases.scenario`（`instruments`、`nodes`、`segments`、`curve_points` の日付・年数・割引係数・1日フォワード、`swap` のPV・両レグ・パーレート・キャッシュフロー）、`pv_change`、`par_change_bp`。数値は丸めていない倍精度です（17桁）。
 - `curve_points` は、30年までの週次と月次の日付、主要年限の応当日、ピラーとその前後の日、7年OISの開始日と満期日を含みます。最後のピラーより先へは外挿しません。
 
+`POST /api/curves/zero` と `POST /api/bond` は、任意の入力を持ちます（どれも省くと原稿の例）。曲線の `bump`（`{"tenor":"10Y","bp":100}`）は、1つのノードのゼロ金利だけを動かして曲線を作り直し、割引係数・ゼロクーポン債の価格・ゼロ金利の変化を `bump` に返します。債券の `bond.tradeDate`・`issueDate`・`maturityDate`（`YYYY-MM-DD`）は、取引日・発行日・償還日です（発行日の前後 1 年以内に取引日、発行日から 1〜60 年後に償還日）。範囲外や日付でない値は HTTP 400 です。どちらも Infrago Quant で先に作ったものを、2026-11-19 に移しました。
+
 `GET /api/health` は状態と固定レートを返します。APIは `127.0.0.1` だけで待ち受けます。
 
 すべての応答は `response.request_id` を持ちます。ページは要求ごとに `X-Request-Id` ヘッダーで ID を送り、サーバーはそれをそのまま返します（サーバーは状態を持ちません）。ページは、図・表・PV に同じ ID を表示し、送った ID と違う応答は受け付けません。
@@ -249,10 +255,11 @@ npm run golden
 ## テスト
 
 ```powershell
-npm test
+cd ui
+npm test      # Vitest。2026-11-20、rmql 0.4.0 で 16 ファイル・63 件がすべて合格
 ```
 
-テストは R API を `127.0.0.1:8788` で起動し（`ui/tests/globalSetup.ts`）、`{"bumpTenor":"5Y","bumpBp":1}` と `{"bumpTenor":"5Y","bumpBp":0}` を送って、照合済みJSONと比べます。ASW は `tests/asw.api.test.ts` と `tests/asw.poc.test.ts` が全オファーを Curie の旧デモの結果（`server/data/asw_demo/curie_reference.json`）と比べます（ASW・円換算 ASW・JGBスプレッド・ベーシス 1e-6 bp、利回り 1e-10 %、価格 1e-10、CCS 校正の残差 1e-6 円。結果は `test-results/asw-report.json`・`asw-poc-report.json`）。終わるとAPIを止めます。動いているAPIを使う場合は `LFL_TEST_API_URL=http://127.0.0.1:8787` を指定します。各項目の最大差は `test-results/regression-report.json` に書き出します。
+テストは R API を `127.0.0.1:8788` で起動し（`ui/tests/globalSetup.ts`）、`{"bumpTenor":"5Y","bumpBp":1}` と `{"bumpTenor":"5Y","bumpBp":0}` を送って、照合済みJSONと比べます。ASW は `ui/tests/asw.api.test.ts` と `ui/tests/asw.poc.test.ts` が全オファーを Curie の旧デモの結果（`server/data/asw_demo/curie_reference.json`）と比べます（ASW・円換算 ASW・JGBスプレッド・ベーシス 1e-6 bp、利回り 1e-10 %、価格 1e-10、CCS 校正の残差 1e-6 円。結果は `ui/test-results/asw-report.json`・`asw-poc-report.json`）。終わるとAPIを止めます。動いているAPIを使う場合は `LFL_TEST_API_URL=http://127.0.0.1:8787` を指定します。各項目の最大差は `ui/test-results/regression-report.json` に書き出します。
 
 ### 許容誤差と実測差（2026-11-14）
 
@@ -278,27 +285,34 @@ npm test
 ## ファイル
 
 ```
-server/server.R              R API（httpuv）
-server/R/tona_ois_model.R    円OIS：入力・規約と rmql の呼び出し
-server/R/asw_model.R         ASW：オファーと属性の結合、検証、rmql の呼び出し
-server/data/asw_demo/        ASW のデモデータ（Curie から複製、架空）
-ui/src/book/                    共通目次（toc.ts）、目次画面、ルーター
-ui/src/api/                     APIの型とクライアント
-ui/src/state/ScenarioContext.tsx  円OIS章の操作の状態とAPI呼び出し
-ui/src/components/              グラフ（LineChart、FlowChart）と円OIS章の部品（表示のみ）
-ui/src/content/           章の本文と数式（MDX）
-ui/src/asw/                     オファー一覧と詳細の画面
-server/scripts/             データ取得・複製のスクリプト（asw/・futures/・jgb/・capm/）
-server/tests/golden/      照合済みの基準 JSON（generate_golden.R が作る）
-server/tests/reconciliation/  GaussQuant と rmql の照合（asw/ は Curie の旧デモとの照合）
-ui/                          画面一式（src/・public/・index.html・package.json・vite.config.ts・scripts/・tests/）。npm はここで実行する
-ui/tests/                    APIの回帰テスト（Vitest）
-docs/port/                  Coral Book 第III部の移植ツールと記録
+README.md、CLAUDE.md          この文書と、Claude Code 向けの決めごと
+CarmineStudio.ps1            起動（dev / lan。npm は ui/ で動かす）
+Carmine.Rproj、carmine.config.example.json   RStudio のプロジェクト、配備設定の見本
+ui/                          画面一式。npm はここで実行する
+  src/book/                  共通目次（toc.ts）、目次画面、ルーター
+  src/api/                   APIの型とクライアント
+  src/components/            グラフ（LineChart、FlowChart）と各章の部品（表示のみ）
+  src/content/               章の本文と数式（MDX）
+  src/asw/                   オファー一覧と詳細の画面
+  src/assets/eh-mark.svg     上の帯の EH マーク
+  tests/                     APIの回帰テスト（Vitest）
+  scripts/                   check-port.mjs、run-r.mjs（R の起動）
+server/                      R API と計算
+  server.R                   R API（httpuv）
+  R/tona_ois_model.R         円OIS：入力・規約と rmql の呼び出し
+  R/asw_model.R              ASW：オファーと属性の結合、検証、rmql の呼び出し
+  data/asw_demo/             ASW のデモデータ（Curie から複製、架空）
+  scripts/                   データ取得・複製のスクリプト（asw/・futures/・jgb/・capm/）
+  tests/golden/              照合済みの基準 JSON（generate_golden.R が作る）
+  tests/reconciliation/      GaussQuant と rmql の照合（asw/ は Curie の旧デモとの照合）
+docs/port/                   Coral Book 第III部の移植ツールと記録
 ```
 
 ## 制約
 
 - 照合と期待値は「QuantLib の既定の規約（支払ラグ0、年1回払い）」によるもので、市場で標準とされる規約ではありません。
-- 7年OISの日付は、QuantLib の `MakeOIS` と同じ規則でR側で作ります（rmql には期間からスワップを作る関数がないため）。開始日が月末営業日の場合には対応していません。
-- rmql 0.3.0 の導入版のビルド元コミットは未確認です（`server/tests/reconciliation/RECONCILIATION.md` 6章）。
+- 7年OISの日付は、QuantLib の `MakeOIS` と同じ規則でR側で作ります。rmql には、期間からスワップの日付を作る `compute_ois_swap_dates` があります（0.4.0 に含まれる）が、この章はまだ使っていません（置き換えは未着手）。開始日が月末営業日の場合には対応していません。
+- 照合の記録（`server/tests/reconciliation/`）は、主に rmql 0.3.0 の時点のものです。rmql 0.4.0 で、全テスト（Vitest 16 ファイル・63 件）と、照合スクリプト（`reconcile`、`reconcile:asw`・`cds`・`black`・`callable`・`calibration`・`rate-models`・`prdc`・`prdc-risk`・`parallel`、`golden`、npm のスクリプトがない `futures` と `curves` は `node scripts/run-r.mjs ../server/tests/reconciliation/<名前>/<スクリプト>.R`）が、最後まで通ることを確かめました（2026-11-20）。記録済みの結果ファイルは更新していません。
+- `npm run reconcile:bond` は、rmql 0.3.2 以降で、日本式の複利利回りの小数の切り捨ての違いにより、7 項目が許容誤差を超えます（記録の最後の結果は rmql 0.3.0 のもの）。原因は、ライブラリー側の小数 4 桁の切り捨てだと考えていますが、未確認の推定です。
+- 改名の経緯：リポジトリは `carmine-studio` から `Carmine` に（2026-11-20）、計算ライブラリーは RiemannFinMath から `rmql` に（2026-11-19）。画面に出る名前の「Carmine Studio」は変えていません。
 - 計算にはR APIが必要です。ブラウザだけでは動きません。
