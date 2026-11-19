@@ -1,5 +1,4 @@
 import YieldCurveOis from "./content/yield-curve-ois.mdx";
-import ehMark from "./assets/eh-mark.svg";
 import YieldCurves from "./content/yield-curves.mdx";
 import JgbFutures from "./content/jgb-futures.mdx";
 import CreditCds from "./content/credit-cds.mdx";
@@ -195,7 +194,6 @@ export function App() {
     <ServerConnectionProvider>
       <header className="site-header">
         <a className="brand" href={href("/")} title="Carmine Studio">
-          <img className="brand-mark" src={ehMark} alt="" width={30} height={30} data-testid="brand-logo" />
           <span className="brand-text">
             <span className="brand-name">Carmine Studio</span>
             <span className="brand-sub">エンタープライズ金融モデル</span>

@@ -55,7 +55,7 @@
 | 11.1 PRDC | クーポンのペイオフ、FX のサンプルパス、現在価値（閉じた式とモンテカルロ）、期待クーポンの期間構造とフロア・キャップの確率、クーポンの分布、FX スポット・ボラ感応度（II-9.1〜9.6。原稿の結果に照合） | `#/prdc` |
 | サーバー接続 | rmql Compute Server（R の HTTP API）との接続の状態、往復の時間、利用者が開くアドレス、API の一覧。右上の「rmql Compute Server：接続中／未接続」からも開く | `#/server` |
 
-メニューと目次の番号は、主章が 1.〜11.、章の下のページが「2.1」「11.1」です（序論とサーバー接続は番号なし）。本文の見出しも同じ番号です。上の帯は、左に EH マーク（淡いカーマイン、`ui/src/assets/eh-mark.svg`）、右に二段の文字「Carmine Studio」「エンタープライズ金融モデル」です。オファーシート（POC と ASW）は Infrago Quant に移したので、メニューと目次から外しました（`ui/src/asw/` のコードと API は残してあります）。
+メニューと目次の番号は、主章が 1.〜11.、章の下のページが「2.1」「11.1」です（序論とサーバー接続は番号なし）。本文の見出しも同じ番号です。上の帯は、左に二段の文字「Carmine Studio」「エンタープライズ金融モデル」です。オファーシート（POC と ASW）は Infrago Quant に移したので、メニューと目次から外しました（`ui/src/asw/` のコードと API は残してあります）。
 
 ## 構成
 
@@ -294,7 +294,6 @@ ui/                          画面一式。npm はここで実行する
   src/components/            グラフ（LineChart、FlowChart）と各章の部品（表示のみ）
   src/content/               章の本文と数式（MDX）
   src/asw/                   オファー一覧と詳細の画面
-  src/assets/eh-mark.svg     上の帯の EH マーク
   tests/                     APIの回帰テスト（Vitest）
   scripts/                   check-port.mjs、run-r.mjs（R の起動）
 server/                      R API と計算
