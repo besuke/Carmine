@@ -78,7 +78,7 @@ TypeScript は金融計算をしません。APIへの送信と、返ってきた
 
 ## 起動（Windows）
 
-前提：R に **rmql 0.4.0 以上**、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。確認は R 4.6.0（`C:/Program Files/R/R-4.6.0`）、Node.js 26（npm 11）です。rmql（旧 RiemannFinMath。<https://github.com/besuke/RiemannQL>）は、Windows ではバイナリで入ります（R 4.4・4.5・4.6 用。Rust も Rtools も不要）。
+前提：R に **rmql 0.4.0 以上**、GaussQuant（サンプルのクォートだけに使う）、httpuv、jsonlite が入っていること。確認は R 4.6.0（`C:/Program Files/R/R-4.6.0`）、Node.js 26（npm 11）です。rmql（<https://github.com/besuke/RiemannQL>）は、Windows ではバイナリで入ります（R 4.4・4.5・4.6 用。Rust も Rtools も不要）。
 
 ```r
 install.packages("rmql", repos = c("https://besuke.github.io/RiemannQL", "https://cloud.r-project.org"))
@@ -313,5 +313,5 @@ docs/port/                   Coral Book 第III部の移植ツールと記録
 - 7年OISの日付は、QuantLib の `MakeOIS` と同じ規則でR側で作ります。rmql には、期間からスワップの日付を作る `compute_ois_swap_dates` があります（0.4.0 に含まれる）が、この章はまだ使っていません（置き換えは未着手）。開始日が月末営業日の場合には対応していません。
 - 照合の記録（`server/tests/reconciliation/`）は、主に rmql 0.3.0 の時点のものです。rmql 0.4.0 で、全テスト（Vitest 16 ファイル・63 件）と、照合スクリプト（`reconcile`、`reconcile:asw`・`cds`・`black`・`callable`・`calibration`・`rate-models`・`prdc`・`prdc-risk`・`parallel`、`golden`、npm のスクリプトがない `futures` と `curves` は `node scripts/run-r.mjs ../server/tests/reconciliation/<名前>/<スクリプト>.R`）が、最後まで通ることを確かめました（2026-11-20）。記録済みの結果ファイルは更新していません。
 - `npm run reconcile:bond` は、rmql 0.3.2 以降で、日本式の複利利回りの小数の切り捨ての違いにより、7 項目が許容誤差を超えます（記録の最後の結果は rmql 0.3.0 のもの）。原因は、ライブラリー側の小数 4 桁の切り捨てだと考えていますが、未確認の推定です。
-- 改名の経緯：リポジトリは `carmine-studio` から `Carmine` に（2026-11-20）、計算ライブラリーは RiemannFinMath から `rmql` に（2026-11-19）。画面に出る名前の「Carmine Studio」は変えていません。
+- 画面に出る名前は「Carmine Studio」、リポジトリ名は `Carmine`。
 - 計算にはR APIが必要です。ブラウザだけでは動きません。
